@@ -9,13 +9,13 @@ redirect_from:
 
 {% include base_path %}
 
-## Teaching in UC Berkeley
+* ## Teaching in UC Berkeley
 *ECON100 A* (Fall 2019), undergradguate level, University of California, Berkeley.
 
 *ECON1* (Fall 2018), undergradguate level, University of California, Berkeley.  
 
-
-## Teaching in Tel-Aviv University
+<br/><br/>
+* ## Teaching in Tel-Aviv University
 
 *Introduction to Econometrics* (Spring 2017), undergraduate level, Tel-Aviv University
 
