@@ -9,6 +9,5 @@ redirect_from:
 
 {% include base_path %}
 
-[Amir's](https://www.amirbar.net/) website - have a look!
+[Amir](https://www.amirbar.net/)'s website - have a look!
 
-``
