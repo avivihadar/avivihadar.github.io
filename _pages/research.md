@@ -20,5 +20,5 @@ To appear in May 2021 *AEA Papers and Proceedings*
 
 ## Old policy related work
 
-[**Expansion of Palestinian employment in Israel and its characteristics**](https://www.boi.org.il/en/NewsAndPublications/PressReleases/Pages/030315-PalestinianEmployment.aspx) with Haggay Etkes
+[**Expansion of Palestinian employment in Israel and its characteristics**](https://www.boi.org.il/en/NewsAndPublications/PressReleases/Pages/030315-PalestinianEmployment.aspx) with Haggay Etkes**
 Ch. 5  in Bank of Israel Annual Report, 2014
