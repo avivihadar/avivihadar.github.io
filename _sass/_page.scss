@@ -18,9 +18,9 @@
 
 .page {
   @include breakpoint($large) {
-    @include span(10 of 12 last);
-    @include prefix(0.5 of 12);
-    @include suffix(2 of 12);
+    @include span(11 of 12);
+    @include prefix(1 of 12);
+    @include suffix(1 of 12);
   }
 
   .page__inner-wrap {
@@ -49,14 +49,27 @@
 }
 
 .page__content {
+   
+  h1 {
+    margin-bottom: 1.5em;
+  }   
 
+  h4 {
+    margin-bottom: 1.5em;
+  }   
+   
   h2 {
     padding-bottom: 0.5em;
     border-bottom: 1px solid $border-color;
+    margin-top: 1em;
   }
 
-  p, li, dl {
-    font-size: 1em;
+  p {
+     font-size: 1em;
+  }
+   
+  li, dl {
+    font-size: $type-size-6;
   }
 
   /* paragraph indents */
@@ -73,7 +86,7 @@
   }
 
   a {
-    text-decoration: underline;
+    text-decoration: none;
 
     &:hover {
       text-decoration: underline;
@@ -84,8 +97,12 @@
     }
   }
 
+  li, dl {
+     margin-top: -1.4em;
+     margin-bottom: 2em;
+  }
+   
   dt {
-    margin-top: 1em;
     font-family: $sans-serif;
     font-weight: bold;
   }
@@ -93,7 +110,6 @@
   dd {
     margin-left: 1em;
     font-family: $sans-serif;
-    font-size: $type-size-6;
   }
 
   .small {
