@@ -9,7 +9,7 @@ redirect_from:
 ---
 
 
-<img class="img-responsive" style="float: left; margin: 10px 20px 20px 10px;" src="/images/profile.jpg" width="320"> I am a Ph.D. candidate in the Department of Economics at UC Berkeley. Prior to coming to Berkeley, I graduated from Tel-Aviv University and worked as a research assistant in The Hebrew University, The Israel Democracy Institute and The Research Department of Bank of Israel. 
+<img class="img-responsive" style="float: left; margin: 10px 20px 20px 10px;" src="/images/profile.jpg" width="320"> I am a Ph.D. candidate in the Department of Economics at UC Berkeley. Prior to coming to Berkeley, I graduated from Tel-Aviv University and worked as a research assistant at The Hebrew University, The Israel Democracy Institute and The Research Department of Bank of Israel. 
 
 My fields of interest are labor economics and applied econometrics. 
 
