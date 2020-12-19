@@ -13,7 +13,7 @@ redirect_from:
 
 My fields of interest are labor economics and applied econometrics. 
 
-You can contact me at havivi[at]berkeley[at]edu. 
+You can contact me at havivi[at]berkeley.edu. 
 
 You can find my CV [here](/files/CV_HA_Dec2020.pdf).      
 
