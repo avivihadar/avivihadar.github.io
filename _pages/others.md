@@ -15,9 +15,8 @@ The first (but not the last!) output is a descriptive statistics of the Israeli 
 
 The full report will be available soon on Drushim’s website. Here we provide just a few figures:
 
-<div>
-    <a href="https://plotly.com/~tslilaloni/1/?share_key=uPAX3jzAXW7qrYYIZNHcVF" target="_blank" title="Aggregate Demand Line" style="display: block; text-align: center;"><img src="https://plotly.com/~tslilaloni/1.png?share_key=uPAX3jzAXW7qrYYIZNHcVF" alt="Aggregate Demand Line" style="max-width: 100%;width: 600px;"  width="600" onerror="this.onerror=null;this.src='https://plotly.com/404.png';" /></a>
-    <script data-plotly="tslilaloni:1" sharekey-plotly="uPAX3jzAXW7qrYYIZNHcVF" src="https://plotly.com/embed.js" async></script>
-</div>
+<iframe width="600" height="500" frameborder="0" scrolling="no" src="//plotly.com/~tslilaloni/1.embed"></iframe>
 
-<iframe width="900" height="800" frameborder="0" scrolling="no" src="//plotly.com/~tslilaloni/1.embed"></iframe>
+<iframe width="600" height="500" frameborder="0" scrolling="no" src="//plotly.com/~tslilaloni/20.embed"></iframe>
+
+<iframe width="900" height="800" frameborder="0" scrolling="no" src="//plotly.com/~tslilaloni/65.embed"></iframe>
