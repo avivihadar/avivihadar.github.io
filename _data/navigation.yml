@@ -6,8 +6,8 @@ main:
   - title: "Teaching"
     url: /teaching/
     
-  - title: "Covid19 in Israel"
-    url: /covid19il/
+#  - title: "Others"
+#    url: /others/
  
   - title: "Personal"
     url: /personal/
