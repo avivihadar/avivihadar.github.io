@@ -19,3 +19,5 @@ The full report will be available soon on Drushim’s website. Here we provide j
     <a href="https://plotly.com/~tslilaloni/1/?share_key=uPAX3jzAXW7qrYYIZNHcVF" target="_blank" title="Aggregate Demand Line" style="display: block; text-align: center;"><img src="https://plotly.com/~tslilaloni/1.png?share_key=uPAX3jzAXW7qrYYIZNHcVF" alt="Aggregate Demand Line" style="max-width: 100%;width: 600px;"  width="600" onerror="this.onerror=null;this.src='https://plotly.com/404.png';" /></a>
     <script data-plotly="tslilaloni:1" sharekey-plotly="uPAX3jzAXW7qrYYIZNHcVF" src="https://plotly.com/embed.js" async></script>
 </div>
+
+<iframe width="900" height="800" frameborder="0" scrolling="no" src="//plotly.com/~tslilaloni/1.embed"></iframe>
