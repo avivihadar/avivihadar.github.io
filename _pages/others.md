@@ -19,7 +19,7 @@ The full report will be available soon on Drushim’s website. Here we provide j
 
 <iframe width="600" align="center" height="500" frameborder="0" scrolling="no" src="//plotly.com/~tslilaloni/336.embed"></iframe>
 
-<iframe width="600" height="500" frameborder="0" scrolling="no" src="//plotly.com/~tslilaloni/340.embed"></iframe>
+<p align="center"><iframe width="600" height="500" frameborder="0" scrolling="no" src="//plotly.com/~tslilaloni/340.embed"></iframe></p>
 
 
 <!---
