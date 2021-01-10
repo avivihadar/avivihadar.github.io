@@ -15,11 +15,11 @@ The first (but not the last!) output is a descriptive statistics of the Israeli 
 
 The full report will be available soon on Drushim’s website. Here we provide just a few figures:
 
-<iframe width="600" display:block margin:auto height="500" frameborder="0" scrolling="no" src="//plotly.com/~tslilaloni/342.embed"></iframe>
+<p align="center"><iframe width="610" height="500" frameborder="0" scrolling="no" src="//plotly.com/~tslilaloni/342.embed"></iframe></p>
 
-<iframe width="600" align="center" height="500" frameborder="0" scrolling="no" src="//plotly.com/~tslilaloni/336.embed"></iframe>
+<p align="center"><iframe width="610" height="500" frameborder="0" scrolling="no" src="//plotly.com/~tslilaloni/336.embed"></iframe></p>
 
-<p align="center"><iframe width="600" height="500" frameborder="0" scrolling="no" src="//plotly.com/~tslilaloni/340.embed"></iframe></p>
+<p align="center"><iframe width="610" height="500" frameborder="0" scrolling="no" src="//plotly.com/~tslilaloni/340.embed"></iframe></p>
 
 
 <!---
