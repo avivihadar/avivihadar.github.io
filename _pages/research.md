@@ -8,9 +8,7 @@ redirect_from:
 
 {% include base_path %}
 
-## Work in progress 
 
-*Gender Bias in Patent Applications*
 
 ## Published and accepted work
 
