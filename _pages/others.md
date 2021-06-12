@@ -7,8 +7,8 @@ redirect_from:
 
 {% include base_path %}
 
-# Covid19 and the labor market
-## Evidence from Israel
+# Two figures
+## Covid19 and the labor market, Israel
 
 [comment]: <> (In the early months of the Coronavirus pandemic, where no real-time labor market data were available, Tslil Aloni and I planted the seeds for a long-term collaboration with the Israeli job board .)
 
