@@ -78,9 +78,9 @@ analytics:
 
 # Site Author
 author:
-  name             : #"Hadar Avivi"
+  name             : "Hadar Avivi"
   avatar           : #"profile.png"
-  bio              : #"Economics PhD Candidate at the University of California, Berkeley."
+  bio              : "Economics PhD Candidate at the University of California, Berkeley."
   location         : "Berkeley, CA"
   employer         :
   googlescholar    : 
