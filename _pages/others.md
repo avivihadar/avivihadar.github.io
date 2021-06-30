@@ -1,8 +1,8 @@
 ---
-permalink: /others/
+permalink: /others_covid/
 author_profile: true
 redirect_from:
-  - /others
+  - /others_covid
 ---
 
 {% include base_path %}
