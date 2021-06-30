@@ -9,6 +9,9 @@ redirect_from:
 
 # Two figures
 ## Covid19 and the labor market, Israel
+Here are two figures we made as a part of a collaboration we ([Tslil Aloni](https://sites.google.com/view/tslil-aloni/home?authuser=0)  and I) started with a large Israeli job-board to share information about the labor market during COVID19. 
+The first graph shows the supply of workers as portrayed in this job-board website, while the second shows the demand activity on the side of the employers. 
+Looks like firms want workers!
 
 [comment]: <> (In the early months of the Coronavirus pandemic, where no real-time labor market data were available, Tslil Aloni and I planted the seeds for a long-term collaboration with the Israeli job board .)
 
