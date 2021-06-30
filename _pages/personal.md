@@ -1,13 +1,15 @@
 ---
-title: "Personal"
-permalink: /personal/
+title: "Others"
+permalink: /others/
 author_profile: true
 redirect_from:
-  - /personal
-  - /personal.html
+  - /others
+  - /others.html
 ---
 
 {% include base_path %}
 
-[Amir](https://www.amirbar.net/)'s website - have a look!
+* [*Live labor market graphs*](https://sites.google.com/view/tslil-aloni/labormarketcovid19?authuser=0)  - two figures of the Israeli labor market since COVID19 (with [Tslil Aloni](https://sites.google.com/view/tslil-aloni/home?authuser=0) )
+
+* [*Amir*](https://www.amirbar.net)'s website - have a look!
 
