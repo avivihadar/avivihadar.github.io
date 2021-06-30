@@ -13,6 +13,6 @@ redirect_from:
 
 
 ## Personal
-- ## [*Amir*](https://www.amirbar.net)'s website - have a look!
+- ## [*Amir*](https://www.amirbar.net)'s website - have a look! 
 
 
