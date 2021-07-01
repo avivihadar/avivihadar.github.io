@@ -16,11 +16,7 @@ redirect_from:
 - <span style="font-size:1.3em">  [Amir](https://www.amirbar.net)'s website - have a look! </span>
 
 <figure>
-  <img src="/images/Taco_berkeley.jpeg" alt="my alt text"/>
-  <figcaption>This is my caption text.</figcaption>
+  <figcaption>And here's Taco!</figcaption>
+  <img src="/images/Taco_berkeley.jpeg" alt="Taco!" style="width:50%"/>
 </figure>
 
-<span style="font-size:0.95em; align:center">And here's Taco! </span>
-<span style="font-size:0.95em; align:center">
-<img class="img-responsive" style="float: left; margin: 10px 20px 20px 10px;" src="/images/Taco_berkeley.jpeg" width="270">
-</span>
