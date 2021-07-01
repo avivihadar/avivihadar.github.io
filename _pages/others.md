@@ -15,10 +15,10 @@ redirect_from:
 ## Personal
 - <span style="font-size:1.3em">  [Amir](https://www.amirbar.net)'s website - have a look! </span>
 
-<p>
-    <img src="/images/Taco_berkeley.jpeg" width="270" alt>
-    <em>And here's Taco!</em>
-</p>
+<figure>
+  <img src="/images/Taco_berkeley.jpeg" alt="my alt text"/>
+  <figcaption>This is my caption text.</figcaption>
+</figure>
 
 <span style="font-size:0.95em; align:center">And here's Taco! </span>
 <span style="font-size:0.95em; align:center">
