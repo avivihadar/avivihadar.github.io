@@ -13,6 +13,6 @@ redirect_from:
 (with [Tslil Aloni](https://sites.google.com/view/tslil-aloni/home?authuser=0)) </span>
  
 ## Personal
-- <span style="font-size:1.5em">  [*Amir*](https://www.amirbar.net)'s website - have a look! </span>
-
+- <span style="font-size:1.5em">  [Amir](https://www.amirbar.net)'s website - have a look! </span>
+<img class="img-responsive" style="float: left; margin: 10px 20px 20px 10px;" src="/images/Taco_berkeley.jpg" width="220">
 
