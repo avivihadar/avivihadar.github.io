@@ -14,5 +14,6 @@ redirect_from:
  
 ## Personal
 - <span style="font-size:1.3em">  [Amir](https://www.amirbar.net)'s website - have a look! </span>
-- Taco!
-<img class="img-responsive" style="float: left; margin: 10px 20px 20px 10px;" src="/images/Taco_berkeley.jpeg" width="220">
+
+And here's Taco!
+<img class="img-responsive" style="float: left; margin: 10px 20px 20px 10px;" src="/images/Taco_berkeley.jpeg" width="280">
