@@ -9,7 +9,7 @@ redirect_from:
 figcaption {
   font-size: 13px;
   color: black;
-  text-align: center;
+  text-align: left;
   height: auto;
   word-wrap: break-word;
 }
@@ -24,5 +24,5 @@ figcaption {
 - <span style="font-size:1.3em">  [Amir](https://www.amirbar.net)'s website - have a look! </span>
 
 <figcaption>And here's Taco!</figcaption>
-<img src="/images/Taco_berkeley.jpeg" alt="Taco!" width="180" align="left"/>
+<img src="/images/Taco_berkeley.jpeg" alt="Taco!" width="200" align="left"/>
 
