@@ -28,6 +28,6 @@ figcaption {
 ## Personal
 - <span style="font-size:1.3em">  [Amir](https://www.amirbar.net)'s website - have a look! </span>
 
-::marker <figcaption>And here's Taco!</figcaption>
+<figcaption>And here's Taco!</figcaption>
 <img src="/images/Taco_berkeley.jpeg" alt="Taco!" width="260" align="left"/>
 
