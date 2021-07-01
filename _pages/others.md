@@ -6,6 +6,10 @@ redirect_from:
   - /others.html
 ---
 <style>
+figure {
+  padding: 4px;
+  margin: auto;
+}
 figcaption {
   font-size: 15px;
   color: black;
