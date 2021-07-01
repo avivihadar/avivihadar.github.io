@@ -12,6 +12,7 @@ figcaption {
   text-align: left;
   height: auto;
   word-wrap: break-word;
+  font-family: -apple-system,".SFNSText-Regular","San Francisco","Roboto","Segoe UI","Helvetica Neue","Lucida Grande",Arial,sans-serif;
 }
 </style>
 
@@ -24,5 +25,5 @@ figcaption {
 - <span style="font-size:1.3em">  [Amir](https://www.amirbar.net)'s website - have a look! </span>
 
 <figcaption>And here's Taco!</figcaption>
-<img src="/images/Taco_berkeley.jpeg" alt="Taco!" width="200" align="left"/>
+<img src="/images/Taco_berkeley.jpeg" alt="Taco!" width="220" align="left"/>
 
