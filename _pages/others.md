@@ -7,14 +7,14 @@ redirect_from:
 ---
 <style>
 figure {
-  padding: 4px;
-  margin: auto;
-}
+  margin-left: 30px;
+    }
 figcaption {
   font-size: 15px;
   color: black;
   text-align: left;
   height: auto;
+  margin-left: 30px;
   word-wrap: break-word;
   font-family: -apple-system,".SFNSText-Regular","San Francisco","Roboto","Segoe UI","Helvetica Neue","Lucida Grande",Arial,sans-serif;
 }
