@@ -7,8 +7,11 @@ redirect_from:
 ---
 <style>
 figcaption {
-  padding: 2px;
+  font-size: 12px;
+  color: black;
   text-align: center;
+  height: auto;
+  word-wrap: break-word;
 }
 </style>
 
