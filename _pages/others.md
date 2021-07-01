@@ -22,6 +22,6 @@ figcaption {
 
 <figure>
   <figcaption>And here's Taco!</figcaption>
-  <img src="/images/Taco_berkeley.jpeg" alt="Taco!" width="150"/>
+  <img src="/images/Taco_berkeley.jpeg" alt="Taco!" width="100" align="left"/>
 </figure>
 
