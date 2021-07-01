@@ -5,7 +5,12 @@ redirect_from:
   - /others
   - /others.html
 ---
-
+<style>
+figcaption {
+  padding: 2px;
+  text-align: center;
+}
+</style>
 
 {% include base_path %}
 ## Others
@@ -17,6 +22,6 @@ redirect_from:
 
 <figure>
   <figcaption>And here's Taco!</figcaption>
-  <img src="/images/Taco_berkeley.jpeg" alt="Taco!" style="width:50%"/>
+  <img src="/images/Taco_berkeley.jpeg" alt="Taco!" width="150"/>
 </figure>
 
