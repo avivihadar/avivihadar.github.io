@@ -6,7 +6,7 @@ redirect_from:
   - /others.html
 ---
 <style>
-figure {
+img {
   margin-left: 30px;
     }
 figcaption {
