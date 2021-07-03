@@ -11,6 +11,7 @@ redirect_from:
 
 ## Work in progress
 *Gender Bias in Patent Applications*
+
 <!---
 [comment]: <> (
 *Parents' Job Loss and Children's Mobility: Evidence from Israel* (with [Tslil Aloni](https://sites.google.com/view/tslil-aloni/home?authuser=0)) 
@@ -21,6 +22,7 @@ redirect_from:
 *Heterogeneous Location Effects* (with [Tslil Aloni](https://sites.google.com/view/tslil-aloni/home?authuser=0)) 
 }
 -->
+
 ## Published and accepted work
 
 [*Adaptive Correspondence Experiments*](https://eml.berkeley.edu/~pkline/papers/skynet.pdf) (with [Patrick Kline](https://eml.berkeley.edu/~pkline/), [Evan Rose](https://ekrose.github.io/) and [Christopher Walters](https://eml.berkeley.edu/~crwalters/))   
