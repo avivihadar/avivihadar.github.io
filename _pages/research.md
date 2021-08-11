@@ -13,13 +13,13 @@ redirect_from:
 *Gender Bias in Patent Applications*
 
 <!---
-[comment]: <> (
+
 *Parents' Job Loss and Children's Mobility: Evidence from Israel* (with [Tslil Aloni](https://sites.google.com/view/tslil-aloni/home?authuser=0)) 
 
 *Head to the Foxes or Tail to the Lions? The Importance of Childhood Relative Earnings* (with [Tslil Aloni](https://sites.google.com/view/tslil-aloni/home?authuser=0) and 
 [Tom Zohar](https://web.stanford.edu/~tzohar/))
 
-*Heterogeneous Location Effects* (with [Tslil Aloni](https://sites.google.com/view/tslil-aloni/home?authuser=0)) 
+*Many Promises One Land: Heterogeneous Childhood Location Effects* (with [Tslil Aloni](https://sites.google.com/view/tslil-aloni/home?authuser=0)) 
 }
 -->
 
