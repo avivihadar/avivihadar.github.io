@@ -17,7 +17,7 @@
 }
 
 .page {
-  @include breakpoint($large) {
+  @include breakpoint($x-large) {
     @include span(11 of 12);
     @include prefix(1 of 12);
     @include suffix(1 of 12);
@@ -65,7 +65,7 @@
   }
 
   p {
-     font-size: 1em;
+     font-size: 0.9em;
   }
    
   li, dl {
