@@ -10,7 +10,8 @@ redirect_from:
 
 
 ## Work in progress
-*Gender Bias in Patent Applications*
+
+**Gender Bias in Patent Applications**
 
 <!---
 
