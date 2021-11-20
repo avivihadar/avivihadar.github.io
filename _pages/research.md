@@ -11,7 +11,7 @@ redirect_from:
 
 ## Work in progress
 
-**Gender Bias in Patent Applications**
+<span style="color:$info-color">**Gender Bias in Patent Applications**</span>
 
 <!---
 
