@@ -32,9 +32,9 @@ $garamond                   : Garamond, serif;
 /*$global-font-family         : $sans-serif;
 $header-font-family         : $sans-serif;
 $caption-font-family        : $serif; */
-$global-font-family         : $serif;
-$header-font-family         : $serif;
-$caption-font-family        : $serif;
+$global-font-family         : $lucida;
+$header-font-family         : $lucida;
+$caption-font-family        : $lucida;
 
 
 /* type scale */
@@ -55,7 +55,7 @@ $type-size-8                : 0.625em;  // ~10px
 $gray                       : #7a8288;
 $dark-gray                  : mix(#000, $gray, 40%);
 $darker-gray                : mix(#000, $gray, 60%);
-$darkest                    : mix(#000, $gray, 90%);
+$darkest                    : mix(#000, $gray, 80%);
 $light-gray                 : mix(#fff, $gray, 50%);
 $lighter-gray               : mix(#fff, $gray, 90%);
 
