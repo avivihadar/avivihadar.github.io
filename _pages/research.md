@@ -9,7 +9,7 @@ redirect_from:
 {% include base_path %}
 
 
-## Work in progress
+### Work in progress
 
 <span style="color:#3b5998">*Gender Bias in Patent Applications*</span>
 
@@ -24,7 +24,7 @@ redirect_from:
 }
 -->
 
-## Published and accepted work
+### Published and accepted work
 
 [**Adaptive Correspondence Experiments**](https://eml.berkeley.edu/~pkline/papers/skynet.pdf) (with [Patrick Kline](https://eml.berkeley.edu/~pkline/), [Evan Rose](https://ekrose.github.io/) and [Christopher Walters](https://eml.berkeley.edu/~crwalters/))   
 *AEA Papers and Proceedings*, 111 (May 2021), pp. 43-48. \
