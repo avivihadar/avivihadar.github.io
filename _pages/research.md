@@ -31,7 +31,10 @@ redirect_from:
 [Slides](/files/AdaptiveCorrespondenceExperiments_Slides.pdf) | [Code](/files/AdaptiveCorrespondenceExperiments_code.zip) 
 
 
-## Pre-doctoral Policy Papers
+
+<br/><br/>
+# Pre-doctoral Policy Papers
+
 [**Expansion of Palestinian Employment in Israel and its Characteristics**](https://www.boi.org.il/en/NewsAndPublications/PressReleases/Pages/030315-PalestinianEmployment.aspx) (with Haggay Etkes)  Ch. 5  in Bank of Israel Annual Report, 2014
 
 [**Fixed Capital Formation in the Israeli Healthcare System**](https://www.boi.org.il/he/NewsAndPublications/PressReleases/Pages/19-11-2014-Seker138-Health.aspx) (with Eran Politzer) box in Recent Economic Developments 138, 2015
