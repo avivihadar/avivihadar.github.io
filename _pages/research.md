@@ -13,9 +13,10 @@ redirect_from:
 
 <span style="color:#3b5998">*Gender Bias in Patent Applications*</span>
 
+<!---
 <span style="color:#3b5998">*One Land, Many Promises: Heterogeneous Childhood Location Effects*</span> (with [Tslil Aloni](https://sites.google.com/view/tslil-aloni/home?authuser=0)) 
 
-<!---
+
 
 **Parents' Job Loss and Children's Mobility: Evidence from Israel** (with [Tslil Aloni](https://sites.google.com/view/tslil-aloni/home?authuser=0)) 
 
@@ -32,10 +33,12 @@ redirect_from:
 [Slides](/files/AdaptiveCorrespondenceExperiments_Slides.pdf) | [Code](/files/AdaptiveCorrespondenceExperiments_code.zip) 
 
 
-
+<!---
 <br/><br/>
 ### Pre-doctoral Policy Papers
 
 [**Expansion of Palestinian Employment in Israel and its Characteristics**](https://www.boi.org.il/en/NewsAndPublications/PressReleases/Pages/030315-PalestinianEmployment.aspx) (with Haggay Etkes)  Ch. 5  in Bank of Israel Annual Report, 2014
 
 [**Fixed Capital Formation in the Israeli Healthcare System** (Hebrew)](https://www.boi.org.il/he/NewsAndPublications/PressReleases/Pages/19-11-2014-Seker138-Health.aspx) (with Eran Politzer) box in Recent Economic Developments 138, 2014
+
+-->
