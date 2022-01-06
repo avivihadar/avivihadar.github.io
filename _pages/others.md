@@ -20,6 +20,7 @@ figcaption {
 }
 figure {
   display: inline-block;
+  width: 50px;
 }
 
 figcaption {
