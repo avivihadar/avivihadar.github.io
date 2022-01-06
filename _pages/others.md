@@ -31,6 +31,13 @@ figcaption {
 
 [**Fixed Capital Formation in the Israeli Healthcare System** (Hebrew)](https://www.boi.org.il/he/NewsAndPublications/PressReleases/Pages/19-11-2014-Seker138-Health.aspx) (with Eran Politzer) box in Recent Economic Developments 138, 2014
 
+### Research Partners
+I am thankful to the many, organizations who support and fund our research!
+<a href="https://www.gov.il/en/departments/units/department_chief_economist/govil-landing-page">
+  <img src="/images/Ministry_of_Finance.svg.png" width="100">
+</a>
+The Chief Economist, Ministry of Finance
+
 ### Personal
 - <span style="font-size:1.3em">  [Amir](https://www.amirbar.net)'s website - have a look! </span>
 
