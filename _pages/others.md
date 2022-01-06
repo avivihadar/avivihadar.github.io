@@ -20,7 +20,7 @@ figcaption {
 }
 figure {
   display: inline-block;
-  width: 70px;
+  width: 80px;
   text-align: center;
   font-style: italic;
   font-size: x-small;
@@ -28,6 +28,7 @@ figure {
   padding: 0.5em;
   margin: 0.5em;
   float: left;
+  align-content: center;
 }
 
 /*figcaption {*/
