@@ -20,7 +20,7 @@ figcaption {
 }
 figure {
   display: inline-block;
-  width: 80px;
+  width: 90px;
   text-align: center;
   font-style: italic;
   font-size: x-small;
@@ -66,6 +66,14 @@ figure {
       <p>
       <img src="/images/Lamas.jpeg" alt="CBS" style="float: right" >
       </p>The Israeli Central Bureau of Statistics
+    </a>
+</figure>
+
+<figure>
+    <a href="https://www.daxtra.com/"> 
+      <p>
+      <img src="/images/daxtra.png" alt="daxtra" style="float: right" >
+      </p>DaXtra Parser
     </a>
 </figure>
 
