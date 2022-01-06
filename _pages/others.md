@@ -52,7 +52,7 @@ figure {
 ### Research Partners
 <span style="font-size:1.05em"> I am thankful to the many organizations who support our research! </span> 
 
-<span style="alignment: top">
+<div style="alignment: top">
 <figure>
   <a href="https://www.gov.il/en/departments/units/department_chief_economist/govil-landing-page">
   <p>
@@ -76,7 +76,7 @@ figure {
       </p>DaXtra Parser
     </a>
 </figure>
-</span> 
+</div> 
 
 ### Personal
 - <span style="font-size:1.3em">  [Amir](https://www.amirbar.net)'s website - have a look! </span>
