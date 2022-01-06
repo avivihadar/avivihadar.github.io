@@ -27,7 +27,7 @@ figure {
   border: thin silver solid;
   padding: 0.5em;
   margin: 0.5em;
-  float: left;
+  /*float: left;*/
   align-content: center;
 }
 
@@ -50,13 +50,13 @@ figure {
 [**Fixed Capital Formation in the Israeli Healthcare System** (Hebrew)](https://www.boi.org.il/he/NewsAndPublications/PressReleases/Pages/19-11-2014-Seker138-Health.aspx) (with Eran Politzer) box in Recent Economic Developments 138, 2014
 
 ### Research Partners
-<span style="font-size:1em"> I am thankful to the many organizations who support and fund our research! </span> 
+<span style="font-size:1.05em"> I am thankful to the many organizations who support and fund our research! </span> 
 
 
 <figure>
   <a href="https://www.gov.il/en/departments/units/department_chief_economist/govil-landing-page">
   <p>
-  <img src="/images/Ministry_of_Finance.svg.png" alt="Chief_Economist" >
+  <img src="/images/Ministry_of_Finance.svg.png" alt="Chief_Economist" style="float: right" >
   </p>The Chief Economist, Ministry of Finance
   </a>
 </figure>
@@ -64,7 +64,7 @@ figure {
 <figure>
     <a href="https://www.cbs.gov.il/en/Pages/default.aspx"> 
       <p>
-      <img src="/images/Lamas.jpeg" alt="CBS" >
+      <img src="/images/Lamas.jpeg" alt="CBS" style="float: right" >
       </p>The Israeli Central Bureau of Statistics
     </a>
 </figure>
