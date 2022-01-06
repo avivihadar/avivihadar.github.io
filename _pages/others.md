@@ -23,7 +23,11 @@ figure {
   width: 70px;
   text-align: center;
   font-style: italic;
-  font-size: smaller;
+  font-size: x-small;
+  border: thin silver solid;
+  padding: 0.5em;
+  margin: 0.5em;
+  float: left;
 }
 
 /*figcaption {*/
