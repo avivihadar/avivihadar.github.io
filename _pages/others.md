@@ -9,7 +9,7 @@ redirect_from:
 img {
   margin-left: 30px;
     }
-figcaption {
+caption {
   font-size: 15px;
   color: black;
   text-align: left;
@@ -20,7 +20,7 @@ figcaption {
 }
 figure {
   display: inline-block;
-  width: 60px;
+  width: 70px;
 }
 
 figcaption {
@@ -45,13 +45,13 @@ figcaption {
 
 <a href="https://www.gov.il/en/departments/units/department_chief_economist/govil-landing-page">
   <figure>
-  <img src="/images/Ministry_of_Finance.svg.png" alt="Chief_Economist" width="50">
+  <img src="/images/Ministry_of_Finance.svg.png" alt="Chief_Economist" >
   <figcaption>The Chief Economist, Ministry of Finance</figcaption>
   </figure>
 </a>
 <a href="https://www.cbs.gov.il/en/Pages/default.aspx">
   <figure>
-  <img src="/images/Lamas.jpeg" alt="CBS" width="50">
+  <img src="/images/Lamas.jpeg" alt="CBS" >
   <figcaption>The Israeli Central Bureau of Statistics</figcaption>
   </figure>
 </a>
@@ -59,6 +59,6 @@ figcaption {
 ### Personal
 - <span style="font-size:1.3em">  [Amir](https://www.amirbar.net)'s website - have a look! </span>
 
-<figcaption>And here's Taco!</figcaption>
+<caption>And here's Taco!</caption>
 <img src="/images/Taco_berkeley.jpeg" alt="Taco!" width="260" align="left"/>
 
