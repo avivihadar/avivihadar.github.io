@@ -6,9 +6,9 @@ redirect_from:
   - /teaching
   - /teaching.html
 ---
-
+<!---
 {% include base_path %}
-
+-->
 ## Teaching in UC Berkeley
 *ECON100 A* (Fall 2019), undergradguate level, University of California, Berkeley.
 
