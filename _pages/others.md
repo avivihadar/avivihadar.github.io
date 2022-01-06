@@ -9,7 +9,7 @@ redirect_from:
 img {
   margin-left: 30px;
     }
-caption {
+figcaption {
   font-size: 15px;
   color: black;
   text-align: left;
@@ -21,12 +21,16 @@ caption {
 figure {
   display: inline-block;
   width: 70px;
+  text-align: center;
+  font-style: italic;
+  font-size: smaller;
 }
 
-figcaption {
-  text-align: center;
-  font-size: 10px;
-}
+/*figcaption {*/
+/*  text-align: center;*/
+/*  font-size: 10px;*/
+/*}*/
+
 </style>
 
 {% include base_path %}
@@ -41,7 +45,7 @@ figcaption {
 [**Fixed Capital Formation in the Israeli Healthcare System** (Hebrew)](https://www.boi.org.il/he/NewsAndPublications/PressReleases/Pages/19-11-2014-Seker138-Health.aspx) (with Eran Politzer) box in Recent Economic Developments 138, 2014
 
 ### Research Partners
-<span style="font-size:1.3em"> I am thankful to the many organizations who support and fund our research! </span> 
+- <span style="font-size:0.9em"> I am thankful to the many organizations who support and fund our research! </span> 
 
 <a href="https://www.gov.il/en/departments/units/department_chief_economist/govil-landing-page">
   <figure>
@@ -59,6 +63,6 @@ figcaption {
 ### Personal
 - <span style="font-size:1.3em">  [Amir](https://www.amirbar.net)'s website - have a look! </span>
 
-<caption>And here's Taco!</caption>
-<img src="/images/Taco_berkeley.jpeg" alt="Taco!" width="260" align="left"/>
+<figcaption>And here's Taco!</figcaption>
+<img src="/images/Taco_berkeley.jpeg" alt="Taco!" width="260" >
 
