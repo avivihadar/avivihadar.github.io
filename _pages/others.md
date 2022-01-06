@@ -18,6 +18,13 @@ figcaption {
   word-wrap: break-word;
   font-family: -apple-system,".SFNSText-Regular","San Francisco","Roboto","Segoe UI","Helvetica Neue","Lucida Grande",Arial,sans-serif;
 }
+figure {
+  display: inline-block;
+}
+
+figcaption {
+  text-align: center;
+}
 </style>
 
 {% include base_path %}
@@ -32,14 +39,18 @@ figcaption {
 [**Fixed Capital Formation in the Israeli Healthcare System** (Hebrew)](https://www.boi.org.il/he/NewsAndPublications/PressReleases/Pages/19-11-2014-Seker138-Health.aspx) (with Eran Politzer) box in Recent Economic Developments 138, 2014
 
 ### Research Partners
-I am thankful to the many organizations who support and fund our research! \
+<span style="font-size:1.3em"> I am thankful to the many organizations who support and fund our research! </span> \
 <a href="https://www.gov.il/en/departments/units/department_chief_economist/govil-landing-page">
-  <img src="/images/Ministry_of_Finance.svg.png" alt="Chief_Economist" width="90">
-  The Chief Economist, Ministry of Finance
+  <figure>
+  <img src="/images/Ministry_of_Finance.svg.png" alt="Chief_Economist" width="50">
+  <figcaption>The Chief Economist, Ministry of Finance</figcaption>
+  </figure>
 </a>
 <a href="https://www.cbs.gov.il/en/Pages/default.aspx">
-  <img src="/images/Lams.svg.png" alt="CBS" width="90">
-  The Israeli Central Bureau of Statistics
+  <figure>
+  <img src="/images/Lamas.svg.png" alt="CBS" width="50">
+  <figcaption>The Israeli Central Bureau of Statistics</figcaption>
+  </figure>
 </a>
 
 ### Personal
