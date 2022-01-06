@@ -60,15 +60,15 @@ figure {
   </a>
 </figure>
 
-<a href="https://www.cbs.gov.il/en/Pages/default.aspx">
-  <figure>
-  <p>
-  <img src="/images/Lamas.jpeg" alt="CBS" >
-  </p>The Israeli Central Bureau of Statistics
-  </figure>
-</a>
-\
+<figure>
+    <a href="https://www.cbs.gov.il/en/Pages/default.aspx"> 
+      <p>
+      <img src="/images/Lamas.jpeg" alt="CBS" >
+      </p>The Israeli Central Bureau of Statistics
+    </a>
+</figure>
 
+<br/><br/>
 ### Personal
 - <span style="font-size:1.3em">  [Amir](https://www.amirbar.net)'s website - have a look! </span>
 
