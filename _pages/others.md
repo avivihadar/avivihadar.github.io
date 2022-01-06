@@ -25,6 +25,7 @@ figure {
 
 figcaption {
   text-align: center;
+  font-size: 10px;
 }
 </style>
 
@@ -49,7 +50,7 @@ figcaption {
 </a>
 <a href="https://www.cbs.gov.il/en/Pages/default.aspx">
   <figure>
-  <img src="/images/Lamas.svg.png" alt="CBS" width="50">
+  <img src="/images/Lamas.jpeg" alt="CBS" width="50">
   <figcaption>The Israeli Central Bureau of Statistics</figcaption>
   </figure>
 </a>
