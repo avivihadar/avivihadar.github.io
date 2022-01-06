@@ -25,8 +25,8 @@ figure {
   font-style: italic;
   font-size: x-small;
   /*border: thin silver solid;*/
-  padding: 0.5em;
-  margin: 0.5em;
+  padding: 0.2em;
+  margin: 1.1em;
   /*float: left;*/
   align-content: center;
 }
@@ -52,7 +52,7 @@ figure {
 ### Research Partners
 <span style="font-size:1.05em"> I am thankful to the many organizations who support our research! </span> 
 
-
+<span style="alignment: top">
 <figure>
   <a href="https://www.gov.il/en/departments/units/department_chief_economist/govil-landing-page">
   <p>
@@ -76,6 +76,7 @@ figure {
       </p>DaXtra Parser
     </a>
 </figure>
+</span> 
 
 ### Personal
 - <span style="font-size:1.3em">  [Amir](https://www.amirbar.net)'s website - have a look! </span>
