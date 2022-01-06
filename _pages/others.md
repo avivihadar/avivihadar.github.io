@@ -51,7 +51,7 @@ figure {
 [**Fixed Capital Formation in the Israeli Healthcare System** (Hebrew)](https://www.boi.org.il/he/NewsAndPublications/PressReleases/Pages/19-11-2014-Seker138-Health.aspx) (with Eran Politzer) box in Recent Economic Developments 138, 2014
 
 ### Research Partners
-<span style="font-size:1.05em"> I am thankful to the many organizations who support our research! </span> 
+<span style="font-size:1.05em"> I am thankful to the organizations who support our research! </span> 
 
 <div style="alignment: top">
 <figure>
