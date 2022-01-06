@@ -15,6 +15,7 @@ redirect_from:
 
 <span style="color:#3b5998">*One Land, Many Promises: Heterogeneous Childhood Location Effects*</span> (with [Tslil Aloni](https://sites.google.com/view/tslil-aloni/home?authuser=0)) 
 
+**Who Insures Children from Parental Shocks?** (with [Tslil Aloni](https://sites.google.com/view/tslil-aloni/home?authuser=0)) 
 <!---
 
 **Parents' Job Loss and Children's Mobility: Evidence from Israel** (with [Tslil Aloni](https://sites.google.com/view/tslil-aloni/home?authuser=0)) 

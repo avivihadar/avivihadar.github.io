@@ -29,6 +29,7 @@ figure {
   margin: 1.1em;
   /*float: left;*/
   align-content: center;
+  vertical-align: middle;
 }
 
 /*figcaption {*/
