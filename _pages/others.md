@@ -24,7 +24,7 @@ figure {
   text-align: center;
   font-style: italic;
   font-size: x-small;
-  border: thin silver solid;
+  /*border: thin silver solid;*/
   padding: 0.5em;
   margin: 0.5em;
   /*float: left;*/
@@ -50,7 +50,7 @@ figure {
 [**Fixed Capital Formation in the Israeli Healthcare System** (Hebrew)](https://www.boi.org.il/he/NewsAndPublications/PressReleases/Pages/19-11-2014-Seker138-Health.aspx) (with Eran Politzer) box in Recent Economic Developments 138, 2014
 
 ### Research Partners
-<span style="font-size:1.05em"> I am thankful to the many organizations who support and fund our research! </span> 
+<span style="font-size:1.05em"> I am thankful to the many organizations who support our research! </span> 
 
 
 <figure>
@@ -69,7 +69,6 @@ figure {
     </a>
 </figure>
 
-<br/><br/>
 ### Personal
 - <span style="font-size:1.3em">  [Amir](https://www.amirbar.net)'s website - have a look! </span>
 
