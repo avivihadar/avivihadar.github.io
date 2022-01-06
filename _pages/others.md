@@ -51,17 +51,20 @@ figure {
 ### Research Partners
 <span style="font-size:1.2em"> I am thankful to the many organizations who support and fund our research! </span> 
 
-<a href="https://www.gov.il/en/departments/units/department_chief_economist/govil-landing-page">
-  <figure>
+
+<figure>
+  <a href="https://www.gov.il/en/departments/units/department_chief_economist/govil-landing-page">
   <p>
   <img src="/images/Ministry_of_Finance.svg.png" alt="Chief_Economist" >
   </p>The Chief Economist, Ministry of Finance
-  </figure>
-</a>
+  </a>
+</figure>
+
 <a href="https://www.cbs.gov.il/en/Pages/default.aspx">
   <figure>
+  <p>
   <img src="/images/Lamas.jpeg" alt="CBS" >
-  <figcaption>The Israeli Central Bureau of Statistics</figcaption>
+  </p>The Israeli Central Bureau of Statistics
   </figure>
 </a>
 \
