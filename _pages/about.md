@@ -15,6 +15,6 @@ My fields of interest are labor economics and applied econometrics.
 
 You can contact me at havivi[at]berkeley.edu. 
 
-You can find my CV [here](/files/CV_HA_Feb2022.pdf).      
+You can find my CV [here](/files/CV_HA_May2022.pdf).      
 
   
