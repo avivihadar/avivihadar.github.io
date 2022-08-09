@@ -14,9 +14,9 @@ redirect_from:
 
 <span style="color:#3b5998">*One Land, Many Promises:  Neighborhood Recommendation in The Face of Heterogeneity*</span> (with [Tslil Aloni](https://sites.google.com/view/tslil-aloni/home?authuser=0)) 
 
-<span style="color:#3b5998">*Gender Bias in Patent Applications*</span>
+<span style="color:#3b5998">*Has the USPTO Become Gender Neutral?*</span>
 
-<span style="color:#3b5998">*Who Insures Children from Parental Shocks? Evidence from Mass Layoffs Events in Israel*</span> (with [Tslil Aloni](https://sites.google.com/view/tslil-aloni/home?authuser=0)) 
+<span style="color:#3b5998">*Can Government Transfers Insure Children from Parental Shocks? Evidence from Mass Layoffs Events in Israel*</span> (with [Tslil Aloni](https://sites.google.com/view/tslil-aloni/home?authuser=0)) 
 
 
 <!---
