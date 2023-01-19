@@ -12,7 +12,7 @@ redirect_from:
 ### Work in progress
 
 
-<span style="color:#3b5998">*One Land, Many Promises:  Neighborhood Recommendation in The Face of Heterogeneity*</span> (with [Tslil Aloni](https://sites.google.com/view/tslil-aloni/home?authuser=0)) 
+<span style="color:#3b5998">*One Land, Many Promises: Childhood Location and Immigrants' Assimilation*</span> (with [Tslil Aloni](https://sites.google.com/view/tslil-aloni/home?authuser=0)) 
 
 <span style="color:#3b5998">*Has the USPTO Become Gender Neutral?*</span>
 
