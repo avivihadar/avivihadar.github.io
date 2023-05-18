@@ -40,10 +40,12 @@ figure {
 </style>
 
 {% include base_path %}
+
+<!---
 ### Others
 - <span style="font-size:1.3em"> [*Live labor market graphs*](https://sites.google.com/view/tslil-aloni/labormarketcovid19?authuser=0)  - two figures of the Israeli labor market since COVID19  
 (with [Tslil Aloni](https://sites.google.com/view/tslil-aloni/home?authuser=0)) </span>
- 
+ -->
 ### Pre-doctoral Policy Papers
 
 [**Expansion of Palestinian Employment in Israel and its Characteristics**](https://www.boi.org.il/en/NewsAndPublications/PressReleases/Pages/030315-PalestinianEmployment.aspx) (with Haggay Etkes)  Ch. 5  in Bank of Israel Annual Report, 2014
@@ -84,4 +86,4 @@ figure {
 
 <figcaption>And here's Taco!</figcaption>
 <img src="/images/Taco_berkeley.jpeg" alt="Taco!" width="260" >
-
+<img src="/images/Taco_paint.jpeg" alt="Taco!" width="260" >
