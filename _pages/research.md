@@ -12,11 +12,11 @@ redirect_from:
 ### Work in progress
 
 
-<span style="color:#3b5998">*One Land, Many Promises: Childhood Location and Immigrants' Assimilation*</span> (with [Tslil Aloni](https://sites.google.com/view/tslil-aloni/home?authuser=0)) 
+<span style="color:#3b5998">*One Land, Many Promises: Childhood Location and Immigrants' Assimilation* (JMP) </span> (with [Tslil Aloni](https://sites.google.com/view/tslil-aloni/home?authuser=0)) 
 
 <span style="color:#3b5998">*Has the USPTO Become Gender Neutral?*</span>
 
-<span style="color:#3b5998">*Can Government Transfers Insure Children from Parental Shocks? Evidence from Mass Layoffs Events in Israel*</span> (with [Tslil Aloni](https://sites.google.com/view/tslil-aloni/home?authuser=0)) 
+<span style="color:#3b5998">*Cash Transfers and Intergenerational Insurance: Evidence from Mass Layoffs in Israel*</span> (with [Tslil Aloni](https://sites.google.com/view/tslil-aloni/home?authuser=0)) 
 
 
 <!---
