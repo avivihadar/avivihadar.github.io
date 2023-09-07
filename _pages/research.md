@@ -12,7 +12,7 @@ redirect_from:
 ### Work in progress
 
 
-<span style="color:#3b5998">*One Land, Many Promises: Childhood Location and Immigrants' Assimilation*  </span> <font size="-1">(JMP)</font> (with [Tslil Aloni](https://sites.google.com/view/tslil-aloni/home?authuser=0)) 
+<span style="color:#3b5998">*One Land, Many Promises: Consequences of Childhood Locations for Economic Outcomes of Immigrants and Natives*  </span> <font size="-1">(JMP)</font> (with [Tslil Aloni](https://sites.google.com/view/tslil-aloni/home?authuser=0)) 
 
 <span style="color:#3b5998">*Has the USPTO Become Gender Neutral?*</span>
 
