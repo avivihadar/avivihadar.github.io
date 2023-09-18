@@ -16,7 +16,7 @@ redirect_from:
 
 <span style="color:#3b5998">[**Cash Transfers and Intergenerational Insurance: Evidence from Mass Layoffs in Israel**](/files/Jobloss_children_reform.pdf)</span> (with [Tslil Aloni](https://sites.google.com/view/tslil-aloni/home?authuser=0)) 
 
-<span style="color:#3b5998">*Is the USPTO Gender Neutral?*</span> \
+<span style="color:#3b5998">*Is the USPTO Gender Neutral?*</span>  \
 <font size="-1">Draft coming soon...</font>
 
 <!--- 
