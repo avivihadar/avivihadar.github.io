@@ -12,7 +12,7 @@ redirect_from:
 ### Working papers
 
 
-<span style="color:#3b5998">*One Land, Many Promises: The Unequal Consequences of Childhood Location on Natives and Immigrants in Israel*  </span> <font size="-1">(JMP)</font> (with [Tslil Aloni](https://sites.google.com/view/tslil-aloni/home?authuser=0)) 
+<span style="color:#3b5998">*One Land, Many Promises: The Unequal Consequences of Childhood Location on Natives and Immigrants in Israel*  </span> <font size="-1">\[JMP\]</font> (with [Tslil Aloni](https://sites.google.com/view/tslil-aloni/home?authuser=0)) 
 
 
 <span style="color:#3b5998">*Is the USPTO Gender Neutral?*</span> \
