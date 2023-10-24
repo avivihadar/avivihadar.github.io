@@ -7,9 +7,10 @@ redirect_from:
   - /about/
   - /about.html
 ---
+<div style="margin: 40px;"> <!-- Adjust the "40px" to your desired margin value -->
 
 
-<img class="img-responsive" style="float: left; margin: 10px 20px 20px 10px;" src="/images/Hadar2.jpeg" width="310"> I am a Ph.D. candidate in the Department of Economics at UC Berkeley. My fields of interest are labor economics and applied econometrics, with a particular emphasis on studying intergenerational mobility and inequality. 
+<img class="img-responsive" style="float: left; margin: 10px 20px 20px 10px;" src="/images/Hadar2.jpeg" width="310"> Welcome! I am a Ph.D. candidate in the Department of Economics at UC Berkeley. My fields of interest are labor economics and applied econometrics, with a particular emphasis on studying intergenerational mobility and inequality. 
 
 **I am on the 2023-2024 academic job market**
 
@@ -26,3 +27,5 @@ You can find my CV [here](/files/CV_HA_June2023.pdf).
 Prior to coming to Berkeley, I graduated from Tel-Aviv University and worked as a research assistant at The Hebrew University, The Israeli Democracy Institute and The Research Department of Bank of Israel. 
 }
 -->
+
+</div>
