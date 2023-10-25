@@ -20,7 +20,7 @@ redirect_from:
 
 <span style="color:#3b5998">[**Cash Transfers and Intergenerational Insurance: Evidence from Mass Layoffs in Israel**](/files/Jobloss_children_reform.pdf)</span> (with [Tslil Aloni](https://sites.google.com/view/tslil-aloni/home?authuser=0)) 
 
-<span style="color:#3b5998">*The Gender Gap in Job Loss: The Role of Firms*</span> (with [Tslil Aloni](https://sites.google.com/view/tslil-aloni/home?authuser=0)) 
+<span style="color:#3b5998">*Gender Differences in the Effects of Job Displacement: the Role of Firms*</span> (with [Tslil Aloni](https://sites.google.com/view/tslil-aloni/home?authuser=0)) 
 
 
 
