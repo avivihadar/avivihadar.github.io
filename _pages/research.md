@@ -9,9 +9,12 @@ redirect_from:
 {% include base_path %}
 
 <style>
-/* Remove the default triangle */
-summary {
-  display: block;
+details > summary {
+    list-style-type: '▶️';
+}
+
+details[open] > summary {
+    list-style-type: '🔽';
 }
 
 /* Create a new custom triangle on the right side */
@@ -31,7 +34,7 @@ details[open] > summary::after {
 ### Working papers
 
 
-<span style="color:#3b5998">*One Land, Many Promises: The Unequal Consequences of Childhood Location on Natives and Immigrants in Israel*  </span> <font size="-1">[JMP]</font> <span style="font-size: 0.9em;">(Draft coming soon)</span> (with [Tslil Aloni](https://sites.google.com/view/tslil-aloni/home?authuser=0)) \
+<span style="color:#3b5998">*One Land, Many Promises: The Unequal Consequences of Childhood Location on Natives and Immigrants in Israel*  </span> <font size="-1">[JMP]</font> <span style="font-size: 0.9em;">(Draft coming soon)</span> (with [Tslil Aloni](https://sites.google.com/view/tslil-aloni/home?authuser=0))
 <details style="margin-bottom: 25px;">
     <summary style="font-size: 0.9em; margin-left: 20px;" > <strong style="font-size: 0.9em;">Abstract:</strong></summary>
     <div class="indented-text" style="font-size: 0.9em; margin-left: 20px;">
