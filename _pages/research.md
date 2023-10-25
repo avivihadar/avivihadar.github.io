@@ -17,16 +17,12 @@ details[open] > summary {
     list-style-type: '🔽';
 }
 
-details {
-    border: 1px solid gray;
-    border-radius: 0.2rem;
-    padding: 0.5rem;
-}
-
 details[open] > summary {
     margin-bottom: 0.5rem;
 }
-
+details[open] > summary::after {
+  transform: rotate(90deg);
+}
 
 </style>
 
