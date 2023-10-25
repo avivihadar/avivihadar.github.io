@@ -10,24 +10,21 @@ redirect_from:
 
 <style>
 details > summary {
-    list-style-type: none;
-    display: block;
+    list-style-type: '▶️';
 }
-details > summary::before {
-    content: '►'; /* or use any other character or string */
-    display: inline-block;
-    width: 20px;
-}
-details[open] > summary::before {
-    content: '🔽'; /* marker when details are expanded */
+
+details[open] > summary {
     list-style-type: '🔽';
-    transform: rotate(90deg);
 }
 
 details {
     border: 1px solid gray;
     border-radius: 0.2rem;
     padding: 0.5rem;
+}
+
+details[open] > summary {
+    margin-bottom: 0.5rem;
 }
 
 
