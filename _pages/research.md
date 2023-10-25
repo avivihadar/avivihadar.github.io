@@ -18,18 +18,6 @@ details[open] > summary {
     transform: rotate(90deg);
 }
 
-/* Create a new custom triangle on the right side */
-summary::after {
-  margin-left: 1ch;
-  display: inline-block;
-  content: '▶️';
-  transition: 0.2s;
-}
-
-details[open] > summary::after {
-  transform: rotate(90deg);
-}
-
 </style>
 
 ### Working papers
