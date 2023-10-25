@@ -12,11 +12,15 @@ redirect_from:
 ### Working papers
 
 
-<span style="color:#3b5998">*One Land, Many Promises: The Unequal Consequences of Childhood Location on Natives and Immigrants in Israel*  </span> <font size="-1">[JMP]</font> (with [Tslil Aloni](https://sites.google.com/view/tslil-aloni/home?authuser=0)) 
+<span style="color:#3b5998">*One Land, Many Promises: The Unequal Consequences of Childhood Location on Natives and Immigrants in Israel*  </span> <font size="-1">[JMP]</font> <span style="font-size: 0.9em;">(Draft coming soon)</span> (with [Tslil Aloni](https://sites.google.com/view/tslil-aloni/home?authuser=0)) 
 
+<span style="font-size: 0.9em;">
+This paper studies the causal effects of increased childhood exposure to Israeli cities on children's adult incomes. Variation in childhood location contributes substantial variability to the adult earnings of both native-born Israelis and immigrants from the Former Soviet Union. While the place effects of high-income families of both immigrants and native-born children are strongly related, location effects for low-income immigrants are found to be uncorrelated with location effects for low-income natives. Large, diverse cities are especially beneficial to immigrant children, while cities with high municipality welfare expenditure and crime rates tend to be detrimental to native children. We develop a policy targeting framework incorporating the constraint that the policymaker cannot make ethnicity-dependent location recommendations. Using empirical Bayes tools, we find that targeting policies based on population-wide city-level means yields inferior outcomes for immigrants. Robust targeting strategies designed to perform well against the least favorable sorting patterns reveal a set of 5 cities that are likely to be beneficial to children of both groups.
 
-<span style="color:#3b5998">*Is the USPTO Gender Neutral?*</span> \
-<span style="font-size: 0.8em;">Draft coming soon.</span>
+</span>
+
+<span style="color:#3b5998">*Is the USPTO Gender Neutral?*</span> <span style="font-size: 0.9em;">(Draft coming soon)</span>
+
 
 <span style="color:#3b5998">[**Cash Transfers and Intergenerational Insurance: Evidence from Mass Layoffs in Israel**](/files/Jobloss_children_reform.pdf)</span> (with [Tslil Aloni](https://sites.google.com/view/tslil-aloni/home?authuser=0)) 
 
