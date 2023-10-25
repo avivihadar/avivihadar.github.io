@@ -9,6 +9,11 @@ redirect_from:
 {% include base_path %}
 
 <style>
+/* Remove the default triangle */
+summary {
+  display: block;
+}
+
 details > summary {
     list-style-type: '▶️';
 }
