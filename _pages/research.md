@@ -15,6 +15,7 @@ details > summary {
 
 details[open] > summary {
     list-style-type: '🔽';
+    transform: rotate(90deg);
 }
 
 /* Create a new custom triangle on the right side */
