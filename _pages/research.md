@@ -14,17 +14,14 @@ summary {
   display: block;
 }
 
-details > summary {
-    list-style-type: '▶️';
+/* Create a new custom triangle on the right side */
+summary::after {
+  margin-left: 1ch;
+  display: inline-block;
+  content: '▶️';
+  transition: 0.2s;
 }
 
-details[open] > summary {
-    list-style-type: '🔽';
-}
-
-details[open] > summary {
-    margin-bottom: 0.5rem;
-}
 details[open] > summary::after {
   transform: rotate(90deg);
 }
