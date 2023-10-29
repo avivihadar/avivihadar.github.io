@@ -10,13 +10,13 @@ redirect_from:
 
 <style>
     details {
-      margin-top: -11px; /* Adjust as needed */
+      margin-top: -12px; /* Adjust as needed */
     }
 
     details > summary {
       list-style-type: none;
-      color: #3b5998; /* Dark blue color */
       cursor: pointer;
+      font-weight: bold;
     }
 
     details > summary::-webkit-details-marker {
@@ -41,7 +41,7 @@ redirect_from:
 ### Working papers
 
 
-<span style="color:#3b5998">**One Land, Many Promises: The Unequal Consequences of Childhood Location on Natives and Immigrants in Israel** </span> <font size="-1">[JMP]</font> <span style="font-size: 0.9em;">(Draft coming soon)</span> (with [Tslil Aloni](https://sites.google.com/view/tslil-aloni/home?authuser=0))
+<span style="color:#3b5998">[**One Land, Many Promises: The Unequal Consequences of Childhood Location on Natives and Immigrants in Israel**] </span> <font size="-1">[JMP]</font> <span style="font-size: 0.9em;">(Draft coming soon)</span> (with [Tslil Aloni](https://sites.google.com/view/tslil-aloni/home?authuser=0))
 
 <details style="margin-bottom: 25px;">
     <summary style="font-size: 0.8em; margin-left: 20px;" > Abstract:</summary>
@@ -50,7 +50,7 @@ redirect_from:
     </div>
 </details>
 
-<span style="color:#3b5998">**Is the USPTO Gender Neutral?**</span> <span style="font-size: 0.9em;">(Draft coming soon)</span>
+<span style="color:#3b5998">[**Is the USPTO Gender Neutral?**]</span> <span style="font-size: 0.9em;">(Draft coming soon)</span>
 
 <details style="margin-bottom: 25px;">
     <summary style="font-size: 0.8em; margin-left: 20px;" > Abstract:</summary>
