@@ -10,7 +10,7 @@ redirect_from:
 
 <style>
     details {
-      margin-top: -13px; /* Adjust as needed */
+      margin-top: -14px; /* Adjust as needed */
     }
 
     details > summary {
@@ -40,7 +40,7 @@ redirect_from:
 ### Working papers
 
 
-<span style="color:#3b5998">[**One Land, Many Promises: The Unequal Consequences of Childhood Location on Natives and Immigrants in Israel**] </span> <font size="-1">[JMP]</font> <span style="font-size: 0.9em;">(Draft coming soon)</span> (with [Tslil Aloni](https://sites.google.com/view/tslil-aloni/home?authuser=0))
+<span style="color:#3b5998">[**One Land, Many Promises: The Unequal Consequences of Childhood Location on Natives and Immigrants in Israel**]() </span> <font size="-0.1">[JMP]</font> <span style="font-size: 0.9em;">(Draft coming soon)</span> (with [Tslil Aloni](https://sites.google.com/view/tslil-aloni/home?authuser=0))
 
 <details style="margin-bottom: 25px;">
     <summary style="font-size: 0.8em; margin-left: 20px;" > Abstract:</summary>
@@ -49,7 +49,7 @@ redirect_from:
     </div>
 </details>
 
-<span style="color:#3b5998">[**Is the USPTO Gender Neutral?**]</span> <span style="font-size: 0.9em;">(Draft coming soon)</span>
+<span style="color:#3b5998">[**Is the USPTO Gender Neutral?**]()</span> <span style="font-size: 0.9em;">(Draft coming soon)</span>
 
 <details style="margin-bottom: 25px;">
     <summary style="font-size: 0.8em; margin-left: 20px;" > Abstract:</summary>
@@ -69,7 +69,7 @@ redirect_from:
     </div>
 </details>
 
-<span style="color:#3b5998">**Gender Differences in the Effects of Job Displacement: the Role of Firms**</span> (with [Tslil Aloni](https://sites.google.com/view/tslil-aloni/home?authuser=0)) 
+<span style="color:#3b5998">[**Gender Differences in the Effects of Job Displacement: the Role of Firms**]()</span> (with [Tslil Aloni](https://sites.google.com/view/tslil-aloni/home?authuser=0)) 
 
 <details style="margin-bottom: 25px;">
     <summary style="font-size: 0.8em; margin-left: 20px;" > Abstract:</summary>
