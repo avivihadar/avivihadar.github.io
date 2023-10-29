@@ -14,6 +14,7 @@ redirect_from:
     }
 
     details > summary {
+      list-style-type: none;
       cursor: pointer;
     }
 
@@ -27,7 +28,6 @@ redirect_from:
       margin-right: 5px;
       display: inline-block;
       transition: transform 0.5s ease;
-      transform: rotate(0deg);
       position: relative;
     }
 
