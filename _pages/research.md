@@ -10,11 +10,12 @@ redirect_from:
 
 <style>
     details {
-      margin-top: -10px; /* Adjust as needed */
+      margin-top: -11px; /* Adjust as needed */
     }
 
     details > summary::-webkit-details-marker {
       display: none;
+      color: #3b5998;
     }
 
     details > summary {
@@ -49,6 +50,13 @@ redirect_from:
 </details>
 
 <span style="color:#3b5998">*Is the USPTO Gender Neutral?*</span> <span style="font-size: 0.9em;">(Draft coming soon)</span>
+
+<details style="margin-bottom: 25px;">
+    <summary style="font-size: 0.8em; margin-left: 20px;" > Abstract:</summary>
+    <div class="indented-text" style="font-size: 0.8em; margin-left: 20px;">
+    This paper studies the prevalence and evolution of gender bias in the USPTO examination process and assesses the consequences of this bias on economic outcomes. Applying Natural Language Processing tools to patent applications submitted between 2001 and 2013, I estimate gender gaps conditional on the content of the patent application, thereby comparing allowance probabilities between teams of inventors with different gender compositions but similar inventions. Despite a substantial raw gender gap in the probability of initial allowance, I document that there is no average difference in initial allowance rates between mixed-gender and all-male teams.  This average masks important heterogeneity. Allowance rates for mixed-gender teams were significantly lower between 2001 and 2003, a gap that shrank to zero by 2005. Gender gaps also vary substantially across examiners, with bias against mixed-gender patents concentrated among senior examiners and bias in favor of women concentrated among young examiners. A mean zero gender gap with positive variance generates economic loss due to the misallocation of granting rights. Building on the methodology of Kogan et al. (2017), I estimate that these biases depressed the value of initially approved patents by at least $1.4 million per year.    
+    </div>
+</details>
 
 
 
