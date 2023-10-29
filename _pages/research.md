@@ -10,11 +10,11 @@ redirect_from:
 
 <style>
     details {
-      margin-top: -15px; /* Adjust as needed */
+      margin-top: -16px; /* Adjust as needed */
     }
 
     details > summary {
-      list-style-type: none;
+      display: block;
     }
 
 
