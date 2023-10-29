@@ -16,7 +16,7 @@ redirect_from:
     details > summary {
       list-style-type: none;
       cursor: pointer;
-      font-weight: bold;
+      text-decoration: underline;
     }
 
     details > summary::-webkit-details-marker {
@@ -41,7 +41,7 @@ redirect_from:
 ### Working papers
 
 
-<span style="color:#3b5998">[**One Land, Many Promises: The Unequal Consequences of Childhood Location on Natives and Immigrants in Israel**] </span> <font size="-1">[JMP]</font> <span style="font-size: 0.9em;">(Draft coming soon)</span> (with [Tslil Aloni](https://sites.google.com/view/tslil-aloni/home?authuser=0))
+<font size="-1">[JMP]</font><span style="color:#3b5998">[**One Land, Many Promises: The Unequal Consequences of Childhood Location on Natives and Immigrants in Israel**] </span> <span style="font-size: 0.9em;">(Draft coming soon)</span> (with [Tslil Aloni](https://sites.google.com/view/tslil-aloni/home?authuser=0))
 
 <details style="margin-bottom: 25px;">
     <summary style="font-size: 0.8em; margin-left: 20px;" > Abstract:</summary>
@@ -90,5 +90,5 @@ redirect_from:
 
 
 ### Work in progress
-<span style="color:#3b5998">*The Socio-Economic Effects of Large-Scale Subsidized Housing Program*</span> (with [Felipe Lobel](http://felipelobel.com/#home) and [Winnie van Dijk](https://sites.google.com/site/winnielillianvandijk/))]) 
+<span style="color:#3b5998">*The Socio-Economic Effects of Large-Scale Subsidized Housing Program*</span> (with [Felipe Lobel](http://felipelobel.com/#home) and [Winnie van Dijk](https://sites.google.com/site/winnielillianvandijk/)) 
 
