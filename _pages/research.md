@@ -15,7 +15,6 @@ redirect_from:
 
     details > summary {
       list-style-type: none;
-      cursor: pointer;
     }
 
     details > summary::-webkit-details-marker {
