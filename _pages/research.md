@@ -20,10 +20,10 @@ redirect_from:
 
 
     details > summary::before {
-      content: '▶️';
       font-size: 0.9em;
       margin-right: 5px;
       display: inline-block;
+      content: '▶️';
       transition: transform 0.5s ease;
       position: relative;
     }
