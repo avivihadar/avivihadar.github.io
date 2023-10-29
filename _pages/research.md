@@ -13,13 +13,14 @@ redirect_from:
       margin-top: -11px; /* Adjust as needed */
     }
 
-    details > summary::-webkit-details-marker {
-      display: none;
-      color: #3b5998;
-    }
-
     details > summary {
       list-style-type: none;
+      color: #3b5998; /* Dark blue color */
+      cursor: pointer;
+    }
+
+    details > summary::-webkit-details-marker {
+      display: none;
     }
 
     details > summary::before {
@@ -27,13 +28,13 @@ redirect_from:
       font-size: 0.9em;
       margin-right: 5px;
       display: inline-block;
-      transition: transform 0.5s ease, content 0.5s;
+      transition: transform 0.5s ease;
+      transform: rotate(0deg);
       position: relative;
     }
 
     details[open] > summary::before {
-      content: "🔽"; /* Change the marker when open */
-      transform: rotate(0deg); /* Reset rotation */
+      transform: rotate(90deg);
     }
 </style>
 
