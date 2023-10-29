@@ -9,6 +9,10 @@ redirect_from:
 {% include base_path %}
 
 <style>
+    details {
+      margin-top: -10px; /* Adjust as needed */
+    }
+
     details > summary::-webkit-details-marker {
       display: none;
     }
@@ -24,7 +28,6 @@ redirect_from:
       display: inline-block;
       transition: transform 0.5s ease, content 0.5s;
       position: relative;
-      top: -10px;
     }
 
     details[open] > summary::before {
@@ -41,7 +44,7 @@ redirect_from:
 <details style="margin-bottom: 25px;">
     <summary style="font-size: 0.8em; margin-left: 20px;" > Abstract:</summary>
     <div class="indented-text" style="font-size: 0.8em; margin-left: 20px;">
-        This paper studies the causal effects of increased childhood exposure to Israeli cities on children's adult incomes. Variation in childhood location contributes substantial variability to the adult earnings of both native-born Israelis and immigrants from the Former Soviet Union. While the place effects of high-income families of both immigrants and native-born children are strongly related, location effects for low-income immigrants are found to be uncorrelated with location effects for low-income natives. Large, diverse cities are especially beneficial to immigrant children, while cities with high municipality welfare expenditure and crime rates tend to be detrimental to native children. We develop a policy targeting framework incorporating the constraint that the policymaker cannot make ethnicity-dependent location recommendations. Using empirical Bayes tools, we find that targeting policies based on population-wide city-level means yields inferior outcomes for immigrants. Robust targeting strategies designed to perform well against the least favorable sorting patterns reveal a set of 5 cities that are likely to be beneficial to children of both groups.
+    This paper studies the causal effects of childhood location of residence on adult income for native-born and former Soviet Union immigrant children in Israel. The causal effects of childhood location contribute substantial variability to the adult earnings of Israeli children. While the place effects of high-income families of both immigrants and native-born children are strongly related, location effects for low-income immigrants are uncorrelated with location effects for low-income natives. Large, diverse cities are especially beneficial to immigrant children, while cities with high municipality welfare expenditure and crime rates tend to be detrimental to native children. Guided by these findings, we develop a policy targeting framework aiming to recommend the top locations in Israel and incorporating the constraint that the policymaker cannot make ethnicity-dependent location recommendations. Using empirical Bayes tools, we find that targeting policies based on pooled population-wide average yields inferior outcomes for immigrants due to the heterogeneity in location effects. Robust targeting strategies designed to perform well against the least favorable sorting patterns reveal a set of 5 cities that are likely to be beneficial to children of both groups.
     </div>
 </details>
 
