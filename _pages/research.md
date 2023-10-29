@@ -18,17 +18,18 @@ redirect_from:
     }
 
     details > summary::before {
-      content: "▶";
+      content: "▶️";
       font-size: 0.9em;
       margin-right: 5px;
       display: inline-block;
-      transition: transform 0.5s ease;
+      transition: transform 0.5s ease, content 0.5s;
       position: relative;
-      top: -5px; /* Adjust as needed */
+      top: -10px;
     }
-    
+
     details[open] > summary::before {
-      transform: rotate(90deg);
+      content: "🔽"; /* Change the marker when open */
+      transform: rotate(0deg); /* Reset rotation */
     }
 </style>
 
