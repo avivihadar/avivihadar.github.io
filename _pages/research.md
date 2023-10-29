@@ -9,13 +9,17 @@ redirect_from:
 {% include base_path %}
 
 <style>
-  .abstract-button[open] .indented-text {
-    transition: max-height 0.5s ease-in;
-  }
-  .abstract-button:not([open]) .indented-text {
-    max-height: 0;
-    overflow: hidden;
-  }
+    details > summary::before {
+      content: "▶";
+      font-size: 0.9em;
+      margin-right: 5px;
+      display: inline-block;
+      transition: transform 0.5s ease;
+    }
+    
+    details[open] > summary::before {
+      transform: rotate(90deg);
+    }
 </style>
 
 ### Working papers
@@ -24,7 +28,7 @@ redirect_from:
 <span style="color:#3b5998">*One Land, Many Promises: The Unequal Consequences of Childhood Location on Natives and Immigrants in Israel*  </span> <font size="-1">[JMP]</font> <span style="font-size: 0.9em;">(Draft coming soon)</span> (with [Tslil Aloni](https://sites.google.com/view/tslil-aloni/home?authuser=0))
 
 <details style="margin-bottom: 25px;">
-    <summary style="font-size: 0.9em; margin-left: 20px; cursor: pointer; border: 1px solid #3b5998; border-radius: 5px; padding: 5px 10px; display: inline-block; background-color: #f9f9f9;"> Abstract:</summary>
+    <summary style="font-size: 0.9em; margin-left: 20px;" > Abstract:</summary>
     <div class="indented-text" style="font-size: 0.9em; margin-left: 20px;">
         This paper studies the causal effects of increased childhood exposure to Israeli cities on children's adult incomes. Variation in childhood location contributes substantial variability to the adult earnings of both native-born Israelis and immigrants from the Former Soviet Union. While the place effects of high-income families of both immigrants and native-born children are strongly related, location effects for low-income immigrants are found to be uncorrelated with location effects for low-income natives. Large, diverse cities are especially beneficial to immigrant children, while cities with high municipality welfare expenditure and crime rates tend to be detrimental to native children. We develop a policy targeting framework incorporating the constraint that the policymaker cannot make ethnicity-dependent location recommendations. Using empirical Bayes tools, we find that targeting policies based on population-wide city-level means yields inferior outcomes for immigrants. Robust targeting strategies designed to perform well against the least favorable sorting patterns reveal a set of 5 cities that are likely to be beneficial to children of both groups.
     </div>
