@@ -10,13 +10,12 @@ redirect_from:
 
 <style>
     details {
-      margin-top: -12px; /* Adjust as needed */
+      margin-top: -13px; /* Adjust as needed */
     }
 
     details > summary {
       list-style-type: none;
       cursor: pointer;
-      text-decoration: underline;
     }
 
     details > summary::-webkit-details-marker {
@@ -41,7 +40,7 @@ redirect_from:
 ### Working papers
 
 
-<font size="-1">[JMP]</font><span style="color:#3b5998">[**One Land, Many Promises: The Unequal Consequences of Childhood Location on Natives and Immigrants in Israel**] </span> <span style="font-size: 0.9em;">(Draft coming soon)</span> (with [Tslil Aloni](https://sites.google.com/view/tslil-aloni/home?authuser=0))
+<span style="color:#3b5998">[**One Land, Many Promises: The Unequal Consequences of Childhood Location on Natives and Immigrants in Israel**] </span> <font size="-1">[JMP]</font> <span style="font-size: 0.9em;">(Draft coming soon)</span> (with [Tslil Aloni](https://sites.google.com/view/tslil-aloni/home?authuser=0))
 
 <details style="margin-bottom: 25px;">
     <summary style="font-size: 0.8em; margin-left: 20px;" > Abstract:</summary>
