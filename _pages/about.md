@@ -17,7 +17,7 @@ redirect_from:
  
 You can contact me at havivi[at]berkeley.edu.   
 
-You can find my CV [here](/files/CV_HA_June2023.pdf).      
+You can find my CV [here](/files/CV_HA.pdf).      
 
   
 <!--- 
