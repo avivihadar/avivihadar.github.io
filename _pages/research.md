@@ -65,7 +65,7 @@ redirect_from:
     </div>
 </details>
 
-<span style="color:#3b5998">[**Gender Differences in the Effects of Job Displacement: the Role of Firms**]()</span> (with [Tslil Aloni](https://sites.google.com/view/tslil-aloni/home?authuser=0)) 
+<span style="color:#3b5998">[**Gender Differences in the Effects of Job Displacement: the Role of Firms**]()</span> <span style="font-size: 0.9em;">(Draft coming soon)</span> (with [Tslil Aloni](https://sites.google.com/view/tslil-aloni/home?authuser=0)) 
 
 <details style="margin-bottom: 25px;">
     <summary style="font-size: 0.8em; margin-left: 20px;" > Abstract:</summary>
