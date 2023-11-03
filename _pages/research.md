@@ -56,7 +56,7 @@ redirect_from:
 
 
 
-<span style="color:#3b5998">[**Cash Transfers and Intergenerational Insurance: Evidence from Mass Layoffs in Israel**](/files/Jobloss_children_reform.pdf)</span> (with [Tslil Aloni](https://sites.google.com/view/tslil-aloni/home?authuser=0)) 
+<span style="color:#3b5998">[**Cash Transfers and Intergenerational Insurance: Evidence from Mass Layoffs in Israel**](/files/Jobloss_children_reform.pdf)</span> <span style="font-size: 0.9em;">(Email)</span> (with [Tslil Aloni](https://sites.google.com/view/tslil-aloni/home?authuser=0)) 
 
 <details style="margin-bottom: 25px;">
     <summary style="font-size: 0.8em; margin-left: 20px;" > Abstract:</summary>
