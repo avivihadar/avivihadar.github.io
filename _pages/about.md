@@ -9,7 +9,7 @@ redirect_from:
 ---
 
 
-<img class="img-responsive" style="float: left; margin: 10px 20px 20px 10px;" src="/images/Hadar2.jpeg" width="310"> Welcome! I am a Ph.D. candidate in the Department of Economics at UC Berkeley. My fields of interest are labor economics and applied econometrics, with a particular emphasis on studying intergenerational mobility and inequality. 
+<img class="img-responsive" style="float: left; margin: 10px 20px 20px 10px;" src="/images/Hadar2.jpeg" width="310"> Welcome! I am a Ph.D. candidate in the Department of Economics at UC Berkeley. My fields of interest are labor economics and applied econometrics. I study intergenerational mobility, innovation, and inequality. 
 
 **I am on the 2023-2024 academic job market**
 
