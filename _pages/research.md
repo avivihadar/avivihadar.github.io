@@ -50,7 +50,7 @@ redirect_from:
 <span style="text-decoration: underline;">Abstract:</span> This paper studies the prevalence and evolution of gender bias in the United States Patent and Trademark Office (USPTO) examination process and assesses the consequences of this bias on economic outcomes. Applying Natural Language Processing tools to patent applications submitted between 2001 and 2013, I estimate gender gaps conditional on the content of the patent application, comparing allowance probabilities between teams of inventors with different gender compositions but similar inventions. Despite a substantial raw gender gap in the probability of initial allowance, I document that there is no average difference in initial allowance rates between mixed-gender and all-male teams.  This average masks important heterogeneity. Allowance rates for mixed-gender teams were significantly lower between 2001 and 2003, a gap that shrank to zero by 2005. Gender gaps also vary substantially across examiners, with bias against mixed-gender patents concentrated among senior examiners and bias in favor of women concentrated among young examiners. A mean zero gender gap with positive variance generates economic loss due to the misallocation of granting rights. Building on the methodology of Kogan et al. (2017), I estimate that these biases depressed the value of approved patents by $12.6 million per year.
 </div>
 
-
+ 
 
 
 <span style="color:#3b5998">[**Cash Transfers and Intergenerational Insurance: Evidence from Mass Layoffs in Israel**](/files/Jobloss_children_reform.pdf)</span> (with [Tslil Aloni](https://sites.google.com/view/tslil-aloni/home?authuser=0)) 
