@@ -8,6 +8,23 @@ redirect_from:
 
 {% include base_path %}
 
+<!-- Add Metadata for the paper "One Land, Many Promises..." -->
+<meta name="citation_title" content="One Land, Many Promises: The Unequal Consequences of Childhood Location for Natives and Immigrants in Israel">
+<meta name="citation_author" content="Avivi Hadar; Tslil Aloni">
+<meta name="citation_pdf_url" content="https://avivihadar.github.io/files/many_promises_jmp.pdf">
+
+<!-- Are Patent Examiners Gender Neutral?" -->
+<meta name="citation_title" content="Are Patent Examiners Gender Neutral?">
+<meta name="citation_author" content="Avivi Hadar">
+<meta name="citation_pdf_url" content="https://avivihadar.github.io/files/patents_gender.pdf">
+
+<!-- Cash Transfers and Intergenerational Insurance: Evidence from Mass Layoffs in Israel" -->
+<meta name="citation_title" content="Cash Transfers and Intergenerational Insurance: Evidence from Mass Layoffs in Israel">
+<meta name="citation_author" content="Avivi Hadar; Tslil Aloni">
+<meta name="citation_pdf_url" content="https://avivihadar.github.io/files/Jobloss_children_reform.pdf">
+
+
+
 <style>
     details {
       margin-top: -16px; /* Adjust as needed */
