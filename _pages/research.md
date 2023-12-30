@@ -6,7 +6,7 @@ redirect_from:
   - /research.html
 ---
 
-{% include base_path %}
+{% include base_path %} 
 
 <!-- Add Metadata for the paper "One Land, Many Promises..." -->
 <meta name="citation_title" content="One Land, Many Promises: The Unequal Consequences of Childhood Location for Natives and Immigrants in Israel">
