@@ -22,7 +22,7 @@ redirect_from:
 <meta name="citation_title" content="Cash Transfers and Intergenerational Insurance: Evidence from Mass Layoffs in Israel">
 <meta name="citation_author" content="Avivi Hadar; Tslil Aloni">
 <meta name="citation_pdf_url" content="https://avivihadar.github.io/files/Jobloss_children_reform.pdf">
-
+ 
 
 
 <style>
