@@ -38,7 +38,7 @@ redirect_from:
       "name": "Tslil Aloni"
     }
   ],
-  "datePublished": "2024-04-01", 
+  "datePublished": "2024-01-27", 
   "abstract": "We study the role of government transfers in alleviating the repercussions of parental employment shocks on the education outcomes of children...",
   "url": "https://avivihadar.github.io/files/Jobloss_children_reform.pdf"
 }
