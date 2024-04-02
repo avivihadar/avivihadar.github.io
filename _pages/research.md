@@ -23,6 +23,26 @@ redirect_from:
 <meta name="citation_author" content="Avivi Hadar; Tslil Aloni">
 <meta name="citation_pdf_url" content="https://avivihadar.github.io/files/Jobloss_children_reform.pdf">
  
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ScholarlyArticle",
+  "headline": "Cash Transfers and Intergenerational Insurance: Evidence from Mass Layoffs in Israel",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "Avivi Hadar"
+    },
+    {
+      "@type": "Person",
+      "name": "Tslil Aloni"
+    }
+  ],
+  "datePublished": "2024-04-01", 
+  "abstract": "We study the role of government transfers in alleviating the repercussions of parental employment shocks on the education outcomes of children...",
+  "url": "https://avivihadar.github.io/files/Jobloss_children_reform.pdf"
+}
+</script>
 
 
 <style>
