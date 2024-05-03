@@ -98,11 +98,11 @@ redirect_from:
 </div>
 
 
-<span style="color:#3b5998">[**Gender Differences in the Effects of Job Displacement: the Role of Firms**]()</span> <span style="font-size: 0.9em;">(Draft coming soon)</span> (with [Tslil Aloni](https://sites.google.com/view/tslil-aloni/home?authuser=0)) 
+<span style="color:#3b5998">[**Gender Differences in the Effects of Job Displacement: the Role of Firms**](/files/jobloss_gender.pdf)</span>  (with [Tslil Aloni](https://sites.google.com/view/tslil-aloni/home?authuser=0)) 
 
 
 <div class="indented-text" style="font-size: 0.8em; margin-left: 20px; margin-bottom: 25px; margin-top: -16px">
-    <span style="text-decoration: underline;">Abstract:</span> This paper investigates gender differences in the long-term effects of job loss on workers' labor market outcomes in Israel. Relative to displaced female workers, male counterparts experience a larger drop in earnings due to unexpected job loss, despite both genders seeing similar employment declines. Pre-displacement firm and individual attributes entirely account for this gap, with the displacing firm's wage premium and female share explaining the majority of this gap. Extending the analysis beyond mean effects to distributional impacts shows that these observable characteristics account for the observed gender gap across the income distribution. Our findings underscore the significant role of firms in shaping the dynamics of labor market disparities. 
+    <span style="text-decoration: underline;">Abstract:</span> This paper investigates gender differences in the long-term effects of job loss on workers' labor market outcomes in Israel. Relative to displaced female workers, male counterparts experience a larger drop in earnings due to unexpected job loss, despite both genders seeing similar employment declines. Pre-displacement firm and individual attributes entirely account for this gap, with the displacing firm's wage premium and female share explaining the majority of it. Extending the analysis beyond mean effects to distributional impacts shows that these characteristics account for the observed gender gap across the income distribution. Our findings underscore the significant role of firms in shaping the dynamics of labor market disparities. 
 </div>
 
 
