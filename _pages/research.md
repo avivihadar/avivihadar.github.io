@@ -39,7 +39,7 @@ redirect_from:
     }
   ],
   "datePublished": "2024-01-27", 
-  "abstract": "We study the role of government transfers in alleviating the repercussions of parental employment shocks on the education outcomes of children...",
+  "abstract": "We study the role of government transfers in alleviating the repercussions of parental employment shocks on the education outcomes of children. A comprehensive reduction in Israel's system of universal child cash benefits, cutting total government transfers to families with children by more than 30%, is shown to have adversely affected children whose parents were displaced in a mass layoff event. First, we find that children of laid-off parents suffer from lower high-school performance and are less likely to secure a matriculation certificate (Bagrut). These effects are present only in lower-income families and are inversely related to the child’s age at the time of the shock. Second, we find that cuts to child benefits at the household level exacerbate these negative effects for low-income families while leaving high-income families unaffected. Our findings suggest that cash transfers have a mitigating role in determining children's outcomes among families with low socio-economic status.",
   "url": "https://avivihadar.github.io/files/Jobloss_children_reform.pdf"
 }
 </script>
