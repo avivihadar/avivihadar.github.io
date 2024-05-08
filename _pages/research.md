@@ -116,6 +116,10 @@ redirect_from:
 [Slides](/files/AdaptiveCorrespondenceExperiments_Slides.pdf) | [Code](/files/AdaptiveCorrespondenceExperiments_code.zip) 
 
 
+<!--- 
 ### Work in progress
 <span style="color:#3b5998">*The Socio-Economic Effects of a Large-Scale Subsidized Housing Program*</span> (with [Felipe Lobel](http://felipelobel.com/#home) and [Winnie van Dijk](https://sites.google.com/site/winnielillianvandijk/)) 
 
+<span style="color:#3b5998">*The Role of Tax Preparers in Individual Tax Optimization*</span> (with  [Katarzyna Bilicka](https://katarzynabilicka.weebly.com/), [Jakob Brounstein](https://jakobbrounstein.github.io/research.html), [Felipe Lobel](http://felipelobel.com/#home) and Alexander Yuskavage) 
+
+-->
