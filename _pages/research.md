@@ -98,7 +98,7 @@ redirect_from:
 </div>
 
 
-<span style="color:#3b5998">[**Gender Differences in the Effects of Job Displacement: the Role of Firms**](/files/jobloss_gender.pdf)</span>  (with [Tslil Aloni](https://sites.google.com/view/tslil-aloni/home?authuser=0)) 
+<span style="color:#3b5998">[**Gender Differences in the Effects of Job Displacement: The Role of Firms**](/files/jobloss_gender.pdf)</span>  (with [Tslil Aloni](https://sites.google.com/view/tslil-aloni/home?authuser=0)) 
 
 
 <div class="indented-text" style="font-size: 0.8em; margin-left: 20px; margin-bottom: 25px; margin-top: -16px">
