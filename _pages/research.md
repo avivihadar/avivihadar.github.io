@@ -98,7 +98,7 @@ redirect_from:
 </div>
 
 
-<span style="color:#3b5998">[**Gender Differences in the Effects of Job Displacement: The Role of Firms**](/files/jobloss_gender.pdf)</span>  (with [Tslil Aloni](https://sites.google.com/view/tslil-aloni/home?authuser=0)) 
+<span style="color:#3b5998">[**Gender Differences in the Effects of Job Displacement: The Role of Firms**]()</span>  (with [Tslil Aloni](https://sites.google.com/view/tslil-aloni/home?authuser=0)) 
 
 
 <div class="indented-text" style="font-size: 0.8em; margin-left: 20px; margin-bottom: 25px; margin-top: -16px">
@@ -117,6 +117,7 @@ redirect_from:
 
 
 <!--- 
+/files/jobloss_gender.pdf
 ### Work in progress
 <span style="color:#3b5998">*The Socio-Economic Effects of a Large-Scale Subsidized Housing Program*</span> (with [Felipe Lobel](http://felipelobel.com/#home) and [Winnie van Dijk](https://sites.google.com/site/winnielillianvandijk/)) 
 
