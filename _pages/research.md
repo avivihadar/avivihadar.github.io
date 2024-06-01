@@ -73,7 +73,7 @@ redirect_from:
 ### Working papers
 
 
-<span style="color:#3b5998">[**One Land, Many Promises: The Unequal Consequences of Childhood Location for Natives and Immigrants in Israel**](/files/many_promises_jmp.pdf) </span>  (with [Tslil Aloni](https://sites.google.com/view/tslil-aloni/home?authuser=0))
+<span style="color:#3b5998">[**One Land, Many Promises: The Unequal Consequences of Childhood Location for Natives and Immigrants in Israel**](/files/many_promises_jmp.pdf) </span>  (with [Tslil Aloni](https://sites.google.com/view/tslil-aloni/home?authuser=0)) _Updated draft coming soon!_
 
 
 <div class="indented-text" style="font-size: 0.8em; margin-left: 20px; margin-bottom: 25px; margin-top: -16px">
