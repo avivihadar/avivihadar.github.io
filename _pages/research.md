@@ -76,10 +76,10 @@ redirect_from:
 <span style="color:#3b5998">[**One Land, Many Promises: Assessing the Consequences of Unequal Childhood Location Effects**](/files/many_promises_jmp.pdf) </span>  (with [Tslil Aloni](https://sites.google.com/view/tslil-aloni/home?authuser=0))  
 
 <div class="indented-text" style="font-size: 0.8em; margin-left: 20px; margin-bottom: 25px; margin-top: -16px">
-<span style="text-decoration: underline;">Abstract:</span> This paper studies the causal effects of childhood residential location on the adult income of native-born Israeli children and the children of immigrants from the former Soviet Union. The causal effects of childhood location contribute substantial variability to the adult earnings of Israeli children. While the place effects of high-income immigrants and high income natives are strongly correlated, location effects for low-income immigrants are uncorrelated with location effects for low-income natives. Large, diverse cities are especially beneficial to immigrant children, while cities with high municipality welfare expenditure and crime rates tend to be detrimental to native children. Guided by these findings, we develop a policy targeting framework aiming to recommend the top locations in Israel and incorporating the constraint that the policymaker cannot make ethnicity-dependent location recommendations. Using empirical Bayes tools, we find that targeting policies based on pooled population-wide averages yield inferior outcomes for immigrants. Robust targeting strategies designed to perform well against the least favorable sorting patterns reveal a set of 5 cities that are likely to benefit children of both groups.
+<span style="text-decoration: underline;">Abstract:</span> This paper estimates the causal effects of childhood residential location on the adult income of native-born Israeli children and the children of immigrants from the former Soviet Union and studies the consequences of location effect heterogeneity on the design and effectiveness of neighborhood recommendation policies. The causal effects of childhood location contribute substantial variability to the adult earnings of Israeli children. While the place effects of high-income immigrants and high-income natives are strongly correlated, location effects for low-income immigrants are uncorrelated with location effects for low-income natives.  Guided by these findings, we develop a policy targeting framework aiming to recommend the top locations in Israel while incorporating the constraint that the policymaker cannot make ethnicity-dependent location recommendations. Using empirical Bayes tools, we find that targeting policies based on pooled population-wide averages yield inferior outcomes for immigrants. Robust targeting strategies designed to perform well against the least favorable sorting patterns reveal a set of 10 cities that are likely to benefit children of both groups.
 </div>
 
-<span style="color:#3b5998">[**Are Patent Examiners Gender Neutral?**](/files/patents_gender.pdf)</span> 
+<span style="color:#3b5998">[**Are Patent Examiners Gender Neutral?**](/files/patents_gender.pdf)</span> <span style="font-size: 0.9em; font-style: italic">Updated draft coming soon! </span>
 
 
 <div class="indented-text" style="font-size: 0.8em; margin-left: 20px; margin-bottom: 25px; margin-top: -16px">
@@ -122,5 +122,5 @@ redirect_from:
 
 <span style="color:#3b5998">*The Role of Tax Preparers in Individual Tax Optimization*</span> (with  [Katarzyna Bilicka](https://katarzynabilicka.weebly.com/), [Jakob Brounstein](https://jakobbrounstein.github.io/research.html), [Felipe Lobel](http://felipelobel.com/#home) and Alexander Yuskavage) 
 
-<span style="font-size: 0.9em; font-style: italic">Updated draft coming soon! </span>
+
 -->
