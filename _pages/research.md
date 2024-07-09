@@ -74,7 +74,7 @@ redirect_from:
       display: block;
       margin: 0;
       padding: 0;
-      line-height: 1.2; /* Adjust this value as needed */
+      line-height: 1.25; /* Adjust this value as needed */
     }
 </style>
 
