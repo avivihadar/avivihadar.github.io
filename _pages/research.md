@@ -68,14 +68,22 @@ redirect_from:
     details[open] > summary::before {
       transform: rotate(90deg);
     }
+
+
+    .small-text {
+      display: block;
+      margin: 0;
+      padding: 0;
+      line-height: 1.2; /* Adjust this value as needed */
+    }
 </style>
 
 ### Working papers
 
 
 <span style="color:#3b5998">[**One Land, Many Promises: Assessing the Consequences of Unequal Childhood Location Effects**](/files/many_promises_jmp.pdf) </span>  (with [Tslil Aloni](https://sites.google.com/view/tslil-aloni/home?authuser=0))  
-<span style="font-size: 0.8em; color:#808080">Coverage: [O-Lab Spotlight](https://www.olab.berkeley.edu/profiles-conversations/hadar-spotlight-jun24)</span> 
-<span style="font-size: 0.8em; color:#808080">Awards: [O-Lab/Stone Center Dissertation Award](https://www.olab.berkeley.edu/news/hadar-prize)</span> 
+<span class="small-text" style="font-size: 0.8em; color:#808080">Coverage: [O-Lab Spotlight](https://www.olab.berkeley.edu/profiles-conversations/hadar-spotlight-jun24)</span> 
+<span class="small-text" style="font-size: 0.8em; color:#808080">Awards: [O-Lab/Stone Center Dissertation Award](https://www.olab.berkeley.edu/news/hadar-prize)</span> 
 
 
 <div class="indented-text" style="font-size: 0.8em; margin-left: 20px; margin-bottom: 25px; margin-top: -16px">
