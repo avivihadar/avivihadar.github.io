@@ -78,7 +78,7 @@ redirect_from:
     }
 
     .coverage-text {
-      margin-top: 10px; /* Adjust this value as needed */
+      margin-top: 3px; /* Adjust this value as needed */
     }
 </style>
 
