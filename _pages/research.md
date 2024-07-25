@@ -17,7 +17,7 @@ redirect_from:
 <meta name="citation_title" content="Are Patent Examiners Gender Neutral?">
 <meta name="citation_author" content="Avivi Hadar">
 <meta name="citation_pdf_url" content="https://avivihadar.github.io/files/patents_gender.pdf">
-
+ 
 <!-- Cash Transfers and Intergenerational Insurance: Evidence from Mass Layoffs in Israel" -->
 <meta name="citation_title" content="Cash Transfers and Intergenerational Insurance: Evidence from Mass Layoffs in Israel">
 <meta name="citation_author" content="Avivi Hadar; Tslil Aloni">
