@@ -9,14 +9,14 @@ redirect_from:
 ---
 
 
-<img class="img-responsive" style="float: left; margin: 10px 20px 20px 10px;" src="/images/Hadar2.jpeg" width="310"> Welcome! I am a labor economist. I study intergenerational mobility, inequality, and policy design.
+<img class="img-responsive" style="float: left; margin: 10px 20px 20px 10px;" src="/images/Hadar2.jpeg" width="310"> Welcome! I am a post-doctoral fellow in the Industrial Relations Section at Princeton University. I am a labor economist studying intergenerational mobility, inequality, and policy design.
 
-Beginning in September 2025, I will join the Department of Economics at University College London as an Assistant Professor after spending one year as a post-doctoral fellow in the Industrial Relations Section at Princeton University. I received a Ph.D. in Economics from the University of California, Berkeley in 2024.
+Beginning in September 2025, I will join the Department of Economics at University College London as an Assistant Professor. I received a Ph.D. in Economics from UC Berkeley in 2024.
 
 
 
  
-You can contact me at havivi[at]berkeley.edu.   
+You can contact me at avivihadar[at]gmail.com.   
 
 You can find my CV [here](/files/CV_HA.pdf).      
 
