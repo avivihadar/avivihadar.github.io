@@ -137,8 +137,9 @@ redirect_from:
 
 ### Work in progress
 
-* <span style="color:#3b5998">*The Long-Term Consequences of Exposure to Childhood Trauma*</span> (with [Luisa Cefala](https://luisacef.github.io/), [Ulrike Malmendier](https://haas.berkeley.edu/faculty/malmendier-ulrike/),  and [Maor Milgrom](https://sites.google.com/view/maormilgrom))
-* <span style="color:#3b5998">*The Role of Tax Preparers in Individual Tax Optimization*</span> (with  [Katarzyna Bilicka](https://katarzynabilicka.weebly.com/), [Jakob Brounstein](https://jakobbrounstein.github.io/research.html), [Felipe Lobel](http://felipelobel.com/#home) and Alexander Yuskavage) 
+<span style="color:#3b5998">*The Long-Term Consequences of Exposure to Childhood Trauma*</span> (with [Luisa Cefala](https://luisacef.github.io/), [Ulrike Malmendier](https://haas.berkeley.edu/faculty/malmendier-ulrike/),  and [Maor Milgrom](https://sites.google.com/view/maormilgrom))
+
+<span style="color:#3b5998">*The Role of Tax Preparers in Individual Tax Optimization*</span> (with  [Katarzyna Bilicka](https://katarzynabilicka.weebly.com/), [Jakob Brounstein](https://jakobbrounstein.github.io/research.html), [Felipe Lobel](http://felipelobel.com/#home) and Alexander Yuskavage) 
 
 
 
