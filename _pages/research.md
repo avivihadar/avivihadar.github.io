@@ -85,7 +85,7 @@ redirect_from:
 ### Working papers
 
 
-<span style="color:#3b5998">[**One Land, Many Promises: Assessing the Consequences of Unequal Childhood Location Effects**](/files/many_promises.pdf) </span>  (with [Tslil Aloni](https://sites.google.com/view/tslil-aloni/home?authuser=0)) <span style=color:#808080">Submitted</span> 
+<span style="color:#3b5998">[**One Land, Many Promises: Assessing the Consequences of Unequal Childhood Location Effects**](/files/many_promises.pdf) </span>  (with [Tslil Aloni](https://sites.google.com/view/tslil-aloni/home?authuser=0)) <span style="color:#808080">Submitted</span> 
 <span class="small-text coverage-text" style="font-size: 0.8em; color:#808080">Coverage: [O-Lab Spotlight](https://www.olab.berkeley.edu/profiles-conversations/hadar-spotlight-jun24)</span> 
 <span class="small-text" style="font-size: 0.8em; color:#808080">Awards: [O-Lab/Stone Center Dissertation Award](https://www.olab.berkeley.edu/news/hadar-prize)</span> 
 
@@ -136,8 +136,8 @@ redirect_from:
 -->
 
 ### Work in progress
-<span style="color:#3b5998">*The Long-Term Consequences of Exposure to Childhood Trauma*</span> (with [Luisa Cefala](https://luisacef.github.io/), [Ulrike Malmendier](https://haas.berkeley.edu/faculty/malmendier-ulrike/)),  and [Maor Milgrom](https://sites.google.com/view/maormilgrom))
-<span style="color:#3b5998">*The Role of Tax Preparers in Individual Tax Optimization*</span> (with  [Katarzyna Bilicka](https://katarzynabilicka.weebly.com/), [Jakob Brounstein](https://jakobbrounstein.github.io/research.html), [Felipe Lobel](http://felipelobel.com/#home) and Alexander Yuskavage) 
+* <span style="color:#3b5998">*The Long-Term Consequences of Exposure to Childhood Trauma*</span> (with [Luisa Cefala](https://luisacef.github.io/), [Ulrike Malmendier](https://haas.berkeley.edu/faculty/malmendier-ulrike/)),  and [Maor Milgrom](https://sites.google.com/view/maormilgrom))
+* <span style="color:#3b5998">*The Role of Tax Preparers in Individual Tax Optimization*</span> (with  [Katarzyna Bilicka](https://katarzynabilicka.weebly.com/), [Jakob Brounstein](https://jakobbrounstein.github.io/research.html), [Felipe Lobel](http://felipelobel.com/#home) and Alexander Yuskavage) 
 
 
 
