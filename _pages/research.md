@@ -85,7 +85,7 @@ redirect_from:
 ### Working papers
 
 
-<span style="color:#3b5998">[**One Land, Many Promises: Assessing the Consequences of Unequal Childhood Location Effects**](/files/many_promises.pdf) </span>  (with [Tslil Aloni](https://sites.google.com/view/tslil-aloni/home?authuser=0)) <span style="font-size: 0.9em; font-style: italic">Submitted</span> 
+<span style="color:#3b5998">[**One Land, Many Promises: Assessing the Consequences of Unequal Childhood Location Effects**](/files/many_promises.pdf) </span>  (with [Tslil Aloni](https://sites.google.com/view/tslil-aloni/home?authuser=0)) 
 <span class="small-text coverage-text" style="font-size: 0.8em; color:#808080">Coverage: [O-Lab Spotlight](https://www.olab.berkeley.edu/profiles-conversations/hadar-spotlight-jun24)</span> 
 <span class="small-text" style="font-size: 0.8em; color:#808080">Awards: [O-Lab/Stone Center Dissertation Award](https://www.olab.berkeley.edu/news/hadar-prize)</span> 
 
@@ -131,6 +131,7 @@ redirect_from:
 
 
 <!--- 
+<span style="font-size: 0.9em; font-style: italic">Submitted</span> 
 /files/jobloss_gender.pdf
 <span style="color:#3b5998">*The Socio-Economic Effects of a Large-Scale Subsidized Housing Program*</span> (with [Felipe Lobel](http://felipelobel.com/#home) and [Winnie van Dijk](https://sites.google.com/site/winnielillianvandijk/)) 
 -->
