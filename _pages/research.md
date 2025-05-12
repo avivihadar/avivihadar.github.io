@@ -91,7 +91,7 @@ redirect_from:
 
 
 <div class="indented-text" style="font-size: 0.8em; margin-left: 20px; margin-bottom: 25px; margin-top: -16px">
-<span style="text-decoration: underline;">Abstract:</span> This paper estimates the causal effects of childhood residential location on the adult income of native-born Israeli children and the children of immigrants from the former Soviet Union and studies the consequences of location effect heterogeneity on the design and effectiveness of neighborhood recommendation policies. The causal effects of childhood location contribute substantial variability to the adult earnings of Israeli children. While the place effects of high-income immigrants and high-income natives are strongly correlated, location effects for low-income immigrants are uncorrelated with location effects for low-income natives.  Guided by these findings, we develop a policy targeting framework aiming to recommend the top locations in Israel while incorporating the constraint that the policymaker cannot make ethnicity-dependent location recommendations. Using empirical Bayes tools, we find that targeting policies based on pooled population-wide averages yield inferior outcomes for immigrants. Robust targeting strategies designed to perform well against the least favorable sorting patterns reveal a set of 10 cities that are likely to benefit children of both groups.
+<span style="text-decoration: underline;">Abstract:</span> This paper studies the causal effects of childhood residential location on the adult income of native-born Israeli children and the children of immigrants from the former Soviet Union. Childhood location effects vary substantially in Israel. While the place effects of high-income immigrants and natives are strongly correlated, location effects for low-income immigrants are uncorrelated with those for low-income natives.  Guided by these findings, we explore how this heterogeneity affects neighborhood recommendation policies that aim to recommend the top locations in Israel when ethnicity-based targeting is not allowed. Using empirical Bayes tools, we find that targeting policies based on pooled population-wide averages yield inferior outcomes for immigrants. Robust targeting strategies designed to perform well against the least favorable sorting patterns reveal a set of 10 cities that are likely to benefit children of both groups.
 </div>
 
 <span style="color:#3b5998">[**Are Patent Examiners Gender Neutral?**](/files/patents_gender.pdf)</span><span class="small-text coverage-text" style="font-size: 0.8em; color:#808080">[Updated, Dec. 2024]</span>
@@ -105,7 +105,7 @@ redirect_from:
  
 
 
-<span style="color:#3b5998">[**Cash Transfers and Intergenerational Insurance: Evidence from Mass Layoffs in Israel**](/files/Jobloss_children_reform.pdf)</span> (with [Tslil Aloni](https://sites.google.com/view/tslil-aloni/home?authuser=0)) 
+<span style="color:#3b5998">[**Cash Transfers and Intergenerational Insurance: Evidence from Mass Layoffs in Israel**](/files/Jobloss_children_reform.pdf)</span> (with [Tslil Aloni](https://sites.google.com/view/tslil-aloni/home?authuser=0)) <span class="small-text coverage-text" style="font-size: 0.8em; color:#808080">[Nov. 2024]</span>
 
 
 <div class="indented-text" style="font-size: 0.8em; margin-left: 20px; margin-bottom: 25px; margin-top: -16px">
@@ -113,7 +113,7 @@ redirect_from:
 </div>
 
 
-<span style="color:#3b5998">[**Gender Differences in the Effects of Job Displacement: The Role of Firms**]()</span>  (with [Tslil Aloni](https://sites.google.com/view/tslil-aloni/home?authuser=0)) 
+<span style="color:#3b5998">**Gender Differences in the Effects of Job Displacement: The Role of Firms**</span>  (with [Tslil Aloni](https://sites.google.com/view/tslil-aloni/home?authuser=0)) 
 
 
 <div class="indented-text" style="font-size: 0.8em; margin-left: 20px; margin-bottom: 25px; margin-top: -16px">
