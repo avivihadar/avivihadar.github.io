@@ -9,9 +9,9 @@ redirect_from:
 ---
 
 
-<img class="img-responsive" style="float: left; margin: 10px 20px 20px 10px;" src="/images/Hadar2.jpeg" width="310"> Welcome! I am a labor economist studying intergenerational mobility and inequality.
+<img class="img-responsive" style="float: left; margin: 10px 20px 20px 10px;" src="/images/Hadar2.jpeg" width="310"> Welcome! I am an Assistant Professor at the Department of Economics at the University College London. I study topics in labor economics, intergenerational mobility, and applied econometrics.
 
-Currently, I am a post-doctoral fellow in the Industrial Relations Section at Princeton University. Beginning in September 2025, I will join the Department of Economics at University College London as an Assistant Professor. I received a Ph.D. in Economics from UC Berkeley in 2024.
+I received a Ph.D. in Economics from UC Berkeley in 2024, and spent the '24-'25 academic year as a Postdoctoral Research Associate in the Industrial Relations Section at Princeton University.
 
 
 
