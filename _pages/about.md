@@ -16,7 +16,7 @@ I received a Ph.D. in Economics from UC Berkeley in 2024, and spent the '24-'25 
 
 
  
-You can contact me at avivihadar[at]gmail.com.   
+You can contact me at h.avivi[at]ucl.ac.uk.   
 
 You can find my CV [here](/files/CV_HA.pdf).      
 
