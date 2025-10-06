@@ -85,7 +85,7 @@ redirect_from:
 ### Working papers
 
 
-<span style="color:#3b5998">[**One Land, Many Promises: Assessing the Consequences of Unequal Childhood Location Effects**](/files/many_promises.pdf) </span>  (with [Tslil Aloni](https://sites.google.com/view/tslil-aloni/home?authuser=0))<span class="small-text coverage-text" style="font-size: 0.8em; color:#808080">[Updated, Sep. 2025]</span>
+<span style="color:#3b5998">[**One Land, Many Promises: Assessing the Consequences of Unequal Childhood Location Effects**](/files/many_promises.pdf) </span>  (with [Tslil Aloni](https://sites.google.com/view/tslil-aloni/home?authuser=0))<span class="small-text coverage-text" style="font-size: 0.8em; color:#808080">[Updated, Oct. 2025]</span>
 <span class="small-text coverage-text" style="font-size: 0.8em; color:#808080">Coverage: [O-Lab Spotlight](https://www.olab.berkeley.edu/profiles-conversations/hadar-spotlight-jun24)</span> 
 <span class="small-text" style="font-size: 0.8em; color:#808080">Awards: [O-Lab/Stone Center Dissertation Award](https://www.olab.berkeley.edu/news/hadar-prize)</span> 
 
