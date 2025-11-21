@@ -46,7 +46,9 @@ figure {
 - <span style="font-size:1.3em"> [*Live labor market graphs*](https://sites.google.com/view/tslil-aloni/labormarketcovid19?authuser=0)  - two figures of the Israeli labor market since COVID19  
 (with [Tslil Aloni](https://sites.google.com/view/tslil-aloni/home?authuser=0)) </span>
  -->
-### Pre-doctoral Policy Papers
+### Policy Papers
+
+[**Long-Term Consequences of Job Loss in Israel**](https://www.gov.il/he/pages/jobloss-workers-israel) (with Tslil Aloni)  The Chief Economist Ministry of Finance, 2024
 
 [**Expansion of Palestinian Employment in Israel and its Characteristics**](/files/BOI_2014_chap-5.pdf) (with Haggay Etkes)  Ch. 5  in Bank of Israel Annual Report, 2014
 
