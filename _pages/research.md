@@ -85,7 +85,7 @@ redirect_from:
 ### Working papers
 
 
-<span style="color:#3b5998">[**One Land, Many Promises: Assessing the Consequences of Unequal Childhood Location Effects**](/files/many_promises.pdf) </span>  (with [Tslil Aloni](https://sites.google.com/view/tslil-aloni/home?authuser=0))<span class="small-text coverage-text" style="font-size: 0.8em; color:#808080">[Updated, Oct. 2025]</span>
+<span style="color:#3b5998">[**One Land, Many Promises: Assessing the Consequences of Unequal Childhood Location Effects**](/files/many_promises.pdf) </span>  (with [Tslil Aloni](https://sites.google.com/view/tslil-aloni/home?authuser=0))<span class="small-text coverage-text" style="font-size: 0.8em; color:#808080">[Updated, Dec. 2025]</span>
 <span class="small-text coverage-text" style="font-size: 0.8em; color:#808080">Coverage: [O-Lab Spotlight](https://www.olab.berkeley.edu/profiles-conversations/hadar-spotlight-jun24)</span> 
 <span class="small-text" style="font-size: 0.8em; color:#808080">Awards: [O-Lab/Stone Center Dissertation Award](https://www.olab.berkeley.edu/news/hadar-prize)</span> 
 
@@ -94,7 +94,7 @@ redirect_from:
 <span style="text-decoration: underline;">Abstract:</span> This paper studies the causal effects of childhood residential location on the adult income of native-born Israeli children and the children of immigrants from the former Soviet Union. Childhood location effects vary substantially in Israel. While the place effects of high-income immigrants and natives are strongly correlated, location effects for low-income immigrants are uncorrelated with those for low-income natives.  Guided by these findings, we explore how this heterogeneity affects neighborhood recommendation policies that aim to recommend the top locations in Israel when ethnicity-based targeting is not allowed. Using empirical Bayes tools, we find that targeting policies based on pooled population-wide averages yield inferior outcomes for immigrants. Robust targeting strategies designed to perform well against the least favorable sorting patterns reveal a set of 10 cities that are likely to benefit children of both groups.
 </div>
 
-<span style="color:#3b5998">[**Are Patent Examiners Gender Neutral?**](/files/patents_gender.pdf)</span><span class="small-text coverage-text" style="font-size: 0.8em; color:#808080">[Updated, Dec. 2024]</span>
+<span style="color:#3b5998">[**Are Patent Examiners Gender Neutral?**](/files/patents_gender.pdf)</span><span class="small-text coverage-text" style="font-size: 0.8em; color:#808080">[Updated, July 2025]</span>
 
 
 
