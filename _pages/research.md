@@ -113,12 +113,6 @@ redirect_from:
 </div>
 
 
-<span style="color:#3b5998">**Gender Differences in the Effects of Job Displacement: The Role of Firms**</span>  (with [Tslil Aloni](https://sites.google.com/view/tslil-aloni/home?authuser=0)) 
-
-
-<div class="indented-text" style="font-size: 0.8em; margin-left: 20px; margin-bottom: 25px; margin-top: -16px">
-    <span style="text-decoration: underline;">Abstract:</span> This paper investigates gender differences in the long-term effects of job loss on workers' labor market outcomes in Israel. Relative to displaced female workers, male counterparts experience a larger drop in earnings due to unexpected job loss, despite both genders seeing similar employment declines. Pre-displacement firm and individual attributes entirely account for this gap, with the displacing firm's wage premium and female share explaining the majority of it. Extending the analysis beyond mean effects to distributional impacts shows that these characteristics account for the observed gender gap across the income distribution. Our findings underscore the significant role of firms in shaping the dynamics of labor market disparities. 
-</div>
 
 
 
@@ -140,9 +134,19 @@ redirect_from:
 
 ### Work in progress
 
-<span style="color:#3b5998">*Residential Location Choice, Family Ties, and Labor Supply*</span> (with [Santiago Lacouture](https://www.santiagolacouture.com/home), [Felipe Lobel](http://felipelobel.com/#home), and [Winnie van Dijk](https://sites.google.com/site/winnielillianvandijk/)) 
+<span style="color:#3b5998">*Residential Location Choice, Family Ties, and Labor Supply*</span> (with [Santiago Lacouture](https://www.santiagolacouture.com/home), [Felipe Lobel](http://felipelobel.com/#home), and [Winnie van Dijk](https://sites.google.com/site/winnielillianvandijk/)) \
+[Slides (NBER SI 2026)](https://conference.nber.org/conf_papers/f247317.slides.pdf)
 
 <span style="color:#3b5998">*The Role of Tax Preparers in Individual Tax Optimization*</span> (with  [Katarzyna Bilicka](https://katarzynabilicka.weebly.com/), [Jakob Brounstein](https://jakobbrounstein.github.io/research.html), [Felipe Lobel](http://felipelobel.com/#home), and Alexander Yuskavage) 
+
+<span style="color:#3b5998">**Gender Differences in the Effects of Job Displacement: The Role of Firms**</span>  (with [Tslil Aloni](https://sites.google.com/view/tslil-aloni/home?authuser=0)) 
+
+<!--- 
+<div class="indented-text" style="font-size: 0.8em; margin-left: 20px; margin-bottom: 25px; margin-top: -16px">
+    <span style="text-decoration: underline;">Abstract:</span> This paper investigates gender differences in the long-term effects of job loss on workers' labor market outcomes in Israel. Relative to displaced female workers, male counterparts experience a larger drop in earnings due to unexpected job loss, despite both genders seeing similar employment declines. Pre-displacement firm and individual attributes entirely account for this gap, with the displacing firm's wage premium and female share explaining the majority of it. Extending the analysis beyond mean effects to distributional impacts shows that these characteristics account for the observed gender gap across the income distribution. Our findings underscore the significant role of firms in shaping the dynamics of labor market disparities. 
+</div>
+-->
+
 
 <span style="color:#3b5998">*The Long-Term Consequences of Exposure to Childhood Trauma*</span> (with [Luisa Cefala](https://luisacef.github.io/), [Ulrike Malmendier](https://haas.berkeley.edu/faculty/malmendier-ulrike/),  and [Maor Milgrom](https://sites.google.com/view/maormilgrom))
 
