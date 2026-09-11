@@ -134,10 +134,10 @@ redirect_from:
 
 ### Work in progress
 
-<span style="color:#3b5998">*Residential Location Choice, Family Ties, and Labor Supply*</span> (with [Santiago Lacouture](https://www.santiagolacouture.com/home), [Felipe Lobel](http://felipelobel.com/#home), and [Winnie van Dijk](https://sites.google.com/site/winnielillianvandijk/)) \
+<span style="color:#3b5998">**Residential Location Choice, Family Ties, and Labor Supply**</span> (with [Santiago Lacouture](https://www.santiagolacouture.com/home), [Felipe Lobel](http://felipelobel.com/#home), and [Winnie van Dijk](https://sites.google.com/site/winnielillianvandijk/)) \
 [Slides (NBER SI 2026)](https://conference.nber.org/conf_papers/f247317.slides.pdf)
 
-<span style="color:#3b5998">*The Role of Tax Preparers in Individual Tax Optimization*</span> (with  [Katarzyna Bilicka](https://katarzynabilicka.weebly.com/), [Jakob Brounstein](https://jakobbrounstein.github.io/research.html), [Felipe Lobel](http://felipelobel.com/#home), and Alexander Yuskavage) 
+<span style="color:#3b5998">**The Role of Tax Preparers in Individual Tax Optimization**</span> (with  [Katarzyna Bilicka](https://katarzynabilicka.weebly.com/), [Jakob Brounstein](https://jakobbrounstein.github.io/research.html), [Felipe Lobel](http://felipelobel.com/#home), and Alexander Yuskavage) 
 
 <span style="color:#3b5998">**Gender Differences in the Effects of Job Displacement: The Role of Firms**</span>  (with [Tslil Aloni](https://sites.google.com/view/tslil-aloni/home?authuser=0)) 
 
@@ -148,7 +148,7 @@ redirect_from:
 -->
 
 
-<span style="color:#3b5998">*The Long-Term Consequences of Exposure to Childhood Trauma*</span> (with [Luisa Cefala](https://luisacef.github.io/), [Ulrike Malmendier](https://haas.berkeley.edu/faculty/malmendier-ulrike/),  and [Maor Milgrom](https://sites.google.com/view/maormilgrom))
+<span style="color:#3b5998">**The Long-Term Consequences of Exposure to Childhood Trauma**</span> (with [Luisa Cefala](https://luisacef.github.io/), [Ulrike Malmendier](https://haas.berkeley.edu/faculty/malmendier-ulrike/),  and [Maor Milgrom](https://sites.google.com/view/maormilgrom))
 
 
 
