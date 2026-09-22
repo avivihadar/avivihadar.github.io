@@ -290,6 +290,12 @@ function runJob(dry) {
     writeLedger(priv, result.ledger);
     writeUnplaced(priv, result.unplaced);
     removed = pruneSignupChoices(result.keepChoiceDates, result.halfFullDates);
+    var badEmails = input.signups.filter(function (x) { return x.email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(x.email); })
+      .map(function (x) { return x.name + ' <' + x.email + '>'; });
+    if (badEmails.length) {
+      console.log('sign-ups with an address that is not an email: ' + badEmails.join('; '));
+      appendLog(priv, [new Date(), 'check', '', '', '', '', 'sign-ups with an address that is not an email: ' + badEmails.join('; ')]);
+    }
     var c = result.changes;
     var changed = c.placed.length || c.replaced.length || c.newUnplaced.length || c.titlesUpdated.length || c.titlesUnmatched.length || removed.length;
     appendLog(priv, [new Date(), 'daily', c.placed.length, c.newUnplaced.length, c.titlesUpdated.length, removed.join(' '), changed ? summaryText(c, removed, result.unplaced) : '']);
@@ -540,9 +546,14 @@ function doGet(e) {
     var secret = pp.getProperty('MAILER_SECRET') || (typeof MAILER_SECRET_FILE !== 'undefined' ? MAILER_SECRET_FILE : '');
     if (!secret || (e.parameter.secret || '') !== secret) return jsonOut({ ok: false, error: 'not authorised' });
     var task = e.parameter.task || '';
-    var allowed = { updateSignupForm: updateSignupForm, seedPeopleTab: seedPeopleTab, previewFor: null, setPerson: null };
+    var allowed = { updateSignupForm: updateSignupForm, seedPeopleTab: seedPeopleTab, previewFor: null,
+      setPerson: null, fixSignup: null, clearPlacement: null, createMailingListForm: createMailingListForm,
+      removeFormQuestion: null };
     if (task === 'previewFor') return jsonOut({ ok: true, task: task, output: previewText(e.parameter.date) });
     if (task === 'setPerson') return jsonOut(setPerson(e.parameter.name, e.parameter.role, e.parameter.affiliation));
+    if (task === 'fixSignup') return jsonOut(fixSignup(e.parameter.match, e.parameter.name, e.parameter.email));
+    if (task === 'clearPlacement') return jsonOut(clearPlacement(e.parameter.name, e.parameter.date));
+    if (task === 'removeFormQuestion') return jsonOut(removeFormQuestion(e.parameter.form, e.parameter.title));
     if (!allowed[task]) return jsonOut({ ok: false, error: 'unknown task' });
     try { allowed[task](); return jsonOut({ ok: true, task: task }); }
     catch (err) { return jsonOut({ ok: false, task: task, error: String(err && err.message || err) }); }
@@ -675,6 +686,67 @@ function setPerson(name, role, affiliation) {
   }
   sh.appendRow([name, role || '', affiliation || '']);
   return { ok: true, added: name, role: role, affiliation: affiliation };
+}
+
+/** Corrects the name and email on a sign-up response (used when someone mis-types a field).
+ *  `match` is matched against the existing name or email of the row. */
+function fixSignup(match, name, email) {
+  if (!match) return { ok: false, error: 'match is required' };
+  var priv = SpreadsheetApp.openById(PRIVATE_SHEET_ID);
+  var sh = priv.getSheetByName(SIGNUP_TAB);
+  var data = sh.getDataRange().getValues();
+  var h = data[0];
+  var iName = headerIndex(h, 'Full name'), iEmail = headerIndex(h, 'Email');
+  var fixed = [];
+  for (var i = 1; i < data.length; i++) {
+    var rowName = cellStr(data[i][iName]), rowEmail = cellStr(data[i][iEmail]);
+    if (rowName !== match && rowEmail !== match) continue;
+    if (name) sh.getRange(i + 1, iName + 1).setValue(name);
+    if (email) sh.getRange(i + 1, iEmail + 1).setValue(email);
+    fixed.push({ row: i + 1, was: rowName + ' <' + rowEmail + '>' });
+  }
+  return fixed.length ? { ok: true, fixed: fixed } : { ok: false, error: 'no response matched ' + match };
+}
+
+/** Removes a placement: the schedule row(s) and the ledger row(s) for that person.
+ *  The date itself stays on the schedule as an open slot. With `date`, only that date is cleared. */
+function clearPlacement(name, date) {
+  if (!name) return { ok: false, error: 'name is required' };
+  var pub = SpreadsheetApp.getActive();
+  var priv = SpreadsheetApp.openById(PRIVATE_SHEET_ID);
+  var sched = pub.getSheetByName(TAB.schedule);
+  var rows = sortSchedule(readSchedule(sched));
+  var removedDates = [];
+  for (var i = rows.length - 1; i >= 0; i--) {
+    var r = rows[i];
+    if (!hasPresenter(r) || !namesMatch(r.presenter, name)) continue;
+    if (date && r.date !== date) continue;
+    removedDates.push(r.date);
+    rows.splice(i, 1);
+    if (!rows.some(function (x) { return x.date === r.date; })) {
+      rows.push({ date: r.date, term: r.term, start: '12:00', end: '13:00', presenter: '', slot: null, title: '', rsvps: '', notes: r.notes || '' });
+    }
+  }
+  writeSchedule(sched, sortSchedule(rows));
+  var lsh = getOrCreateTab(priv, TAB.ledger, LEDGER_HEADER);
+  var ledger = readLedger(priv).filter(function (l) {
+    return !(namesMatch(l.name, name) && (!date || l.date === date));
+  });
+  writeLedger(priv, ledger);
+  return { ok: true, clearedDates: removedDates.sort(), ledgerRowsLeft: ledger.length };
+}
+
+/** Deletes a question from one of the forms. `form` is a Config key such as mailing_form_id. */
+function removeFormQuestion(formKey, titlePrefix) {
+  if (!formKey || !titlePrefix) return { ok: false, error: 'form and title are required' };
+  var cfg = readConfig(SpreadsheetApp.getActive());
+  var id = cfg[formKey] || formKey;
+  var form = FormApp.openById(id);
+  var removed = [];
+  form.getItems().forEach(function (item) {
+    if (item.getTitle().indexOf(titlePrefix) === 0) { removed.push(item.getTitle()); form.deleteItem(item); }
+  });
+  return removed.length ? { ok: true, removed: removed } : { ok: false, error: 'no question starts with ' + titlePrefix };
 }
 
 function readMailingList(priv) {
@@ -815,7 +887,6 @@ function createMailingListForm() {
    .setCollectEmail(false).setConfirmationMessage('Thanks, you are on the list.').setAllowResponseEdits(false);
   f.addTextItem().setTitle('Name').setRequired(true);
   f.addTextItem().setTitle('Email address').setRequired(true);
-  f.addMultipleChoiceItem().setTitle('Are you a PhD student in the applied group?').setChoiceValues(['Yes', 'No']).setRequired(false);
   var before = priv.getSheets().map(function (sh) { return sh.getSheetId(); });
   f.setDestination(FormApp.DestinationType.SPREADSHEET, priv.getId());
   SpreadsheetApp.flush();
