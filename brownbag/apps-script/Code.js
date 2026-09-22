@@ -16,13 +16,13 @@
 var SIGNUP_FORM_ID = '1n6CPnkBOPCMrWJ7WRAovjcy3FkdxwJ2JpYlAqaemMAM';
 var PRIVATE_SHEET_ID = '1Q5JzJnDdLg5wwlLByaMv5FYDdSHgZpWzUOioJGJ0BB0';
 var SIGNUP_TAB = 'Form Responses 1';
-var MIN_LEAD_DAYS = 7;
-var FIRST_SEMINAR_DATE = '2026-10-05';   // earlier Mondays are dropped from the schedule
+var MIN_LEAD_DAYS = 3;   // a date leaves the sign-up form this many days before it happens
+var FIRST_SEMINAR_DATE = '2026-09-28';   // earlier Mondays are dropped from the schedule
 
 /* Every Monday the seminar can run. Add or remove dates here: the daily job creates a row for any
  * future date that is missing from the Schedule tab, and the sign-up form follows the schedule. */
 var SEMINAR_DATES = [
-  '2026-10-05', '2026-10-12', '2026-10-19', '2026-10-26', '2026-11-02', '2026-11-16', '2026-11-23',
+  '2026-09-28', '2026-10-05', '2026-10-12', '2026-10-19', '2026-10-26', '2026-11-02', '2026-11-16', '2026-11-23',
   '2026-11-30', '2026-12-07', '2026-12-14',
   '2027-02-22',
   '2027-03-01', '2027-03-08', '2027-03-15', '2027-03-22',
