@@ -117,7 +117,15 @@ function forwardReplies() {
   if (forwarded) console.log('forwarded ' + forwarded + ' message(s)');
 }
 
-/** Handy check from the editor: sends one email to the organisers. */
+/** First check from the editor: sends one email to Hadar only. */
+function sendTestToHadar() {
+  GmailApp.sendEmail(ORGANISERS[0], 'Brown bag mailer: test',
+    'This is a test from the brown bag mailer. Replies go to ' + REPLY_TO + '.',
+    { name: SENDER_NAME, replyTo: REPLY_TO });
+  console.log('test sent to ' + ORGANISERS[0]);
+}
+
+/** Later check: sends one email to both organisers. */
 function sendTestToOrganisers() {
   GmailApp.sendEmail(ORGANISERS.join(','), 'Brown bag mailer: test',
     'This is a test from the brown bag mailer. Replies go to ' + REPLY_TO + '.',

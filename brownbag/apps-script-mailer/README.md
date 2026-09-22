@@ -25,4 +25,4 @@ Addresses and the sender name are the constants at the top of `Code.js`.
 5. Give the secret and the URL to the scheduler script (Claude does this, or paste them into the
    scheduler's Script Properties as `MAILER_URL` and `MAILER_SECRET`).
 
-`sendTestToOrganisers` sends one test email. `showSecret` prints the secret again.
+`sendTestToHadar` sends one test email to Hadar only; `sendTestToOrganisers` sends to both. `showSecret` prints the secret again.
