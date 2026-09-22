@@ -187,8 +187,7 @@
     var row = el('div', 'title-form__row');
     var save = el('button', 'btn', 'Save title'); save.type = 'submit';
     var cancel = el('button', 'btn btn--ghost', 'Cancel'); cancel.type = 'button';
-    var note = el('span', 'title-form__note', 'Posting as ' + talk.presenter + ', ' + labelForIso(date) + '.');
-    row.appendChild(save); row.appendChild(cancel); row.appendChild(note);
+    row.appendChild(save); row.appendChild(cancel);
     var msg = el('p', 'title-form__msg');
     form.appendChild(emailNote); form.appendChild(emailIn); form.appendChild(titleIn); form.appendChild(coIn); form.appendChild(row); form.appendChild(msg);
     cancel.addEventListener('click', function () { form.remove(); });
