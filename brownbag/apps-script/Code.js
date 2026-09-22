@@ -148,7 +148,10 @@ function removeEmptyFormTabs(priv) {
   priv.getSheets().forEach(function (sh) {
     var name = sh.getName();
     if (name === SIGNUP_TAB || name === TAB.rsvp || name === TAB.title) return;
-    if (/^Form Responses \d+$/.test(name) && sh.getLastRow() <= 1) { console.log('removing empty tab ' + name); priv.deleteSheet(sh); }
+    if (/^Form Responses \d+$/.test(name) && sh.getLastRow() <= 1) {
+      try { priv.deleteSheet(sh); console.log('removed empty tab ' + name); }
+      catch (e) { sh.hideSheet(); console.log('hid empty tab ' + name + ' (still linked to a binned form)'); }
+    }
   });
 }
 
