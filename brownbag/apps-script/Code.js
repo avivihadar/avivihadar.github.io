@@ -553,7 +553,8 @@ function doGet(e) {
     var allowed = { updateSignupForm: updateSignupForm, seedPeopleTab: seedPeopleTab, previewFor: null,
       setPerson: null, fixSignup: null, clearPlacement: null, createMailingListForm: createMailingListForm,
       removeFormQuestion: null, renameFormQuestion: null, sendPresenterReminder: null,
-      installTriggers: installTriggers, listTriggers: null, stats: null };
+      installTriggers: installTriggers, listTriggers: null, stats: null, addToMailingList: null,
+      addPresentersToMailingList: null };
     if (task === 'previewFor') return jsonOut({ ok: true, task: task, output: previewText(e.parameter.date) });
     if (task === 'setPerson') return jsonOut(setPerson(e.parameter.name, e.parameter.role, e.parameter.affiliation));
     if (task === 'fixSignup') return jsonOut(fixSignup(e.parameter.match, e.parameter.name, e.parameter.email));
@@ -563,6 +564,8 @@ function doGet(e) {
     if (task === 'sendPresenterReminder') return jsonOut(sendPresenterReminder(e.parameter.date));
     if (task === 'listTriggers') return jsonOut({ ok: true, triggers: listTriggers() });
     if (task === 'stats') return jsonOut(stats());
+    if (task === 'addToMailingList') return jsonOut(addToMailingList(e.parameter.people));
+    if (task === 'addPresentersToMailingList') return jsonOut(addPresentersToMailingList());
     if (!allowed[task]) return jsonOut({ ok: false, error: 'unknown task' });
     try { allowed[task](); return jsonOut({ ok: true, task: task }); }
     catch (err) { return jsonOut({ ok: false, task: task, error: String(err && err.message || err) }); }
@@ -996,4 +999,62 @@ function stats() {
                latest: signups.slice(-4).map(function (s) { return s.name + ' (' + (s.affiliation || '?') + ')'; }) },
     rsvps: { total: rsvps.length, forNextMonday: forMonday.length,
              names: forMonday.map(function (r) { return r.name; }) } };
+}
+
+/**
+ * Adds people to the Mailing list tab, skipping addresses already there.
+ * `people` is "Name <email>; Name <email>; plain@address" in any mixture.
+ */
+function addToMailingList(people) {
+  if (!people) return { ok: false, error: 'people is required' };
+  var priv = SpreadsheetApp.openById(PRIVATE_SHEET_ID);
+  var sh = priv.getSheetByName(TAB.mailing);
+  if (!sh) return { ok: false, error: 'no Mailing list tab' };
+  var have = {};
+  readMailingList(priv).forEach(function (m) { have[normaliseEmail(m.email)] = true; });
+
+  var header = sh.getRange(1, 1, 1, sh.getLastColumn()).getValues()[0];
+  var iTs = headerIndex(header, 'Timestamp');
+  var iName = headerIndex(header, 'Full name'); if (iName < 0) iName = headerIndex(header, 'Name');
+  var iEmail = headerIndex(header, 'Email');
+
+  var added = [], skipped = [];
+  String(people).split(/\s*;\s*/).forEach(function (entry) {
+    entry = entry.trim();
+    if (!entry) return;
+    var m = entry.match(/^(.*?)\s*<\s*([^>]+)\s*>$/);
+    var name = m ? m[1].trim() : '';
+    var email = normaliseEmail(m ? m[2] : entry);
+    if (!email || email.indexOf('@') < 0) { skipped.push({ entry: entry, why: 'not an email' }); return; }
+    if (have[email]) { skipped.push({ entry: name || email, why: 'already on the list' }); return; }
+    var row = new Array(sh.getLastColumn()).fill('');
+    if (iTs >= 0) row[iTs] = new Date();
+    if (iName >= 0) row[iName] = name || email.split('@')[0];
+    if (iEmail >= 0) row[iEmail] = email; else row[1] = email;
+    sh.appendRow(row);
+    have[email] = true;
+    added.push(name || email);
+  });
+  return { ok: true, added: added, addedCount: added.length, skipped: skipped, total: readMailingList(priv).length };
+}
+
+/** Puts every scheduled presenter on the mailing list, if their address is known and not there yet. */
+function addPresentersToMailingList() {
+  var priv = SpreadsheetApp.openById(PRIVATE_SHEET_ID);
+  var signups = readSignups(priv);
+  var ledger = readLedger(priv);
+  var schedule = readSchedule(SpreadsheetApp.getActive().getSheetByName(TAB.schedule));
+  var entries = [], seen = {};
+  schedule.forEach(function (r) {
+    if (!r.presenter) return;
+    var email = emailOf(r.presenter, signups, ledger);
+    if (!email || seen[email]) return;
+    seen[email] = true;
+    entries.push(r.presenter + ' <' + email + '>');
+  });
+  var missing = schedule.filter(function (r) { return r.presenter && !emailOf(r.presenter, signups, ledger); })
+    .map(function (r) { return r.presenter; });
+  var res = addToMailingList(entries.join('; '));
+  res.noEmailKnown = missing;
+  return res;
 }

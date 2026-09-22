@@ -94,7 +94,11 @@ Call the scheduler's web address with `?action=admin&secret=<secret>&task=<task>
 `updateSignupForm`, `seedPeopleTab`, `setPerson` (name, role, affiliation), `fixSignup` (match,
 name, email), `clearPlacement` (name, optional date), `createMailingListForm`, `removeFormQuestion`,
 `renameFormQuestion`, `sendPresenterReminder` (date), `previewFor` (date, returns the drafts as
-text), `installTriggers`, `listTriggers`.
+text), `installTriggers`, `listTriggers`, `stats` (quick counts),
+`addToMailingList` (people as "Name <email>; ..."), `addPresentersToMailingList`.
+
+The mailer refuses more than 90 recipients in one message, and a free Gmail account can send to
+about 100 a day. When the mailing list passes roughly 85, move it to a Google Group address.
 
 `?action=run` runs the daily job immediately, at most once every ten minutes.
 `?action=schedule` returns the schedule as JSON; this is what the web page reads.
