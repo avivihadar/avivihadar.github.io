@@ -147,11 +147,11 @@
     return box;
   }
 
-  function renderOpen(group, start, end, isPast) {
+  function renderOpen(group, start, end, isPast, showLink) {
     var box = el('div', 'talk');
     box.appendChild(el('p', 'tag', (start === '12:00' && end === '13:00') ? 'Open slot' : 'Open 30-minute slot · ' + start + '–' + end));
     box.appendChild(el('h2', 'speaker tbd', 'TBD'));
-    if (!isPast && CFG.signupFormUrl) {
+    if (!isPast && showLink && CFG.signupFormUrl) {
       var actions = el('p', 'actions');
       actions.appendChild(link(CFG.signupFormUrl, 'Sign up for this slot'));
       box.appendChild(actions);
@@ -159,8 +159,15 @@
     return box;
   }
 
-  function renderGroup(group, today) {
+  var SIGNUP_LINKS_MAX = 2;   // "Sign up for this slot" only on the earliest open slots
+
+  function renderGroup(group, today, counter) {
     var isPast = group.date < today;
+    function openSlot(start, end) {
+      var show = !isPast && counter.openLinks < SIGNUP_LINKS_MAX;
+      if (show) counter.openLinks++;
+      return renderOpen(group, start, end, isPast, show);
+    }
     var art = el('article', isPast ? 'is-past' : '');
     var time = el('time');
     time.setAttribute('datetime', group.date);
@@ -170,9 +177,9 @@
     art.appendChild(time);
 
     var main = el('div');
-    if (group.talks.length === 0) main.appendChild(renderOpen(group, '12:00', '13:00', isPast));
+    if (group.talks.length === 0) main.appendChild(openSlot('12:00', '13:00'));
     group.talks.forEach(function (t) { main.appendChild(renderTalk(group, t, isPast)); });
-    if (group.freeHalf) main.appendChild(renderOpen(group, group.freeHalf, group.freeHalf === '12:00' ? '12:30' : '13:00', isPast));
+    if (group.freeHalf) main.appendChild(openSlot(group.freeHalf, group.freeHalf === '12:00' ? '12:30' : '13:00'));
     art.appendChild(main);
 
     var meta = el('div', 'meta');
@@ -188,14 +195,15 @@
     var upcoming = groups.filter(function (g) { return g.date >= today; });
     var past = groups.filter(function (g) { return g.date < today; });
     var lastTerm = null;
+    var counter = { openLinks: 0 };
     upcoming.forEach(function (g) {
       if (g.term && g.term !== lastTerm) { frag.appendChild(el('h2', 'term', g.term)); lastTerm = g.term; }
-      frag.appendChild(renderGroup(g, today));
+      frag.appendChild(renderGroup(g, today, counter));
     });
     if (!upcoming.length) frag.appendChild(el('p', 'status', 'No upcoming sessions are scheduled yet.'));
     if (past.length) {
       frag.appendChild(el('h2', 'past-heading', 'Past talks'));
-      past.forEach(function (g) { frag.appendChild(renderGroup(g, today)); });
+      past.forEach(function (g) { frag.appendChild(renderGroup(g, today, counter)); });
     }
     return frag;
   }
@@ -226,14 +234,16 @@
       list.appendChild(render(groupByDate(rows), today));
     }
 
-    var live = CFG.csvUrl ? fetchText(CFG.csvUrl + (CFG.csvUrl.indexOf('?') >= 0 ? '&' : '?') + '_=' + Date.now(), 10000) : Promise.reject(new Error('no csvUrl'));
+    var fallbackUrl = '/brownbag/fallback.csv?_=' + Date.now();
+    // Until the published sheet link is configured, the saved copy is the schedule: no warning needed.
+    var live = CFG.csvUrl ? fetchText(CFG.csvUrl + (CFG.csvUrl.indexOf('?') >= 0 ? '&' : '?') + '_=' + Date.now(), 10000) : fetchText(fallbackUrl, 10000);
     live.then(function (text) {
       show(text); status.textContent = ''; status.className = 'status';
     }).catch(function (err) {
-      return fetchText('/brownbag/fallback.csv?_=' + Date.now(), 10000).then(function (text) {
+      return fetchText(fallbackUrl, 10000).then(function (text) {
         show(text);
         status.className = 'status warn';
-        status.textContent = 'The live schedule could not be loaded (' + err.message + '). Showing the last saved copy.';
+        status.textContent = 'The live schedule could not be loaded. Showing the last saved copy.';
       });
     }).catch(function (err) {
       status.className = 'status error';
