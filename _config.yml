@@ -127,6 +127,7 @@ exclude:
   - assets/js/plugins
   - assets/js/_main.js
   - assets/js/vendor
+  - brownbag/apps-script
   - Capfile
   - CHANGELOG
   - config

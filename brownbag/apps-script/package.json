@@ -1,0 +1,8 @@
+{
+  "name": "brownbag-scheduler",
+  "private": true,
+  "description": "Apps Script sources and tests for the Applied Micro Brown Bag schedule",
+  "scripts": {
+    "test": "node --test"
+  }
+}

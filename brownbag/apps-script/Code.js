@@ -1,0 +1,376 @@
+/**
+ * Applied Micro Brown Bag: Google glue around scheduler.js.
+ *
+ * This script is bound to the PUBLIC "Schedule" spreadsheet. It reads the
+ * PRIVATE spreadsheet (sign-up responses, RSVP and title responses, ledger)
+ * by id, so nothing with an email address ever sits in the published file.
+ *
+ * Functions Hadar runs from the editor:
+ *   setup()          once, after pasting the code
+ *   dryRun()         shows what dailyJob would do, writes nothing
+ *   dailyJob()       the daily job (also installed as a 12:00 trigger)
+ *   sendTestEmail()  checks that summary emails arrive
+ *   listTriggers()   shows the installed trigger
+ */
+
+// ---- fixed ids -----------------------------------------------------------
+var SIGNUP_FORM_ID = '1n6CPnkBOPCMrWJ7WRAovjcy3FkdxwJ2JpYlAqaemMAM';
+var PRIVATE_SHEET_ID = '1Q5JzJnDdLg5wwlLByaMv5FYDdSHgZpWzUOioJGJ0BB0';
+var SIGNUP_TAB = 'Form Responses 1';
+var ORGANISER_EMAIL = 'h.avivi@ucl.ac.uk';
+var MIN_LEAD_DAYS = 7;
+var TZ = 'Europe/London';
+
+var TAB = { schedule: 'Schedule', config: 'Config', ledger: 'Placements', unplaced: 'Unplaced', log: 'Log', rsvp: 'RSVP Responses', title: 'Title Responses' };
+var SCHEDULE_HEADER = ['date', 'term', 'start', 'end', 'presenter', 'slot_min', 'title', 'rsvps', 'notes'];
+var LEDGER_HEADER = ['email', 'name', 'date', 'slot_min', 'placed_at', 'source'];
+var UNPLACED_HEADER = ['email', 'name', 'slot_min', 'dates_ticked', 'reason', 'first_seen'];
+var LOG_HEADER = ['run_at', 'mode', 'placed', 'new_unplaced', 'titles_updated', 'dates_removed', 'error'];
+
+// ---- one-time setup -------------------------------------------------------
+function setup() {
+  var props = PropertiesService.getScriptProperties();
+  if (props.getProperty('SETUP_DONE')) throw new Error('setup() already ran. Delete the SETUP_DONE script property to run it again.');
+  var pub = SpreadsheetApp.getActive();
+  var priv = SpreadsheetApp.openById(PRIVATE_SHEET_ID);
+
+  // 1. Schedule tab: rename the seeded sheet, fix header, plain-text formats.
+  var sched = pub.getSheetByName(TAB.schedule) || pub.getSheets()[0].setName(TAB.schedule);
+  var rows = readSchedule(sched);              // read first: the CSV import may hold real date/time cells
+  sched.getRange(1, 1, 1, SCHEDULE_HEADER.length).setValues([SCHEDULE_HEADER]).setFontWeight('bold');
+  sched.setFrozenRows(1);
+  ['A:A', 'C:D', 'F:F', 'H:H'].forEach(function (r) { sched.getRange(r).setNumberFormat('@'); });
+  writeSchedule(sched, sortSchedule(rows));    // write back as plain text
+  sched.autoResizeColumns(1, SCHEDULE_HEADER.length);
+
+  // 2. Private tabs.
+  var ledger = getOrCreateTab(priv, TAB.ledger, LEDGER_HEADER);
+  getOrCreateTab(priv, TAB.unplaced, UNPLACED_HEADER);
+  getOrCreateTab(priv, TAB.log, LOG_HEADER);
+
+  // 3. Seed the ledger from whoever is already on the schedule.
+  var signups = readSignups(priv);
+  var existing = ledger.getLastRow() > 1 ? ledger.getRange(2, 1, ledger.getLastRow() - 1, LEDGER_HEADER.length).getValues() : [];
+  var seeded = [];
+  var unresolved = [];
+  rows.forEach(function (r) {
+    if (!r.presenter) return;
+    if (existing.some(function (e) { return namesMatch(e[1], r.presenter); }) || seeded.some(function (e) { return namesMatch(e[1], r.presenter); })) return;
+    var match = signups.filter(function (s) { return namesMatch(s.name, r.presenter); })[0];
+    if (!match) unresolved.push(r.presenter);
+    seeded.push([match ? match.email : '', r.presenter, r.date, r.slot, todayIso(), 'seed']);
+  });
+  if (seeded.length) ledger.getRange(ledger.getLastRow() + 1, 1, seeded.length, LEDGER_HEADER.length).setValues(seeded);
+
+  // 4. RSVP and Title forms, responses into the private spreadsheet.
+  var rsvp = createForm(priv, 'Applied Micro Brown Bag: RSVP',
+    'Let us know you are coming so we order enough lunch. Mondays 12-1pm, Room 321, Drayton House.',
+    TAB.rsvp, [
+      { type: 'text', title: 'Seminar date', required: true },
+      { type: 'text', title: 'Presenter', required: true },
+      { type: 'text', title: 'Your name', required: true },
+      { type: 'text', title: 'Dietary requirements (optional)', required: false }
+    ], 'Thanks, see you on Monday.');
+  var title = createForm(priv, 'Applied Micro Brown Bag: talk title',
+    'Presenters: add the title of your talk so it appears on the schedule. You can resubmit to change it.',
+    TAB.title, [
+      { type: 'text', title: 'Seminar date', required: true },
+      { type: 'text', title: 'Presenter', required: true },
+      { type: 'text', title: 'Paper title', required: true },
+      { type: 'text', title: 'Co-authors (optional)', required: false },
+      { type: 'paragraph', title: 'Abstract or link (optional)', required: false }
+    ], 'Thanks, the schedule updates once a day at noon.');
+
+  // 5. Config tab in the public file (nothing sensitive).
+  var signupForm = FormApp.openById(SIGNUP_FORM_ID);
+  var config = [
+    ['key', 'value'],
+    ['signup_form_id', SIGNUP_FORM_ID],
+    ['signup_form_url', signupForm.getPublishedUrl()],
+    ['private_sheet_id', PRIVATE_SHEET_ID],
+    ['rsvp_form_id', rsvp.id],
+    ['rsvp_form_url', rsvp.url],
+    ['rsvp_entry_date', rsvp.entries['Seminar date']],
+    ['rsvp_entry_presenter', rsvp.entries['Presenter']],
+    ['title_form_id', title.id],
+    ['title_form_url', title.url],
+    ['title_entry_date', title.entries['Seminar date']],
+    ['title_entry_presenter', title.entries['Presenter']],
+    ['min_lead_days', MIN_LEAD_DAYS],
+    ['organiser_email', ORGANISER_EMAIL],
+    ['setup_at', new Date().toISOString()]
+  ];
+  var cfg = getOrCreateTab(pub, TAB.config, ['key', 'value']);
+  cfg.clearContents();
+  cfg.getRange(1, 1, config.length, 2).setValues(config);
+  cfg.getRange('A:B').setNumberFormat('@');
+
+  // 6. Daily trigger at 12:00 London.
+  installTrigger();
+
+  props.setProperties({ RSVP_FORM_ID: rsvp.id, TITLE_FORM_ID: title.id, SETUP_DONE: new Date().toISOString() });
+  console.log('setup complete. Ledger seeded: ' + seeded.length + '. Names without a sign-up email (fine for faculty): ' + unresolved.join(', '));
+  console.log('RSVP prefilled example: ' + rsvp.example);
+  console.log('Title prefilled example: ' + title.example);
+}
+
+function createForm(priv, name, description, tabName, items, confirmation) {
+  var f = FormApp.create(name);
+  f.setDescription(description).setCollectEmail(false).setConfirmationMessage(confirmation).setAllowResponseEdits(false);
+  var made = {};
+  items.forEach(function (it) {
+    var item = it.type === 'paragraph' ? f.addParagraphTextItem() : f.addTextItem();
+    item.setTitle(it.title).setRequired(!!it.required);
+    made[it.title] = item;
+  });
+  var before = priv.getSheets().map(function (s) { return s.getSheetId(); });
+  f.setDestination(FormApp.DestinationType.SPREADSHEET, priv.getId());
+  SpreadsheetApp.flush();
+  var fresh = SpreadsheetApp.openById(priv.getId());
+  var newSheet = fresh.getSheets().filter(function (s) { return before.indexOf(s.getSheetId()) < 0; })[0];
+  if (newSheet) newSheet.setName(tabName);
+  // Prefill entry ids: build a prefilled URL with sentinel values and read the ids back.
+  var resp = f.createResponse()
+    .withItemResponse(made['Seminar date'].createResponse('DATE_SENTINEL'))
+    .withItemResponse(made['Presenter'].createResponse('PRESENTER_SENTINEL'));
+  var url = resp.toPrefilledUrl();
+  var entries = {};
+  var re = /entry\.(\d+)=([^&]*)/g, m;
+  while ((m = re.exec(url)) !== null) {
+    var v = decodeURIComponent(m[2].replace(/\+/g, ' '));
+    if (v === 'DATE_SENTINEL') entries['Seminar date'] = m[1];
+    if (v === 'PRESENTER_SENTINEL') entries['Presenter'] = m[1];
+  }
+  var base = f.getPublishedUrl().split('?')[0];
+  return { id: f.getId(), url: base, entries: entries, example: base + '?usp=pp_url&entry.' + entries['Seminar date'] + '=Mon+5+Oct+2026&entry.' + entries['Presenter'] + '=Test+Presenter' };
+}
+
+function installTrigger() {
+  ScriptApp.getProjectTriggers().forEach(function (t) { if (t.getHandlerFunction() === 'dailyJob') ScriptApp.deleteTrigger(t); });
+  ScriptApp.newTrigger('dailyJob').timeBased().atHour(12).everyDays(1).inTimezone(TZ).create();
+}
+
+function listTriggers() {
+  ScriptApp.getProjectTriggers().forEach(function (t) { console.log(t.getHandlerFunction() + ' ' + t.getEventType()); });
+}
+
+function sendTestEmail() {
+  MailApp.sendEmail(ORGANISER_EMAIL, 'Brown bag: test email', 'The brown bag script can email you.');
+}
+
+// ---- daily job ------------------------------------------------------------
+function dailyJob() { runJob(false); }
+function dryRun() { runJob(true); }
+function runNow() { runJob(false); }
+
+function runJob(dry) {
+  var lock = LockService.getScriptLock();
+  if (!lock.tryLock(30000)) { console.log('another run is in progress'); return; }
+  var pub = SpreadsheetApp.getActive();
+  var priv = SpreadsheetApp.openById(PRIVATE_SHEET_ID);
+  var sched = pub.getSheetByName(TAB.schedule);
+  var today = todayIso();
+  var result;
+  try {
+    var input = {
+      schedule: readSchedule(sched),
+      ledger: readLedger(priv),
+      signups: readSignups(priv),
+      titles: readTitleResponses(priv),
+      rsvps: readRsvpResponses(priv),
+      prevUnplaced: readUnplaced(priv),
+      today: today,
+      minLeadDays: MIN_LEAD_DAYS
+    };
+    result = run(input);
+    var removed = [];
+    if (dry) {
+      console.log('DRY RUN ' + JSON.stringify(result.changes));
+      console.log('dates that would stay on the form: ' + result.keepChoiceDates.join(', '));
+      console.log('unplaced: ' + JSON.stringify(result.unplaced));
+      return;
+    }
+    writeSchedule(sched, result.schedule);
+    appendLedger(priv, result.newLedger);
+    writeUnplaced(priv, result.unplaced);
+    removed = pruneSignupChoices(result.keepChoiceDates, result.halfFullDates);
+    appendLog(priv, [new Date(), 'daily', result.changes.placed.length, result.changes.newUnplaced.length, result.changes.titlesUpdated.length, removed.join(' '), '']);
+    var c = result.changes;
+    if (c.placed.length || c.newUnplaced.length || c.titlesUpdated.length || c.titlesUnmatched.length || removed.length) {
+      MailApp.sendEmail(ORGANISER_EMAIL, 'Brown bag: schedule updated', summaryText(c, removed, result.unplaced));
+    }
+    console.log(JSON.stringify(c));
+  } catch (e) {
+    console.error(e);
+    if (!dry) appendLog(priv, [new Date(), 'daily', '', '', '', '', String(e && e.message || e)]);
+    throw e;
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function summaryText(c, removed, unplaced) {
+  var lines = ['Applied Micro Brown Bag: daily update', ''];
+  if (c.placed.length) {
+    lines.push('Newly scheduled:');
+    c.placed.forEach(function (p) { lines.push('  ' + labelForIso(p.date) + ' ' + p.start + '  ' + p.name + ' (' + p.slot + ' min)'); });
+    lines.push('');
+  }
+  if (c.newUnplaced.length) {
+    lines.push('Could not be placed (see the Unplaced tab):');
+    c.newUnplaced.forEach(function (u) { lines.push('  ' + u.name + ' <' + u.email + '> ' + u.slot + ' min: ' + u.reason); });
+    lines.push('');
+  }
+  if (c.titlesUpdated.length) {
+    lines.push('Titles added or changed:');
+    c.titlesUpdated.forEach(function (t) { lines.push('  ' + labelForIso(t.date) + ' ' + t.presenter + ': ' + t.title); });
+    lines.push('');
+  }
+  if (c.titlesUnmatched.length) {
+    lines.push('Title submissions that did not match a scheduled talk (fix in Title Responses):');
+    c.titlesUnmatched.forEach(function (t) { lines.push('  ' + t.date + ' ' + t.presenter + ': ' + t.title); });
+    lines.push('');
+  }
+  if (removed.length) lines.push('Dates removed from the sign-up form: ' + removed.join(', '), '');
+  lines.push('Still unplaced in total: ' + unplaced.length);
+  lines.push('', 'Schedule: ' + SpreadsheetApp.getActive().getUrl());
+  return lines.join('\n');
+}
+
+// ---- readers --------------------------------------------------------------
+function todayIso() { return Utilities.formatDate(new Date(), TZ, 'yyyy-MM-dd'); }
+
+function cellDate(v) {
+  if (v instanceof Date) return Utilities.formatDate(v, TZ, 'yyyy-MM-dd');
+  var s = String(v || '').trim();
+  return parseChoiceLabel(s) || s;
+}
+function cellTime(v) {
+  if (v instanceof Date) return Utilities.formatDate(v, TZ, 'HH:mm');
+  var m = String(v || '').match(/^(\d{1,2}):(\d{2})/);
+  return m ? (m[1].length === 1 ? '0' + m[1] : m[1]) + ':' + m[2] : String(v || '');
+}
+function cellStr(v) { return v === null || v === undefined ? '' : String(v).trim(); }
+
+function readSchedule(sheet) {
+  if (sheet.getLastRow() < 2) return [];
+  var values = sheet.getRange(2, 1, sheet.getLastRow() - 1, SCHEDULE_HEADER.length).getValues();
+  return values.filter(function (r) { return cellStr(r[0]); }).map(function (r) {
+    var presenter = cellStr(r[4]);
+    if (/^(\(open\)|tbd|tba)$/i.test(presenter)) presenter = '';
+    return { date: cellDate(r[0]), term: cellStr(r[1]), start: cellTime(r[2]) || '12:00', end: cellTime(r[3]) || '13:00',
+      presenter: presenter, slot: parseSlot(r[5]), title: cellStr(r[6]), rsvps: cellStr(r[7]) === '' ? '' : Number(r[7]), notes: cellStr(r[8]) };
+  });
+}
+
+function headerIndex(headers, prefix) {
+  for (var i = 0; i < headers.length; i++) if (String(headers[i]).toLowerCase().indexOf(prefix.toLowerCase()) === 0) return i;
+  return -1;
+}
+
+function readSignups(priv) {
+  var sh = priv.getSheetByName(SIGNUP_TAB);
+  if (!sh || sh.getLastRow() < 2) return [];
+  var data = sh.getDataRange().getValues();
+  var h = data[0];
+  var iTs = headerIndex(h, 'Timestamp'), iName = headerIndex(h, 'Full name'), iEmail = headerIndex(h, 'Email'),
+      iDates = headerIndex(h, 'Which Mondays'), iSlot = headerIndex(h, 'How long'), iAdv = headerIndex(h, 'If you are a PhD'), iDiet = headerIndex(h, 'Do you have any dietary');
+  return data.slice(1).filter(function (r) { return cellStr(r[iName]) || cellStr(r[iEmail]); }).map(function (r) {
+    var dates = cellStr(r[iDates]).split(/,\s*/).map(parseChoiceLabel).filter(Boolean);
+    return { ts: r[iTs] instanceof Date ? r[iTs].getTime() : Date.parse(r[iTs]) || 0, name: cellStr(r[iName]), email: normaliseEmail(r[iEmail]),
+      dates: dates, slot: parseSlot(r[iSlot]), advisors: iAdv >= 0 ? cellStr(r[iAdv]) : '', dietary: iDiet >= 0 ? cellStr(r[iDiet]) : '' };
+  });
+}
+
+function readLedger(priv) {
+  var sh = priv.getSheetByName(TAB.ledger);
+  if (!sh || sh.getLastRow() < 2) return [];
+  return sh.getRange(2, 1, sh.getLastRow() - 1, LEDGER_HEADER.length).getValues().filter(function (r) { return cellStr(r[0]) || cellStr(r[1]); })
+    .map(function (r) { return { email: normaliseEmail(r[0]), name: cellStr(r[1]), date: cellDate(r[2]), slot: parseSlot(r[3]), placedAt: cellDate(r[4]), source: cellStr(r[5]) }; });
+}
+
+function readUnplaced(priv) {
+  var sh = priv.getSheetByName(TAB.unplaced);
+  if (!sh || sh.getLastRow() < 2) return [];
+  return sh.getRange(2, 1, sh.getLastRow() - 1, UNPLACED_HEADER.length).getValues().map(function (r) { return { email: normaliseEmail(r[0]), name: cellStr(r[1]) }; });
+}
+
+function readFormTab(priv, tabName, fields) {
+  var sh = priv.getSheetByName(tabName);
+  if (!sh || sh.getLastRow() < 2) return [];
+  var data = sh.getDataRange().getValues();
+  var h = data[0];
+  var idx = {};
+  Object.keys(fields).forEach(function (k) { idx[k] = headerIndex(h, fields[k]); });
+  var iTs = headerIndex(h, 'Timestamp');
+  return data.slice(1).map(function (r) {
+    var o = { ts: r[iTs] instanceof Date ? r[iTs].getTime() : 0 };
+    Object.keys(idx).forEach(function (k) { o[k] = idx[k] >= 0 ? cellStr(r[idx[k]]) : ''; });
+    return o;
+  });
+}
+function readTitleResponses(priv) { return readFormTab(priv, TAB.title, { date: 'Seminar date', presenter: 'Presenter', title: 'Paper title' }); }
+function readRsvpResponses(priv) { return readFormTab(priv, TAB.rsvp, { date: 'Seminar date', presenter: 'Presenter', name: 'Your name' }); }
+
+// ---- writers --------------------------------------------------------------
+function writeSchedule(sheet, rows) {
+  var n = Math.max(sheet.getLastRow() - 1, 0);
+  if (n > 0) sheet.getRange(2, 1, n, SCHEDULE_HEADER.length).clearContent();
+  if (!rows.length) return;
+  var values = rows.map(function (r) { return [r.date, r.term, r.start, r.end, r.presenter, r.slot || '', r.title, r.rsvps === undefined ? '' : r.rsvps, r.notes]; });
+  sheet.getRange(2, 1, values.length, SCHEDULE_HEADER.length).setValues(values);
+}
+
+function appendLedger(priv, rows) {
+  if (!rows.length) return;
+  var sh = getOrCreateTab(priv, TAB.ledger, LEDGER_HEADER);
+  sh.getRange(sh.getLastRow() + 1, 1, rows.length, LEDGER_HEADER.length).setValues(rows.map(function (l) { return [l.email, l.name, l.date, l.slot, l.placedAt, l.source]; }));
+}
+
+function writeUnplaced(priv, rows) {
+  var sh = getOrCreateTab(priv, TAB.unplaced, UNPLACED_HEADER);
+  var n = Math.max(sh.getLastRow() - 1, 0);
+  if (n > 0) sh.getRange(2, 1, n, UNPLACED_HEADER.length).clearContent();
+  if (!rows.length) return;
+  sh.getRange(2, 1, rows.length, UNPLACED_HEADER.length).setValues(rows.map(function (u) {
+    return [u.email, u.name, u.slot || '', u.dates.join(', '), u.reason, u.firstSeen ? new Date(u.firstSeen) : ''];
+  }));
+}
+
+function appendLog(priv, row) {
+  var sh = getOrCreateTab(priv, TAB.log, LOG_HEADER);
+  sh.appendRow(row);
+}
+
+function getOrCreateTab(ss, name, header) {
+  var sh = ss.getSheetByName(name);
+  if (!sh) {
+    sh = ss.insertSheet(name);
+    sh.getRange(1, 1, 1, header.length).setValues([header]).setFontWeight('bold');
+    sh.setFrozenRows(1);
+  }
+  return sh;
+}
+
+// ---- sign-up form pruning -------------------------------------------------
+function pruneSignupChoices(keepDates, halfFull) {
+  var form = FormApp.openById(SIGNUP_FORM_ID);
+  var items = form.getItems(FormApp.ItemType.CHECKBOX).filter(function (i) { return i.getTitle().indexOf('Which Mondays') === 0; });
+  if (!items.length) throw new Error('Sign-up form: checkbox question starting "Which Mondays" not found');
+  var item = items[0].asCheckboxItem();
+  var current = item.getChoices().map(function (c) { return c.getValue(); });
+  var keep = current.filter(function (label) { return keepDates.indexOf(parseChoiceLabel(label)) >= 0; });
+  var removed = current.filter(function (label) { return keep.indexOf(label) < 0; }).map(function (l) { return parseChoiceLabel(l) || l; });
+  if (keep.length === 0) {
+    if (form.isAcceptingResponses()) {
+      form.setAcceptingResponses(false);
+      form.setCustomClosedMessage('All slots for this year are taken. Email the organisers if you would like to present.');
+    }
+    return removed;
+  }
+  if (keep.length !== current.length) item.setChoiceValues(keep);
+  if (!form.isAcceptingResponses()) form.setAcceptingResponses(true);
+  var help = halfFull.length ? 'These dates have one 30-minute slot left: ' + halfFull.map(labelForIso).join(', ') + '.' : '';
+  if (item.getHelpText() !== help) item.setHelpText(help);
+  return removed;
+}
