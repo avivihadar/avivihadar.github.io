@@ -72,13 +72,15 @@ function doPost(e) {
   if (total > MAX_RECIPIENTS) return jsonOut({ ok: false, error: 'too many recipients (' + total + '), refusing to send' });
   if (body.test) return jsonOut({ ok: true, test: true, to: to, cc: cc, bccCount: bcc.length, subject: subject });
 
-  var quota = MailApp.getRemainingDailyQuota();
-  if (quota < total) return jsonOut({ ok: false, error: 'daily quota too low (' + quota + ' left, need ' + total + ')' });
+  // Quota is only checked when the permission to read it happens to be granted.
+  var quota = null;
+  try { quota = MailApp.getRemainingDailyQuota(); } catch (err) { quota = null; }
+  if (quota !== null && quota < total) return jsonOut({ ok: false, error: 'daily quota too low (' + quota + ' left, need ' + total + ')' });
 
   GmailApp.sendEmail(to.join(','), subject, text, {
     cc: cc.join(','), bcc: bcc.join(','), name: SENDER_NAME, replyTo: REPLY_TO
   });
-  return jsonOut({ ok: true, sent: { to: to.length, cc: cc.length, bcc: bcc.length }, quotaLeft: quota - total });
+  return jsonOut({ ok: true, sent: { to: to.length, cc: cc.length, bcc: bcc.length } });
 }
 
 function clean(list) {

@@ -244,7 +244,11 @@ function installTrigger() {
 }
 
 function listTriggers() {
-  ScriptApp.getProjectTriggers().forEach(function (t) { console.log(t.getHandlerFunction() + ' ' + t.getEventType()); });
+  var out = ScriptApp.getProjectTriggers().map(function (t) {
+    return { fn: t.getHandlerFunction(), type: String(t.getEventType()) };
+  });
+  console.log(JSON.stringify(out));
+  return out;
 }
 
 /** Rewrites the Schedule tab with repaired times; no placements, no email. */
@@ -548,13 +552,16 @@ function doGet(e) {
     var task = e.parameter.task || '';
     var allowed = { updateSignupForm: updateSignupForm, seedPeopleTab: seedPeopleTab, previewFor: null,
       setPerson: null, fixSignup: null, clearPlacement: null, createMailingListForm: createMailingListForm,
-      removeFormQuestion: null, renameFormQuestion: null };
+      removeFormQuestion: null, renameFormQuestion: null, sendPresenterReminder: null,
+      installTriggers: installTriggers, listTriggers: null };
     if (task === 'previewFor') return jsonOut({ ok: true, task: task, output: previewText(e.parameter.date) });
     if (task === 'setPerson') return jsonOut(setPerson(e.parameter.name, e.parameter.role, e.parameter.affiliation));
     if (task === 'fixSignup') return jsonOut(fixSignup(e.parameter.match, e.parameter.name, e.parameter.email));
     if (task === 'clearPlacement') return jsonOut(clearPlacement(e.parameter.name, e.parameter.date));
     if (task === 'removeFormQuestion') return jsonOut(removeFormQuestion(e.parameter.form, e.parameter.title));
     if (task === 'renameFormQuestion') return jsonOut(renameFormQuestion(e.parameter.form, e.parameter.title, e.parameter.to));
+    if (task === 'sendPresenterReminder') return jsonOut(sendPresenterReminder(e.parameter.date));
+    if (task === 'listTriggers') return jsonOut({ ok: true, triggers: listTriggers() });
     if (!allowed[task]) return jsonOut({ ok: false, error: 'unknown task' });
     try { allowed[task](); return jsonOut({ ok: true, task: task }); }
     catch (err) { return jsonOut({ ok: false, task: task, error: String(err && err.message || err) }); }
@@ -778,38 +785,41 @@ function readMailingList(priv) {
   }).filter(function (m) { return m.email; });
 }
 
-/** Sends an already-addressed message through the mailer script. */
-function callMailerRaw(msg, test) {
+/** POSTs to the mailer and returns its JSON reply, following the redirect Apps Script issues. */
+function postToMailer(payload) {
   var p = PropertiesService.getScriptProperties();
   var url = p.getProperty('MAILER_URL') || (typeof MAILER_URL_FILE !== 'undefined' ? MAILER_URL_FILE : '');
   var secret = p.getProperty('MAILER_SECRET') || (typeof MAILER_SECRET_FILE !== 'undefined' ? MAILER_SECRET_FILE : '');
-  if (!url || !secret) throw new Error('mailer not configured');
+  if (!url || !secret) throw new Error('mailer not configured: set MAILER_URL and MAILER_SECRET');
+  payload.secret = secret;
   var res = UrlFetchApp.fetch(url, { method: 'post', contentType: 'text/plain;charset=utf-8',
-    payload: JSON.stringify({ secret: secret, to: msg.to || [], cc: msg.cc || [], bcc: msg.bcc || [],
-      subject: msg.subject, body: msg.body, test: !!test }),
-    muteHttpExceptions: true, followRedirects: true });
+    payload: JSON.stringify(payload), muteHttpExceptions: true, followRedirects: false });
+  var code = res.getResponseCode();
+  if (code === 301 || code === 302 || code === 307) {
+    var to = res.getHeaders()['Location'] || res.getHeaders()['location'];
+    if (!to) throw new Error('mailer redirected without a destination');
+    res = UrlFetchApp.fetch(to, { muteHttpExceptions: true, followRedirects: true });
+  }
+  var text = res.getContentText();
   var out;
-  try { out = JSON.parse(res.getContentText()); } catch (e) { throw new Error('mailer replied with something unexpected'); }
+  try { out = JSON.parse(text); }
+  catch (e) { throw new Error('mailer replied with ' + res.getResponseCode() + ': ' + text.slice(0, 120)); }
   if (!out.ok) throw new Error('mailer: ' + out.error);
   return out;
 }
 
-/** Sends one composed message through the mailer script. */
+/** Sends an already-addressed message through the mailer script. */
+function callMailerRaw(msg, test) {
+  return postToMailer({ to: msg.to || [], cc: msg.cc || [], bcc: msg.bcc || [],
+    subject: msg.subject, body: msg.body, test: !!test });
+}
+
+/** Sends one composed message through the mailer script, cc'ing the organisers. */
 function callMailer(msg, test) {
-  var p = PropertiesService.getScriptProperties();
-  var url = p.getProperty('MAILER_URL') || (typeof MAILER_URL_FILE !== 'undefined' ? MAILER_URL_FILE : '');
-  var secret = p.getProperty('MAILER_SECRET') || (typeof MAILER_SECRET_FILE !== 'undefined' ? MAILER_SECRET_FILE : '');
-  if (!url || !secret) throw new Error('mailer not configured: set MAILER_URL and MAILER_SECRET in Script Properties');
-  var payload = { secret: secret, subject: msg.subject, body: msg.body, test: !!test,
+  return postToMailer({ subject: msg.subject, body: msg.body, test: !!test,
     to: (msg.to && msg.to.length) ? msg.to : ORGANISERS,
     cc: (msg.to && msg.to.length) ? ORGANISERS : [],
-    bcc: msg.bcc || [] };
-  var res = UrlFetchApp.fetch(url, { method: 'post', contentType: 'text/plain;charset=utf-8',
-    payload: JSON.stringify(payload), muteHttpExceptions: true, followRedirects: true });
-  var out;
-  try { out = JSON.parse(res.getContentText()); } catch (e) { throw new Error('mailer replied with something unexpected'); }
-  if (!out.ok) throw new Error('mailer: ' + out.error);
-  return out;
+    bcc: msg.bcc || [] });
 }
 
 function runEmails(test) {
@@ -953,4 +963,18 @@ function emailMeTheDrafts() {
     subject: 'Brown bag: drafts of the weekly emails for ' + labelForIso(monday),
     body: out.join('\n') }, false);
   console.log('drafts sent to ' + ORGANISERS[0]);
+}
+
+/** Sends the presenter reminder for one specific seminar date, outside the Monday schedule. */
+function sendPresenterReminder(dateIso) {
+  var input = emailInput();
+  var date = parseChoiceLabel(dateIso) || dateIso;
+  var msgs = presenterReminders(input, date);
+  if (!msgs.length) return { ok: false, error: 'no presenter with a known email on ' + date };
+  var sent = [];
+  msgs.forEach(function (m) { callMailer(m, false); sent.push({ to: m.to, subject: m.subject }); });
+  var priv = SpreadsheetApp.openById(PRIVATE_SHEET_ID);
+  appendLog(priv, [new Date(), 'emails', 'presenter', sent.map(function (x) { return x.to.join(','); }).join('; '),
+    sent[0].subject, '', 'sent by hand for ' + date]);
+  return { ok: true, sent: sent };
 }
