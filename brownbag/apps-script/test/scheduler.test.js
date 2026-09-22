@@ -277,3 +277,13 @@ test('a single response for a seeded person stays put; resubmission that fits no
   assert.equal(res.unplaced[0].name, 'Bob Ray');
   assert.deepEqual(res.replaced[0], { name: 'Bob Ray', email: 'bob@x.com', from: ['2026-10-12'], to: null });
 });
+
+test('presenterEmailOk accepts only an email the presenter signed up with', () => {
+  const signups = [signup(1, 'Hao Hu', 'hao.hu.21@ucl.ac.uk', ['2026-10-12'], 60)];
+  const ledger = [{ email: 'a.lindner@ucl.ac.uk', name: 'Attila Lindner' }];
+  assert.ok(S.presenterEmailOk('Hao.Hu.21@ucl.ac.uk ', 'Hao Hu', signups, ledger));
+  assert.ok(S.presenterEmailOk('a.lindner@ucl.ac.uk', 'Attila Lindner', signups, ledger));
+  assert.ok(!S.presenterEmailOk('hao.hu.21@ucl.ac.uk', 'Attila Lindner', signups, ledger));
+  assert.ok(!S.presenterEmailOk('', 'Hao Hu', signups, ledger));
+  assert.ok(!S.presenterEmailOk('x@x.com', 'Nobody', signups, ledger));
+});

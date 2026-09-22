@@ -181,18 +181,20 @@
     var titleIn = el('input'); titleIn.type = 'text'; titleIn.required = true; titleIn.maxLength = 300;
     titleIn.placeholder = 'Title of your talk'; titleIn.value = talk.title || ''; titleIn.setAttribute('aria-label', 'Title of your talk');
     var coIn = el('input'); coIn.type = 'text'; coIn.maxLength = 300; coIn.placeholder = 'Co-authors (optional)'; coIn.setAttribute('aria-label', 'Co-authors');
+    var emailIn = el('input'); emailIn.type = 'email'; emailIn.required = true; emailIn.maxLength = 200; emailIn.autocomplete = 'email';
+    emailIn.placeholder = 'Email you used to sign up'; emailIn.setAttribute('aria-label', 'Email you used to sign up');
     var row = el('div', 'title-form__row');
     var save = el('button', 'btn', 'Save title'); save.type = 'submit';
     var cancel = el('button', 'btn btn--ghost', 'Cancel'); cancel.type = 'button';
     var note = el('span', 'title-form__note', 'Posting as ' + talk.presenter + ', ' + labelForIso(date) + '.');
     row.appendChild(save); row.appendChild(cancel); row.appendChild(note);
     var msg = el('p', 'title-form__msg');
-    form.appendChild(titleIn); form.appendChild(coIn); form.appendChild(row); form.appendChild(msg);
+    form.appendChild(titleIn); form.appendChild(coIn); form.appendChild(emailIn); form.appendChild(row); form.appendChild(msg);
     cancel.addEventListener('click', function () { form.remove(); });
     form.addEventListener('submit', function (ev) {
       ev.preventDefault();
       save.disabled = true; msg.className = 'title-form__msg'; msg.textContent = 'Saving\u2026';
-      submitTitle({ action: 'title', date: date, presenter: talk.presenter, title: titleIn.value.trim(), coauthors: coIn.value.trim() })
+      submitTitle({ action: 'title', date: date, presenter: talk.presenter, email: emailIn.value.trim(), title: titleIn.value.trim(), coauthors: coIn.value.trim() })
         .then(function (res) {
           if (!res.ok) throw new Error(res.error || 'not saved');
           talk.title = res.title;

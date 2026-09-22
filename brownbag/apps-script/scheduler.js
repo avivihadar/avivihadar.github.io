@@ -283,6 +283,16 @@ function applySignupTitles(schedule, signups) {
   return updated;
 }
 
+/** True when `email` is one this presenter signed up with (sign-up responses or ledger). */
+function presenterEmailOk(email, presenter, signups, ledger) {
+  var e = normaliseEmail(email);
+  if (!e) return false;
+  var known = {};
+  (signups || []).forEach(function (s) { if (namesMatch(s.name, presenter) && normaliseEmail(s.email)) known[normaliseEmail(s.email)] = true; });
+  (ledger || []).forEach(function (l) { if (namesMatch(l.name, presenter) && normaliseEmail(l.email)) known[normaliseEmail(l.email)] = true; });
+  return !!known[e];
+}
+
 /** Count distinct attendees per date; write to every row of that date. */
 function applyRsvps(schedule, rsvps) {
   var seen = {};
@@ -337,6 +347,6 @@ if (typeof module !== 'undefined') {
     normaliseName: normaliseName, namesMatch: namesMatch, normaliseEmail: normaliseEmail, parseSlot: parseSlot,
     dedupeSignups: dedupeSignups, usedMinutes: usedMinutes, freeStart: freeStart, isPlaced: isPlaced,
     placeSignups: placeSignups, choiceDatesToKeep: choiceDatesToKeep, halfFullDates: halfFullDates,
-    applyTitles: applyTitles, applySignupTitles: applySignupTitles, applyRsvps: applyRsvps, sortSchedule: sortSchedule, run: run
+    applyTitles: applyTitles, applySignupTitles: applySignupTitles, presenterEmailOk: presenterEmailOk, applyRsvps: applyRsvps, sortSchedule: sortSchedule, run: run
   };
 }

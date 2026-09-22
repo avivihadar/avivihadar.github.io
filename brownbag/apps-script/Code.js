@@ -484,8 +484,9 @@ function doGet(e) {
 
 /**
  * POST body (JSON, sent as text/plain to avoid a CORS preflight):
- *   { action: 'title', date: 'yyyy-mm-dd', presenter: 'Name', title: '...', coauthors: '...', test: false }
- * Writes the title into the Schedule tab immediately and records the submission in Title Responses.
+ *   { action: 'title', date: 'yyyy-mm-dd', presenter: 'Name', email: 'sign-up email', title: '...', coauthors: '...', test: false }
+ * The email must be one the presenter signed up with. Writes the title into the Schedule tab
+ * immediately and records the submission in Title Responses.
  */
 function doPost(e) {
   var body;
@@ -493,10 +494,12 @@ function doPost(e) {
   if (body.action !== 'title') return jsonOut({ ok: false, error: 'unknown action' });
   var date = parseChoiceLabel(body.date);
   var presenter = cellStr(body.presenter);
+  var email = cellStr(body.email).slice(0, 200);
   var title = cellStr(body.title).slice(0, 300);
   var coauthors = cellStr(body.coauthors).slice(0, 300);
   if (!date || !presenter) return jsonOut({ ok: false, error: 'date and presenter are required' });
   if (!title) return jsonOut({ ok: false, error: 'please enter a title' });
+  if (!email) return jsonOut({ ok: false, error: 'please enter the email you used to sign up' });
 
   var lock = LockService.getScriptLock();
   if (!lock.tryLock(20000)) return jsonOut({ ok: false, error: 'busy, please try again' });
@@ -506,10 +509,13 @@ function doPost(e) {
     var rows = sortSchedule(readSchedule(sched));
     var row = rows.filter(function (r) { return r.date === date && hasPresenter(r) && namesMatch(r.presenter, presenter); })[0];
     if (!row) return jsonOut({ ok: false, error: 'no talk found for ' + presenter + ' on ' + labelForIso(date) });
+    var priv = SpreadsheetApp.openById(PRIVATE_SHEET_ID);
+    if (!presenterEmailOk(email, row.presenter, readSignups(priv), readLedger(priv))) {
+      return jsonOut({ ok: false, error: 'that email does not match the one used to sign up' });
+    }
     if (body.test) return jsonOut({ ok: true, test: true, date: date, presenter: row.presenter, title: title });
     row.title = title;
     writeSchedule(sched, rows);
-    var priv = SpreadsheetApp.openById(PRIVATE_SHEET_ID);
     var tab = getOrCreateTab(priv, TAB.title, ['Timestamp', 'Seminar date', 'Presenter', 'Paper title', 'Co-authors (optional)', 'Abstract or link (optional)']);
     tab.appendRow([new Date(), labelForIso(date), row.presenter, title, coauthors, 'via website']);
     return jsonOut({ ok: true, date: date, presenter: row.presenter, title: title });
