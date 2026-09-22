@@ -183,7 +183,7 @@
     var coIn = el('input'); coIn.type = 'text'; coIn.maxLength = 300; coIn.placeholder = 'Co-authors (optional)'; coIn.setAttribute('aria-label', 'Co-authors');
     var emailIn = el('input'); emailIn.type = 'email'; emailIn.required = true; emailIn.maxLength = 200; emailIn.autocomplete = 'email';
     emailIn.placeholder = 'Email you used to sign up'; emailIn.setAttribute('aria-label', 'Email you used to sign up');
-    var emailNote = el('p', 'title-form__required', 'Required: enter the email address you used on the sign-up form. The title is saved only if it matches.');
+    var emailNote = el('p', 'title-form__required', 'Required: enter the email address you used on the sign-up form');
     var row = el('div', 'title-form__row');
     var save = el('button', 'btn', 'Save title'); save.type = 'submit';
     var cancel = el('button', 'btn btn--ghost', 'Cancel'); cancel.type = 'button';
