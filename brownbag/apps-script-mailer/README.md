@@ -9,7 +9,7 @@ It does two jobs:
    so only that script can use it. It refuses more than 90 recipients in one message and checks
    the remaining daily quota first.
 2. **Forwards** anything that arrives in the seminar inbox to Hadar and Gabriel, every 15 minutes,
-   unless both are already on the message. Threads are labelled `forwarded-to-organisers` and
+   unless both are already on the message. Replies to seminar emails go to the seminar inbox, so they are forwarded to both organisers automatically. Threads are labelled `forwarded-to-organisers` and
    marked read; nothing is deleted.
 
 Addresses and the sender name are the constants at the top of `Code.js`.

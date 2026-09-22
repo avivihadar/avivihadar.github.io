@@ -11,9 +11,9 @@
  * forwarding trigger. It prints the shared secret to paste into the scheduler script.
  */
 
-var ORGANISERS = ['h.avivi@ucl.ac.uk', 'g.ulyssea@ucl.ac.uk'];
+var ORGANISERS = ['avivihadar@gmail.com', 'g.ulyssea@ucl.ac.uk'];   // where cc's and forwards go
 var SENDER_NAME = 'Applied Micro Brown Bag';
-var REPLY_TO = 'h.avivi@ucl.ac.uk';
+var REPLY_TO = 'appliedmicrobrownbag@gmail.com';   // replies land in the seminar inbox and are forwarded on
 var FORWARD_LABEL = 'forwarded-to-organisers';
 var MAX_RECIPIENTS = 90;           // Gmail allows ~100 a day on a free account
 

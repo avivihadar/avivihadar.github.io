@@ -21,7 +21,7 @@ var FIRST_SEMINAR_DATE = '2026-10-05';   // earlier Mondays are dropped from the
 var TZ = 'Europe/London';
 
 var TAB = { schedule: 'Schedule', config: 'Config', ledger: 'Placements', unplaced: 'Unplaced', log: 'Log', rsvp: 'RSVP Responses', title: 'Title Responses', mailing: 'Mailing list' };
-var ORGANISERS = ['h.avivi@ucl.ac.uk', 'g.ulyssea@ucl.ac.uk'];
+var ORGANISERS = ['avivihadar@gmail.com', 'g.ulyssea@ucl.ac.uk'];
 var SCHEDULE_HEADER = ['date', 'term', 'start', 'end', 'presenter', 'slot_min', 'title', 'rsvps', 'notes'];
 var LEDGER_HEADER = ['email', 'name', 'date', 'slot_min', 'placed_at', 'source', 'signup_ts'];
 var UNPLACED_HEADER = ['email', 'name', 'slot_min', 'dates_ticked', 'reason', 'first_seen'];
