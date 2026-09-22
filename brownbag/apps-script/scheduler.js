@@ -185,6 +185,67 @@ function sortSchedule(schedule) {
 }
 
 /**
+ * Chooses where to put a set of people so that as many as possible get a slot.
+ * Greedy "earliest date first" fails when an early sign-up with flexible dates takes
+ * the only date a later, less flexible person can use, so this searches instead:
+ * most people placed wins; ties go to the earlier dates and to the earlier sign-ups.
+ * Returns an array, one entry per person: {date, start} or null.
+ */
+function bestAssignment(people, schedule, cutoff) {
+  var dates = [];
+  schedule.forEach(function (r) { if (r.date >= cutoff && dates.indexOf(r.date) < 0) dates.push(r.date); });
+  dates.sort();
+  var index = {}, used = {}, halfTaken = {};
+  dates.forEach(function (d, i) {
+    index[d] = i;
+    used[d] = usedMinutes(schedule, d);
+    halfTaken[d] = {};
+    schedule.forEach(function (r) { if (r.date === d && hasPresenter(r)) halfTaken[d][r.start] = true; });
+  });
+
+  function slotFor(d, slot) {
+    if (used[d] === undefined) return null;
+    if (slot === 60) return used[d] === 0 ? '12:00' : null;
+    if (slot === 30) {
+      if (used[d] === 0) return '12:00';
+      if (used[d] === 30) return halfTaken[d]['12:00'] ? '12:30' : '12:00';
+    }
+    return null;
+  }
+
+  var best = { count: -1, score: Infinity, assign: null };
+  var current = new Array(people.length);
+  var nodes = 0;
+
+  function dfs(i, count, score) {
+    if (++nodes > 200000) return;                       // give up searching, keep the best found
+    if (count + (people.length - i) < best.count) return;
+    if (i === people.length) {
+      if (count > best.count || (count === best.count && score < best.score)) {
+        best = { count: count, score: score, assign: current.slice() };
+      }
+      return;
+    }
+    var p = people[i];
+    var options = (p.slot ? p.dates.filter(function (d) { return d >= cutoff && used[d] !== undefined; }).sort() : []);
+    for (var k = 0; k < options.length; k++) {
+      var d = options[k];
+      var start = slotFor(d, p.slot);
+      if (!start) continue;
+      used[d] += p.slot; halfTaken[d][start] = true;
+      current[i] = { date: d, start: start };
+      dfs(i + 1, count + 1, score + index[d]);
+      used[d] -= p.slot; delete halfTaken[d][start];
+    }
+    current[i] = null;
+    dfs(i + 1, count, score);
+  }
+
+  dfs(0, 0, 0);
+  return best.assign || new Array(people.length).fill(null);
+}
+
+/**
  * Place people who are not yet on the schedule. Mutates nothing in `input`;
  * returns { schedule, newLedger, unplaced, placed }.
  */
@@ -197,39 +258,55 @@ function placeSignups(input) {
   var people = dedupeSignups(input.signups).people;
   var placed = [], unplaced = [], newLedger = [], replaced = [];
 
-  people.forEach(function (p) {
+  // 1. Who needs a slot: anyone not on the ledger, plus anyone who has sent a newer sign-up.
+  var toPlace = [], movedFromOf = {};
+  people.forEach(function (p, i) {
     var mine = ledgerRowsFor(p, ledger);
-    var movedFrom = null;
     if (mine.length) {
       if (!hasResubmitted(p, mine)) return;
-      movedFrom = removePlacement(p, mine, schedule, ledger);
+      movedFromOf[i] = removePlacement(p, mine, schedule, ledger);
     } else if (isPlaced(p, ledger, schedule)) {
       return;
     }
-    if (!p.slot) { unplaced.push(unplacedRow(p, 'slot length missing')); if (movedFrom) replaced.push({ name: p.name, email: p.email, from: movedFrom, to: null }); return; }
-    var candidates = p.dates.filter(function (d) { return d && d >= cutoff && scheduleHasDate(schedule, d); }).sort();
-    if (candidates.length === 0) { unplaced.push(unplacedRow(p, 'no future dates ticked')); if (movedFrom) replaced.push({ name: p.name, email: p.email, from: movedFrom, to: null }); return; }
-    var done = false;
-    for (var i = 0; i < candidates.length && !done; i++) {
-      var d = candidates[i];
-      var start = freeStart(schedule, d, p.slot);
-      if (!start) continue;
-      var blank = schedule.filter(function (r) { return r.date === d && !hasPresenter(r); })[0];
-      var row;
-      if (blank) {
-        row = blank;
-        row.presenter = p.name; row.slot = p.slot; row.start = start; row.end = endFor(start, p.slot);
-      } else {
-        row = { date: d, term: termOf(d), start: start, end: endFor(start, p.slot), presenter: p.name, slot: p.slot, title: '', rsvps: '', notes: '' };
-        schedule.push(row);
-      }
-      var l = { email: p.email, name: p.name, date: d, slot: p.slot, placedAt: today, source: 'auto', signupTs: p.latestTs };
-      ledger.push(l); newLedger.push(l);
-      if (movedFrom) replaced.push({ name: p.name, email: p.email, from: movedFrom, to: d });
-      else placed.push({ name: p.name, email: p.email, date: d, start: start, slot: p.slot });
-      done = true;
+    p._idx = i;
+    toPlace.push(p);
+  });
+
+  // 2. Choose the assignment that places the most of them.
+  var assignment = bestAssignment(toPlace, schedule, cutoff);
+
+  // 3. Write it down, earliest date first so the 12:00 half is filled before 12:30.
+  var order = toPlace.map(function (p, i) { return i; }).filter(function (i) { return assignment[i]; });
+  order.sort(function (a, b) {
+    var da = assignment[a], db = assignment[b];
+    if (da.date !== db.date) return da.date < db.date ? -1 : 1;
+    return da.start < db.start ? -1 : 1;
+  });
+  order.forEach(function (i) {
+    var p = toPlace[i], a = assignment[i];
+    var blank = schedule.filter(function (r) { return r.date === a.date && !hasPresenter(r); })[0];
+    if (blank) {
+      blank.presenter = p.name; blank.slot = p.slot; blank.start = a.start; blank.end = endFor(a.start, p.slot);
+    } else {
+      schedule.push({ date: a.date, term: termOf(a.date), start: a.start, end: endFor(a.start, p.slot),
+        presenter: p.name, slot: p.slot, title: '', rsvps: '', notes: '' });
     }
-    if (!done) { unplaced.push(unplacedRow(p, 'no capacity on ticked dates')); if (movedFrom) replaced.push({ name: p.name, email: p.email, from: movedFrom, to: null }); }
+    var l = { email: p.email, name: p.name, date: a.date, slot: p.slot, placedAt: today, source: 'auto', signupTs: p.latestTs };
+    ledger.push(l); newLedger.push(l);
+    var from = movedFromOf[p._idx];
+    if (from) replaced.push({ name: p.name, email: p.email, from: from, to: a.date });
+    else placed.push({ name: p.name, email: p.email, date: a.date, start: a.start, slot: p.slot });
+  });
+
+  // 4. Anyone left over.
+  toPlace.forEach(function (p, i) {
+    if (assignment[i]) return;
+    var reason = !p.slot ? 'slot length missing'
+      : (p.dates.filter(function (d) { return d >= cutoff && scheduleHasDate(schedule, d); }).length === 0
+          ? 'no future dates ticked' : 'no capacity on ticked dates');
+    unplaced.push(unplacedRow(p, reason));
+    var from = movedFromOf[p._idx];
+    if (from) replaced.push({ name: p.name, email: p.email, from: from, to: null });
   });
 
   return { schedule: sortSchedule(schedule), ledger: ledger, newLedger: newLedger, unplaced: unplaced, placed: placed, replaced: replaced };
@@ -526,6 +603,7 @@ if (typeof module !== 'undefined') {
     parseChoiceLabel: parseChoiceLabel, labelForIso: labelForIso, addDays: addDays, termOf: termOf,
     normaliseName: normaliseName, namesMatch: namesMatch, normaliseEmail: normaliseEmail, parseSlot: parseSlot,
     dedupeSignups: dedupeSignups, usedMinutes: usedMinutes, freeStart: freeStart, isPlaced: isPlaced,
+    bestAssignment: bestAssignment,
     placeSignups: placeSignups, choiceDatesToKeep: choiceDatesToKeep, halfFullDates: halfFullDates,
     applyTitles: applyTitles, applySignupTitles: applySignupTitles, presenterEmailOk: presenterEmailOk,
     firstName: firstName, nextMonday: nextMonday, isStudent: isStudent, emailOf: emailOf, longDate: longDate,

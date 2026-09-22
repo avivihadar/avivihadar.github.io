@@ -287,3 +287,45 @@ test('presenterEmailOk accepts only an email the presenter signed up with', () =
   assert.ok(!S.presenterEmailOk('', 'Hao Hu', signups, ledger));
   assert.ok(!S.presenterEmailOk('x@x.com', 'Nobody', signups, ledger));
 });
+
+test('a flexible early sign-up gives way so an inflexible later one also fits', () => {
+  // Ricky (first) can do three dates; Gabriella (later) needs a whole hour on the only date she gave.
+  const sched = blankSchedule();
+  const res = S.placeSignups({
+    schedule: sched, ledger: [], today: TODAY, minLeadDays: 7,
+    signups: [
+      signup(100, 'Ricky Wang', 'ricky@x.com', ['2026-10-05', '2026-10-12', '2026-10-19'], 30),
+      signup(200, 'Ruimin Ao', 'ruimin@x.com', ['2026-10-19'], 60),
+      signup(300, 'Gabriella Conti', 'gc@x.com', ['2026-10-05'], 60),
+    ]
+  });
+  assert.equal(res.unplaced.length, 0);
+  assert.equal(res.schedule.find(x => x.presenter === 'Gabriella Conti').date, '2026-10-05');
+  assert.equal(res.schedule.find(x => x.presenter === 'Ruimin Ao').date, '2026-10-19');
+  assert.equal(res.schedule.find(x => x.presenter === 'Ricky Wang').date, '2026-10-12');
+});
+
+test('when not everyone can fit, the most people are placed and the rest are reported', () => {
+  const sched = [row('2026-10-05', '', null)];
+  sched[0].presenter = '';
+  const res = S.placeSignups({
+    schedule: sched, ledger: [], today: TODAY, minLeadDays: 7,
+    signups: [signup(100, 'Big Talk', 'b@x.com', ['2026-10-05'], 60),
+              signup(200, 'Short One', 's@x.com', ['2026-10-05'], 30),
+              signup(300, 'Short Two', 't@x.com', ['2026-10-05'], 30)]
+  });
+  assert.equal(res.placed.length, 2);                       // two 30s beat one 60
+  assert.deepEqual(res.placed.map(p => p.name).sort(), ['Short One', 'Short Two']);
+  assert.equal(res.unplaced[0].name, 'Big Talk');
+  assert.equal(res.unplaced[0].reason, 'no capacity on ticked dates');
+});
+
+test('earlier dates and earlier sign-ups still win when the count is equal', () => {
+  const res = S.placeSignups({
+    schedule: blankSchedule(), ledger: [], today: TODAY, minLeadDays: 7,
+    signups: [signup(100, 'First In', 'f@x.com', ['2026-10-05', '2026-10-12'], 60),
+              signup(200, 'Second In', 's@x.com', ['2026-10-05', '2026-10-12'], 60)]
+  });
+  assert.equal(res.schedule.find(x => x.presenter === 'First In').date, '2026-10-05');
+  assert.equal(res.schedule.find(x => x.presenter === 'Second In').date, '2026-10-12');
+});
