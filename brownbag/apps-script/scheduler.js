@@ -4,7 +4,9 @@
  * (for tests) and inside the Apps Script project (as a plain global file).
  *
  * Shapes
- *   Signup      { ts, name, email, dates: ['yyyy-mm-dd'], slot: 30|60|null, title, advisors, dietary }
+ *   Signup      { ts, name, email, dates, slot, title, role, affiliation, advisors, dietary }
+ *   known       { normalised name -> {role, affiliation} } for people who signed up before
+ *                those questions existed
  *   ScheduleRow { date, term, start, end, presenter, slot, title, rsvps, notes }
  *   LedgerRow   { email, name, date, slot, placedAt, source, signupTs }
  *                 signupTs = timestamp of the sign-up response the placement was based on;
@@ -371,11 +373,34 @@ function longDate(iso) {
 }
 
 /** A presenter counts as a student when their sign-up lists advisors other than NA. */
-function isStudent(presenter, signups) {
+function isStudent(presenter, signups, known) {
+  var role = roleOf(presenter, signups, known);
+  if (role) return /student/i.test(role);
   var s = (signups || []).filter(function (x) { return namesMatch(x.name, presenter); })[0];
   if (!s) return false;
   var adv = String(s.advisors || '').trim();
   return !!adv && !/^n\.?\/?a\.?$/i.test(adv);
+}
+
+/** Affiliation for a presenter, from their sign-up or the `known` fallback. */
+function affiliationOf(presenter, signups, known) {
+  var s = (signups || []).filter(function (x) { return namesMatch(x.name, presenter) && x.affiliation; })[0];
+  if (s) return String(s.affiliation).trim();
+  var k = (known || {})[normaliseName(presenter)];
+  return k && k.affiliation ? k.affiliation : '';
+}
+
+function roleOf(presenter, signups, known) {
+  var s = (signups || []).filter(function (x) { return namesMatch(x.name, presenter) && x.role; })[0];
+  if (s) return String(s.role).trim();
+  var k = (known || {})[normaliseName(presenter)];
+  return k && k.role ? k.role : '';
+}
+
+/** "Hao Hu (UCL)" when the affiliation is known, otherwise just the name. */
+function nameWithAffiliation(presenter, signups, known) {
+  var a = affiliationOf(presenter, signups, known);
+  return a ? presenter + ' (' + a + ')' : presenter;
 }
 
 function emailOf(presenter, signups, ledger) {
@@ -404,7 +429,7 @@ function presenterReminders(input, date) {
         'Thursday’s announcement: open the schedule page, click "Add title" under your name, ' +
         'enter the email address you used on the sign-up form, and type the title.', '');
     }
-    if (isStudent(t.presenter, input.signups)) {
+    if (isStudent(t.presenter, input.signups, input.known)) {
       lines.push('Feel free to invite faculty and visitors to your talk.', '');
     }
     lines.push('See you on Monday,', 'Hadar and Gabriel');
@@ -421,7 +446,8 @@ function weeklyAnnouncement(input, date) {
   lines.push('Next Monday at the Applied Micro Brown Bag, ' + longDate(date) + ', ' +
     timeRange(talks) + ', ' + ROOM + ':', '');
   talks.forEach(function (t) {
-    lines.push('  ' + t.presenter + (talks.length > 1 ? '  (' + t.start + '–' + t.end + ')' : ''));
+    lines.push('  ' + nameWithAffiliation(t.presenter, input.signups, input.known) +
+      (talks.length > 1 ? '  (' + t.start + '–' + t.end + ')' : ''));
     lines.push('  ' + (t.title || 'Title to be announced'), '');
   });
   lines.push('Lunch is provided. If you have not already, please sign up for lunch by Friday at noon:');
@@ -434,7 +460,7 @@ function weeklyAnnouncement(input, date) {
   lines.push('Full schedule: ' + PAGE_URL, '');
   lines.push('Best wishes,', 'Hadar and Gabriel', '', UNSUB_LINE);
   var subject = 'Brown bag on Monday ' + labelForIso(date).replace(/^Mon /, '') + ': ' +
-    talks.map(function (t) { return t.presenter; }).join(' and ');
+    talks.map(function (t) { return nameWithAffiliation(t.presenter, input.signups, input.known); }).join(' and ');
   return { kind: 'announcement', to: [], bcc: mailingListAddresses(input.mailingList), date: date,
     subject: subject, body: lines.join('\n') };
 }
@@ -464,7 +490,7 @@ function rsvpReport(input, date) {
     people.push({ name: String(r.name || '').trim(), dietary: String(r.dietary || '').trim() });
   });
   people.sort(function (a, b) { return normaliseName(a.name) < normaliseName(b.name) ? -1 : 1; });
-  var lines = ['Presenter: ' + talks.map(function (t) { return t.presenter; }).join(', ')];
+  var lines = ['Presenter: ' + talks.map(function (t) { return nameWithAffiliation(t.presenter, input.signups, input.known); }).join(', ')];
   lines.push('RSVPs received: ' + people.length, '');
   people.forEach(function (p) { lines.push('  ' + p.name + (p.dietary ? '   [' + p.dietary + ']' : '')); });
   if (!people.length) lines.push('  (nobody has signed up yet)');
@@ -503,6 +529,7 @@ if (typeof module !== 'undefined') {
     placeSignups: placeSignups, choiceDatesToKeep: choiceDatesToKeep, halfFullDates: halfFullDates,
     applyTitles: applyTitles, applySignupTitles: applySignupTitles, presenterEmailOk: presenterEmailOk,
     firstName: firstName, nextMonday: nextMonday, isStudent: isStudent, emailOf: emailOf, longDate: longDate,
+    affiliationOf: affiliationOf, roleOf: roleOf, nameWithAffiliation: nameWithAffiliation,
     presenterReminders: presenterReminders, weeklyAnnouncement: weeklyAnnouncement, rsvpReport: rsvpReport,
     mailingListAddresses: mailingListAddresses, emailsFor: emailsFor, applyRsvps: applyRsvps, sortSchedule: sortSchedule, run: run
   };

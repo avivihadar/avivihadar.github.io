@@ -128,3 +128,26 @@ test('emailsFor sends nothing in a week with no presenter', () => {
   assert.deepEqual(S.emailsFor(quiet), []);
   assert.deepEqual(S.emailsFor(Object.assign({}, quiet, { today: '2027-01-04' })), []);
 });
+
+test('affiliation appears in the announcement and the lunch count', () => {
+  const sched = [{ date: '2026-10-12', term: 'Term 1', start: '12:00', end: '13:00', presenter: 'Hao Hu', slot: 60, title: 'Firms', rsvps: '', notes: '' }];
+  const input = { schedule: sched, ledger: [], rsvps: [], mailingList: [{ email: 'a@x.com' }],
+    today: '2026-10-08', minLeadDays: 7, signupUrl: SIGNUP, rsvpUrl: RSVP,
+    signups: [{ ts: 1, name: 'Hao Hu', email: 'h@ucl.ac.uk', advisors: 'Hjort', role: 'PhD student', affiliation: 'UCL' }] };
+  const a = S.weeklyAnnouncement(input, '2026-10-12');
+  assert.equal(a.subject, 'Brown bag on Monday 12 Oct 2026: Hao Hu (UCL)');
+  assert.match(a.body, /Hao Hu \(UCL\)/);
+  assert.match(S.rsvpReport(input, '2026-10-12').body, /Presenter: Hao Hu \(UCL\)/);
+});
+
+test('affiliation falls back to the People tab; role decides student status', () => {
+  const sched = [{ date: '2026-10-12', term: 'Term 1', start: '12:00', end: '13:00', presenter: 'Attila Lindner', slot: 60, title: '', rsvps: '', notes: '' }];
+  const known = { 'attila lindner': { role: 'Faculty', affiliation: 'UCL' } };
+  const input = { schedule: sched, ledger: [{ name: 'Attila Lindner', email: 'a@ucl.ac.uk' }], rsvps: [], mailingList: [],
+    today: '2026-10-08', minLeadDays: 7, signupUrl: SIGNUP, rsvpUrl: RSVP, signups: [], known };
+  assert.match(S.weeklyAnnouncement(input, '2026-10-12').body, /Attila Lindner \(UCL\)/);
+  const rem = S.presenterReminders(input, '2026-10-12');
+  assert.ok(!/invite faculty/.test(rem[0].body));
+  known['attila lindner'].role = 'Visiting student';
+  assert.match(S.presenterReminders(input, '2026-10-12')[0].body, /invite faculty and visitors/);
+});

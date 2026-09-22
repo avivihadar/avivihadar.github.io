@@ -40,6 +40,17 @@ also need a new version of the web app deployment:
 `npx @google/clasp deploy -i AKfycbxeGbFJ73Pc5G48M6j99deH7JyHIXKf0fRw6ikPyWLOJBcz_JqQY2PBXBNVwYt53X1W --description "update"`.
 The deployment URL (in `brownbag/config.js` as `apiUrl`) stays the same.
 
+## Who is who
+
+The sign-up form asks for **position** (PhD student, Postdoc, Visiting student, Visiting faculty,
+Faculty) and **affiliation**. Both appear in the emails: the announcement and the lunch count show
+"Name (Affiliation)", and only presenters whose position contains "student" get the line about
+inviting faculty to their talk.
+
+People who signed up before those questions existed are covered by a **People** tab in the private
+spreadsheet (`name | role | affiliation`). `seedPeopleTab()` fills it from the current schedule,
+defaulting everyone to UCL; edit it there when someone is not at UCL.
+
 ## Emails
 
 The scheduler never sends email itself. It asks the **mailer** script, which runs under

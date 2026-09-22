@@ -18,6 +18,31 @@ var PRIVATE_SHEET_ID = '1Q5JzJnDdLg5wwlLByaMv5FYDdSHgZpWzUOioJGJ0BB0';
 var SIGNUP_TAB = 'Form Responses 1';
 var MIN_LEAD_DAYS = 7;
 var FIRST_SEMINAR_DATE = '2026-10-05';   // earlier Mondays are dropped from the schedule
+
+/* Every Monday the seminar can run. Add or remove dates here: the daily job creates a row for any
+ * future date that is missing from the Schedule tab, and the sign-up form follows the schedule. */
+var SEMINAR_DATES = [
+  '2026-10-05', '2026-10-12', '2026-10-19', '2026-10-26', '2026-11-02', '2026-11-16', '2026-11-23',
+  '2026-11-30', '2026-12-07', '2026-12-14',
+  '2027-02-22',
+  '2027-03-01', '2027-03-08', '2027-03-15', '2027-03-22',
+  '2027-04-26', '2027-05-10', '2027-05-17', '2027-05-24', '2027-06-07'
+];
+
+/** Keeps the schedule in step with SEMINAR_DATES: adds missing future dates, drops empty ones that
+ *  are no longer listed. A date with a presenter is never removed automatically. */
+function ensureDates(schedule, today) {
+  for (var i = schedule.length - 1; i >= 0; i--) {
+    var r = schedule[i];
+    if (r.date >= today && !r.presenter && SEMINAR_DATES.indexOf(r.date) < 0) schedule.splice(i, 1);
+  }
+  SEMINAR_DATES.forEach(function (d) {
+    if (d < today) return;
+    if (schedule.some(function (r) { return r.date === d; })) return;
+    schedule.push({ date: d, term: termOf(d), start: '12:00', end: '13:00', presenter: '', slot: null, title: '', rsvps: '', notes: '' });
+  });
+  return sortSchedule(schedule);
+}
 var TZ = 'Europe/London';
 
 var TAB = { schedule: 'Schedule', config: 'Config', ledger: 'Placements', unplaced: 'Unplaced', log: 'Log', rsvp: 'RSVP Responses', title: 'Title Responses', mailing: 'Mailing list' };
@@ -88,6 +113,7 @@ function setup() {
   // 5. Optional title question on the sign-up form (responses land in a new column automatically).
   var signupForm = FormApp.openById(SIGNUP_FORM_ID);
   ensureSignupTitleQuestion(signupForm);
+  ensureSignupProfileQuestions(signupForm);
 
   // 6. Config tab in the public file (nothing sensitive).
   var config = [
@@ -121,6 +147,24 @@ function setup() {
 }
 
 var SIGNUP_TITLE_QUESTION = 'Title of your talk (leave blank if you do not have one yet)';
+var SIGNUP_ROLE_QUESTION = 'What is your position?';
+var SIGNUP_ROLES = ['PhD student', 'Postdoc', 'Visiting student', 'Visiting faculty', 'Faculty'];
+var SIGNUP_AFFILIATION_QUESTION = 'Affiliation';
+
+/** Adds the position and affiliation questions if they are not on the form yet. */
+function ensureSignupProfileQuestions(form) {
+  var titles = form.getItems().map(function (i) { return i.getTitle(); });
+  var after = titles.map(function (t, i) { return t.indexOf('Email') === 0 ? i : -1; }).filter(function (i) { return i >= 0; })[0];
+  if (titles.indexOf(SIGNUP_ROLE_QUESTION) < 0) {
+    var role = form.addMultipleChoiceItem().setTitle(SIGNUP_ROLE_QUESTION).setChoiceValues(SIGNUP_ROLES).setRequired(true);
+    if (after !== undefined) form.moveItem(role.getIndex(), after + 1);
+  }
+  if (titles.indexOf(SIGNUP_AFFILIATION_QUESTION) < 0) {
+    var aff = form.addTextItem().setTitle(SIGNUP_AFFILIATION_QUESTION).setRequired(true)
+      .setHelpText('For example: UCL, LSE, IFS.');
+    if (after !== undefined) form.moveItem(aff.getIndex(), after + 2);
+  }
+}
 
 function readConfig(pub) {
   var sh = pub.getSheetByName(TAB.config);
@@ -225,7 +269,7 @@ function runJob(dry) {
   var result;
   try {
     var input = {
-      schedule: readSchedule(sched).filter(function (r) { return r.date >= FIRST_SEMINAR_DATE; }),
+      schedule: ensureDates(readSchedule(sched).filter(function (r) { return r.date >= FIRST_SEMINAR_DATE; }), today),
       ledger: readLedger(priv),
       signups: readSignups(priv),
       titles: readTitleResponses(priv),
@@ -355,11 +399,12 @@ function readSignups(priv) {
   var h = data[0];
   var iTs = headerIndex(h, 'Timestamp'), iName = headerIndex(h, 'Full name'), iEmail = headerIndex(h, 'Email'),
       iDates = headerIndex(h, 'Which Mondays'), iSlot = headerIndex(h, 'How long'), iAdv = headerIndex(h, 'If you are a PhD'), iDiet = headerIndex(h, 'Do you have any dietary'),
-      iTitle = headerIndex(h, 'Title of your talk');
+      iTitle = headerIndex(h, 'Title of your talk'), iRole = headerIndex(h, 'What is your position'), iAff = headerIndex(h, 'Affiliation');
   return data.slice(1).filter(function (r) { return cellStr(r[iName]) || cellStr(r[iEmail]); }).map(function (r) {
     var dates = cellStr(r[iDates]).split(/,\s*/).map(parseChoiceLabel).filter(Boolean);
     return { ts: r[iTs] instanceof Date ? r[iTs].getTime() : Date.parse(r[iTs]) || 0, name: cellStr(r[iName]), email: normaliseEmail(r[iEmail]),
       dates: dates, slot: parseSlot(r[iSlot]), title: iTitle >= 0 ? cellStr(r[iTitle]) : '',
+      role: iRole >= 0 ? cellStr(r[iRole]) : '', affiliation: iAff >= 0 ? cellStr(r[iAff]) : '',
       advisors: iAdv >= 0 ? cellStr(r[iAdv]) : '', dietary: iDiet >= 0 ? cellStr(r[iDiet]) : '' };
   });
 }
@@ -445,8 +490,13 @@ function pruneSignupChoices(keepDates, halfFull) {
   if (!items.length) throw new Error('Sign-up form: checkbox question starting "Which Mondays" not found');
   var item = items[0].asCheckboxItem();
   var current = item.getChoices().map(function (c) { return c.getValue(); });
-  var keep = current.filter(function (label) { return keepDates.indexOf(parseChoiceLabel(label)) >= 0; });
+  var byDate = {};
+  current.forEach(function (label) { var d = parseChoiceLabel(label); if (d) byDate[d] = label; });
+  // one label per open date, in date order, reusing the wording already on the form
+  var keep = keepDates.slice().sort().map(function (d) { return byDate[d] || labelForIso(d); });
   var removed = current.filter(function (label) { return keep.indexOf(label) < 0; }).map(function (l) { return parseChoiceLabel(l) || l; });
+  var added = keep.filter(function (label) { return current.indexOf(label) < 0; }).map(function (l) { return parseChoiceLabel(l) || l; });
+  if (added.length) console.log('dates added to the sign-up form: ' + added.join(', '));
   if (keep.length === 0) {
     if (form.isAcceptingResponses()) {
       form.setAcceptingResponses(false);
@@ -454,7 +504,7 @@ function pruneSignupChoices(keepDates, halfFull) {
     }
     return removed;
   }
-  if (keep.length !== current.length) item.setChoiceValues(keep);
+  if (keep.join('|') !== current.join('|')) item.setChoiceValues(keep);
   if (!form.isAcceptingResponses()) form.setAcceptingResponses(true);
   var help = halfFull.length ? 'These dates have one 30-minute slot left: ' + halfFull.map(labelForIso).join(', ') + '.' : '';
   if (item.getHelpText() !== help) item.setHelpText(help);
@@ -554,6 +604,7 @@ function emailInput() {
     ledger: readLedger(priv),
     rsvps: readRsvpResponses(priv),
     mailingList: readMailingList(priv),
+    known: readKnownPeople(priv),
     today: todayIso(),
     minLeadDays: MIN_LEAD_DAYS,
     signupUrl: cfg.signup_form_url,
@@ -562,6 +613,38 @@ function emailInput() {
         '&entry.' + rsvpPres + '=' + encodeURIComponent(presenter);
     }
   };
+}
+
+/** Role and affiliation for people who signed up before those questions existed.
+ *  Kept in a "People" tab of the private spreadsheet: name | role | affiliation. */
+function readKnownPeople(priv) {
+  var sh = priv.getSheetByName('People');
+  var out = {};
+  if (!sh || sh.getLastRow() < 2) return out;
+  sh.getRange(2, 1, sh.getLastRow() - 1, 3).getValues().forEach(function (r) {
+    var name = cellStr(r[0]);
+    if (!name) return;
+    out[normaliseName(name)] = { role: cellStr(r[1]), affiliation: cellStr(r[2]) };
+  });
+  return out;
+}
+
+/** Fills the People tab from the current schedule, defaulting everyone to UCL. */
+function seedPeopleTab() {
+  var priv = SpreadsheetApp.openById(PRIVATE_SHEET_ID);
+  var sh = getOrCreateTab(priv, 'People', ['name', 'role', 'affiliation']);
+  var have = readKnownPeople(priv);
+  var signups = readSignups(priv);
+  var rows = [];
+  readSchedule(SpreadsheetApp.getActive().getSheetByName(TAB.schedule)).forEach(function (r) {
+    if (!r.presenter || have[normaliseName(r.presenter)]) return;
+    if (rows.some(function (x) { return namesMatch(x[0], r.presenter); })) return;
+    var s = signups.filter(function (x) { return namesMatch(x.name, r.presenter); })[0];
+    var role = s && s.role ? s.role : (s && s.advisors && !/^n\.?\/?a\.?$/i.test(s.advisors) ? 'PhD student' : '');
+    rows.push([r.presenter, role, (s && s.affiliation) || 'UCL']);
+  });
+  if (rows.length) sh.getRange(sh.getLastRow() + 1, 1, rows.length, 3).setValues(rows);
+  console.log('People tab: added ' + rows.length + ' row(s). Edit roles and affiliations there.');
 }
 
 function readMailingList(priv) {
@@ -575,6 +658,22 @@ function readMailingList(priv) {
     return { email: cellStr(r[iEmail]), name: iName >= 0 ? cellStr(r[iName]) : '',
       unsubscribed: iUnsub >= 0 && /^(y|yes|true|1|x)$/i.test(cellStr(r[iUnsub])) };
   }).filter(function (m) { return m.email; });
+}
+
+/** Sends an already-addressed message through the mailer script. */
+function callMailerRaw(msg, test) {
+  var p = PropertiesService.getScriptProperties();
+  var url = p.getProperty('MAILER_URL') || (typeof MAILER_URL_FILE !== 'undefined' ? MAILER_URL_FILE : '');
+  var secret = p.getProperty('MAILER_SECRET') || (typeof MAILER_SECRET_FILE !== 'undefined' ? MAILER_SECRET_FILE : '');
+  if (!url || !secret) throw new Error('mailer not configured');
+  var res = UrlFetchApp.fetch(url, { method: 'post', contentType: 'text/plain;charset=utf-8',
+    payload: JSON.stringify({ secret: secret, to: msg.to || [], cc: msg.cc || [], bcc: msg.bcc || [],
+      subject: msg.subject, body: msg.body, test: !!test }),
+    muteHttpExceptions: true, followRedirects: true });
+  var out;
+  try { out = JSON.parse(res.getContentText()); } catch (e) { throw new Error('mailer replied with something unexpected'); }
+  if (!out.ok) throw new Error('mailer: ' + out.error);
+  return out;
 }
 
 /** Sends one composed message through the mailer script. */
@@ -633,6 +732,14 @@ function previewFor(dateIso) {
 }
 
 /** Installs the daily job and the three email triggers. Run once after setting the mailer properties. */
+/** Adds the new sign-up questions without re-running setup. */
+function updateSignupForm() {
+  var form = FormApp.openById(SIGNUP_FORM_ID);
+  ensureSignupTitleQuestion(form);
+  ensureSignupProfileQuestions(form);
+  console.log('sign-up form questions: ' + form.getItems().map(function (i) { return i.getTitle(); }).join(' | '));
+}
+
 function installTriggers() {
   ScriptApp.getProjectTriggers().forEach(function (t) {
     if (['dailyJob', 'sendScheduledEmails'].indexOf(t.getHandlerFunction()) >= 0) ScriptApp.deleteTrigger(t);
@@ -681,4 +788,39 @@ function createMailingListForm() {
   sh.appendRow(['mailing_form_id', f.getId()]);
   sh.appendRow(['mailing_form_url', url]);
   console.log('mailing list form: ' + url);
+}
+
+/**
+ * Sends Hadar one email containing the three weekly drafts exactly as they would go out
+ * for the coming Monday, so they can be checked before anything real is sent.
+ * Nothing goes to the mailing list or to the presenters.
+ */
+function emailMeTheDrafts() {
+  var input = emailInput();
+  var monday = nextMonday(input.today);
+  var sets = [
+    ['Monday 09:00 to the presenter(s)', presenterReminders(input, monday)],
+    ['Thursday 13:00 to the mailing list', [weeklyAnnouncement(input, monday)]],
+    ['Friday 12:00 to the organisers', [rsvpReport(input, monday)]]
+  ];
+  var out = ['Drafts for the seminar on ' + labelForIso(monday) + '.',
+             'These are previews only: nothing has been sent to anyone else.', ''];
+  sets.forEach(function (pair) {
+    out.push('==================================================');
+    out.push(pair[0]);
+    out.push('==================================================', '');
+    var msgs = (pair[1] || []).filter(Boolean);
+    if (!msgs.length) { out.push('(nothing would be sent)', ''); return; }
+    msgs.forEach(function (m) {
+      var to = (m.to && m.to.length ? m.to : ORGANISERS).join(', ');
+      out.push('To:      ' + to);
+      out.push('Cc:      ' + ((m.to && m.to.length) ? ORGANISERS.join(', ') : '(none)'));
+      if (m.bcc && m.bcc.length) out.push('Bcc:     ' + m.bcc.length + ' mailing list address(es)');
+      out.push('Subject: ' + m.subject, '', m.body, '', '--------------------------------------------------', '');
+    });
+  });
+  callMailerRaw({ to: [ORGANISERS[0]], cc: [], bcc: [],
+    subject: 'Brown bag: drafts of the weekly emails for ' + labelForIso(monday),
+    body: out.join('\n') }, false);
+  console.log('drafts sent to ' + ORGANISERS[0]);
 }
