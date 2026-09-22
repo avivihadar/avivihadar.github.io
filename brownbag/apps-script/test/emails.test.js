@@ -41,7 +41,7 @@ test('presenter reminder: faculty gets no student line, missing title gets the h
 test('presenter reminder: student with a title gets the nudge and no how-to', () => {
   const input = baseInput({ schedule: [row('2026-10-12', 'Hao Hu', 60, '12:00', 'Firms and trade')] });
   const m = S.presenterReminders(input, '2026-10-12');
-  assert.match(m[0].body, /Feel free to invite faculty and visitors in your field\./);
+  assert.match(m[0].body, /Feel free to invite faculty and visitors to your talk\./);
   assert.ok(!/We do not have a title/.test(m[0].body));
 });
 

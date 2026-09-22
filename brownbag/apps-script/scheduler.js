@@ -405,7 +405,7 @@ function presenterReminders(input, date) {
         'enter the email address you used on the sign-up form, and type the title.', '');
     }
     if (isStudent(t.presenter, input.signups)) {
-      lines.push('Feel free to invite faculty and visitors in your field.', '');
+      lines.push('Feel free to invite faculty and visitors to your talk.', '');
     }
     lines.push('See you on Monday,', 'Hadar and Gabriel');
     return { kind: 'presenter', to: to ? [to] : [], presenter: t.presenter, date: date,
