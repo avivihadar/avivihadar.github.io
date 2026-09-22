@@ -65,6 +65,14 @@
     };
   }
 
+  /** Rows from the script's JSON endpoint -> same shape as CSV rows. */
+  function rowsFromApi(rows) {
+    return (rows || []).map(function (r) {
+      return normaliseRow({ date: String(r.date || ''), term: r.term || '', start: String(r.start || ''), end: String(r.end || ''),
+        presenter: r.presenter || '', slot_min: String(r.slot || ''), title: r.title || '' });
+    });
+  }
+
   /** Group rows by date; talks sorted by start; compute the free half when 30 of 60 minutes are used. */
   function groupByDate(rows) {
     var byDate = {};
@@ -121,7 +129,7 @@
     }
   }
 
-  var helpers = { parseCsv: parseCsv, rowsToObjects: rowsToObjects, normaliseRow: normaliseRow, groupByDate: groupByDate,
+  var helpers = { parseCsv: parseCsv, rowsToObjects: rowsToObjects, normaliseRow: normaliseRow, rowsFromApi: rowsFromApi, groupByDate: groupByDate,
     labelForIso: labelForIso, prefilledUrl: prefilledUrl, actionUrl: actionUrl, todayIso: todayIso, isoFromLoose: isoFromLoose };
   if (typeof module !== 'undefined') module.exports = helpers;
   if (typeof window === 'undefined') return;
@@ -150,12 +158,64 @@
     if (!isPast) {
       var actions = el('p', 'actions');
       var rsvp = actionUrl('rsvp', CFG.rsvp, group.date, talk.presenter, CFG.organiserEmail);
-      var title = actionUrl('title', CFG.title, group.date, talk.presenter, CFG.organiserEmail);
       if (rsvp) actions.appendChild(link(rsvp, 'RSVP'));
-      if (title) actions.appendChild(link(title, 'Add title'));
+      if (CFG.apiUrl) {
+        var toggle = el('a', null, talk.title ? 'Change title' : 'Add title');
+        toggle.href = '#';
+        toggle.addEventListener('click', function (ev) { ev.preventDefault(); openTitleForm(box, paper, group.date, talk); });
+        actions.appendChild(toggle);
+      } else {
+        var titleUrl = actionUrl('title', CFG.title, group.date, talk.presenter, CFG.organiserEmail);
+        if (titleUrl) actions.appendChild(link(titleUrl, 'Add title'));
+      }
       if (actions.childNodes.length) box.appendChild(actions);
     }
     return box;
+  }
+
+  /** Small form under the talk; submits to the script and shows the title at once. */
+  function openTitleForm(box, paper, date, talk) {
+    var existing = box.querySelector('.title-form');
+    if (existing) { existing.querySelector('input').focus(); return; }
+    var form = el('form', 'title-form');
+    var titleIn = el('input'); titleIn.type = 'text'; titleIn.required = true; titleIn.maxLength = 300;
+    titleIn.placeholder = 'Title of your talk'; titleIn.value = talk.title || ''; titleIn.setAttribute('aria-label', 'Title of your talk');
+    var coIn = el('input'); coIn.type = 'text'; coIn.maxLength = 300; coIn.placeholder = 'Co-authors (optional)'; coIn.setAttribute('aria-label', 'Co-authors');
+    var row = el('div', 'title-form__row');
+    var save = el('button', 'btn', 'Save title'); save.type = 'submit';
+    var cancel = el('button', 'btn btn--ghost', 'Cancel'); cancel.type = 'button';
+    var note = el('span', 'title-form__note', 'Posting as ' + talk.presenter + ', ' + labelForIso(date) + '.');
+    row.appendChild(save); row.appendChild(cancel); row.appendChild(note);
+    var msg = el('p', 'title-form__msg');
+    form.appendChild(titleIn); form.appendChild(coIn); form.appendChild(row); form.appendChild(msg);
+    cancel.addEventListener('click', function () { form.remove(); });
+    form.addEventListener('submit', function (ev) {
+      ev.preventDefault();
+      save.disabled = true; msg.className = 'title-form__msg'; msg.textContent = 'Saving\u2026';
+      submitTitle({ action: 'title', date: date, presenter: talk.presenter, title: titleIn.value.trim(), coauthors: coIn.value.trim() })
+        .then(function (res) {
+          if (!res.ok) throw new Error(res.error || 'not saved');
+          talk.title = res.title;
+          paper.textContent = res.title;
+          form.remove();
+          var toggles = box.querySelectorAll('.actions a');
+          for (var i = 0; i < toggles.length; i++) if (/title/i.test(toggles[i].textContent)) toggles[i].textContent = 'Change title';
+        })
+        .catch(function (err) {
+          save.disabled = false;
+          msg.className = 'title-form__msg is-error';
+          msg.textContent = 'Could not save (' + err.message + '). ';
+          var backup = actionUrl('title', CFG.title, date, talk.presenter, CFG.organiserEmail);
+          if (backup) msg.appendChild(link(backup, 'Send it another way'));
+        });
+    });
+    box.appendChild(form);
+    titleIn.focus();
+  }
+
+  function submitTitle(payload) {
+    return fetch(CFG.apiUrl, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload), redirect: 'follow' })
+      .then(function (res) { return res.json(); });
   }
 
   function renderOpen(group, start, end, isPast, showLink) {
@@ -246,10 +306,22 @@
     }
 
     var fallbackUrl = '/brownbag/fallback.csv?_=' + Date.now();
-    // Until the published sheet link is configured, the saved copy is the schedule: no warning needed.
-    var live = CFG.csvUrl ? fetchText(CFG.csvUrl + (CFG.csvUrl.indexOf('?') >= 0 ? '&' : '?') + '_=' + Date.now(), 10000) : fetchText(fallbackUrl, 10000);
-    live.then(function (text) {
-      show(text); status.textContent = ''; status.className = 'status';
+    function showRows(rows) {
+      list.textContent = '';
+      list.appendChild(render(groupByDate(rows), today));
+    }
+    var live;
+    if (CFG.apiUrl) {
+      live = fetch(CFG.apiUrl + '?action=schedule&_=' + Date.now(), { cache: 'no-store', redirect: 'follow' })
+        .then(function (res) { if (!res.ok) throw new Error('HTTP ' + res.status); return res.json(); })
+        .then(function (data) { if (!data.ok || !data.rows) throw new Error(data.error || 'bad response'); return rowsFromApi(data.rows); });
+    } else if (CFG.csvUrl) {
+      live = fetchText(CFG.csvUrl + (CFG.csvUrl.indexOf('?') >= 0 ? '&' : '?') + '_=' + Date.now(), 10000).then(function (t) { return rowsToObjects(parseCsv(t)).map(normaliseRow); });
+    } else {
+      live = fetchText(fallbackUrl, 10000).then(function (t) { return rowsToObjects(parseCsv(t)).map(normaliseRow); });
+    }
+    live.then(function (rows) {
+      showRows(rows); status.textContent = ''; status.className = 'status';
     }).catch(function (err) {
       return fetchText(fallbackUrl, 10000).then(function (text) {
         show(text);

@@ -1,8 +1,9 @@
 # Brown bag scheduler (Apps Script)
 
 The schedule page at `https://avivihadar.github.io/brownbag/` reads the **Schedule** tab of the
-public spreadsheet *Applied Micro Brown Bag Schedule 2026/27*. A Google Apps Script bound to that
-spreadsheet runs every day at 12:00 London time and:
+public spreadsheet *Applied Micro Brown Bag Schedule 2026/27* through the script's web app
+(`doGet`), and presenters' titles typed on the page go straight into that tab (`doPost`), so a
+title shows on the page immediately. The same Apps Script runs every day at 12:00 London time and:
 
 1. places new sign-ups from the sign-up form into the earliest date they ticked that still has room
    (60-minute talks need an empty Monday; 30-minute talks take 12:00, then 12:30);
@@ -29,14 +30,14 @@ ledger, the **Unplaced** list and the **Log**.
    (Advanced > Go to project if Google warns the app is unverified: it is your own script).
    This creates the RSVP and title forms, adds an optional "Title of your talk" question to the
    sign-up form, creates the private tabs, the Config tab and the daily trigger.
-4. Publish the Schedule tab: File > Share > Publish to web > pick **Schedule** (not "Entire
-   document") and **Comma-separated values (.csv)** > Publish. Copy the link and send it to Claude;
-   it goes into `brownbag/config.js` on the website.
-5. Run `dryRun` to see what the job would do, then `dailyJob` to do it. Check the summary email and
+4. Run `dryRun` to see what the job would do, then `dailyJob` to do it. Check the summary email and
    the sign-up form (only future, open dates should remain).
 
-Alternative to pasting: run `npx @google/clasp login` once, enable the Apps Script API at
-https://script.google.com/home/usersettings, and Claude can push these files with `clasp`.
+The script was in fact uploaded with `clasp` (script id in `.clasp.json`). To update it after editing
+the files here: `cd brownbag/apps-script && npx @google/clasp push -f`. Changes to `doGet`/`doPost`
+also need a new version of the web app deployment:
+`npx @google/clasp deploy -i AKfycbxeGbFJ73Pc5G48M6j99deH7JyHIXKf0fRw6ikPyWLOJBcz_JqQY2PBXBNVwYt53X1W --description "update"`.
+The deployment URL (in `brownbag/config.js` as `apiUrl`) stays the same.
 
 ## Editing the schedule by hand
 

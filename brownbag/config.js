@@ -1,5 +1,6 @@
 /* Filled in after setup(): the published CSV link of the Schedule tab and the form links. */
 window.BROWNBAG_CONFIG = {
+  apiUrl: 'https://script.google.com/macros/s/AKfycbxeGbFJ73Pc5G48M6j99deH7JyHIXKf0fRw6ikPyWLOJBcz_JqQY2PBXBNVwYt53X1W/exec',
   csvUrl: '',
   sheetUrl: 'https://docs.google.com/spreadsheets/d/1FrSTTmb1R0YVlutTZnPVyiFJUjh6wYJrH_EHCxTHRg8/edit',
   signupFormUrl: 'https://docs.google.com/forms/d/e/1FAIpQLSfdBgTn2Ln4IKRCTGZX0hZfnHl9VnV4VkI3GKJek_HyDbyhzQ/viewform',

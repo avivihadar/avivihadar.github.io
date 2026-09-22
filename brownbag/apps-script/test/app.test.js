@@ -55,3 +55,11 @@ test('actionUrl falls back to a mailto link until the form exists', () => {
   assert.ok(f.startsWith('https://docs.google.com/forms/d/e/X/viewform?usp=pp_url&entry.1='));
   assert.equal(A.actionUrl('rsvp', { base: '' }, '2026-10-05', 'Hao Hu', ''), null);
 });
+
+test('rowsFromApi maps the script JSON to page rows', () => {
+  const rows = A.rowsFromApi([{ date: '2026-10-05', term: 'Term 1', start: '12:00', end: '13:00', presenter: 'Hao Hu', slot: 60, title: '' },
+                              { date: '2026-12-14', term: 'Term 1', start: '12:00', end: '13:00', presenter: '', slot: '', title: '' }]);
+  assert.equal(rows[0].slot, 60);
+  assert.equal(rows[1].presenter, '');
+  assert.equal(A.groupByDate(rows).length, 2);
+});
