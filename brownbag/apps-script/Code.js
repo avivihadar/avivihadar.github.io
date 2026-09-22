@@ -534,6 +534,19 @@ function publicSchedule() {
 function doGet(e) {
   var action = (e && e.parameter && e.parameter.action) || 'schedule';
   if (action === 'schedule') return jsonOut({ ok: true, generatedAt: new Date().toISOString(), rows: publicSchedule() });
+  if (action === 'admin') {
+    // Maintenance actions, protected by the same secret the mailer uses.
+    var pp = PropertiesService.getScriptProperties();
+    var secret = pp.getProperty('MAILER_SECRET') || (typeof MAILER_SECRET_FILE !== 'undefined' ? MAILER_SECRET_FILE : '');
+    if (!secret || (e.parameter.secret || '') !== secret) return jsonOut({ ok: false, error: 'not authorised' });
+    var task = e.parameter.task || '';
+    var allowed = { updateSignupForm: updateSignupForm, seedPeopleTab: seedPeopleTab, previewFor: null, setPerson: null };
+    if (task === 'previewFor') return jsonOut({ ok: true, task: task, output: previewText(e.parameter.date) });
+    if (task === 'setPerson') return jsonOut(setPerson(e.parameter.name, e.parameter.role, e.parameter.affiliation));
+    if (!allowed[task]) return jsonOut({ ok: false, error: 'unknown task' });
+    try { allowed[task](); return jsonOut({ ok: true, task: task }); }
+    catch (err) { return jsonOut({ ok: false, task: task, error: String(err && err.message || err) }); }
+  }
   if (action === 'run') {
     var cache = CacheService.getScriptCache();
     if (cache.get('lastManualRun')) return jsonOut({ ok: false, error: 'the job ran in the last 10 minutes; try again later' });
@@ -647,6 +660,23 @@ function seedPeopleTab() {
   console.log('People tab: added ' + rows.length + ' row(s). Edit roles and affiliations there.');
 }
 
+/** Sets one person's role and affiliation in the People tab, adding the row if needed. */
+function setPerson(name, role, affiliation) {
+  if (!name) return { ok: false, error: 'name is required' };
+  var priv = SpreadsheetApp.openById(PRIVATE_SHEET_ID);
+  var sh = getOrCreateTab(priv, 'People', ['name', 'role', 'affiliation']);
+  var n = Math.max(sh.getLastRow() - 1, 0);
+  var rows = n ? sh.getRange(2, 1, n, 3).getValues() : [];
+  for (var i = 0; i < rows.length; i++) {
+    if (namesMatch(rows[i][0], name)) {
+      sh.getRange(i + 2, 2, 1, 2).setValues([[role || rows[i][1], affiliation || rows[i][2]]]);
+      return { ok: true, updated: cellStr(rows[i][0]), role: role, affiliation: affiliation };
+    }
+  }
+  sh.appendRow([name, role || '', affiliation || '']);
+  return { ok: true, added: name, role: role, affiliation: affiliation };
+}
+
 function readMailingList(priv) {
   var sh = priv.getSheetByName(TAB.mailing);
   if (!sh || sh.getLastRow() < 2) return [];
@@ -717,6 +747,19 @@ function runEmails(test) {
 /** Scheduled entry points. Each checks the weekday itself, so a stray run does nothing. */
 function sendScheduledEmails() { runEmails(false); }
 function previewEmails() { runEmails(true); }
+
+/** The drafts for a date, as text. */
+function previewText(dateIso) {
+  var input = emailInput();
+  if (dateIso) input.today = dateIso;
+  var msgs = emailsFor(input);
+  if (!msgs.length) return 'nothing would be sent on ' + input.today;
+  return msgs.map(function (m) {
+    return '--- ' + m.kind + ' -> ' + ((m.to && m.to.length ? m.to : ORGANISERS).join(', ')) +
+      (m.bcc && m.bcc.length ? ' + ' + m.bcc.length + ' bcc' : '') +
+      '\nSubject: ' + m.subject + '\n\n' + m.body;
+  }).join('\n\n');
+}
 
 /** Shows what would go out on a given weekday without touching the mailer, e.g. previewFor('2026-10-01'). */
 function previewFor(dateIso) {
