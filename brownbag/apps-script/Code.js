@@ -580,7 +580,8 @@ function readMailingList(priv) {
 /** Sends one composed message through the mailer script. */
 function callMailer(msg, test) {
   var p = PropertiesService.getScriptProperties();
-  var url = p.getProperty('MAILER_URL'), secret = p.getProperty('MAILER_SECRET');
+  var url = p.getProperty('MAILER_URL') || (typeof MAILER_URL_FILE !== 'undefined' ? MAILER_URL_FILE : '');
+  var secret = p.getProperty('MAILER_SECRET') || (typeof MAILER_SECRET_FILE !== 'undefined' ? MAILER_SECRET_FILE : '');
   if (!url || !secret) throw new Error('mailer not configured: set MAILER_URL and MAILER_SECRET in Script Properties');
   var payload = { secret: secret, subject: msg.subject, body: msg.body, test: !!test,
     to: (msg.to && msg.to.length) ? msg.to : ORGANISERS,

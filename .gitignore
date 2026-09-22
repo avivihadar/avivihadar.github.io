@@ -1,3 +1,6 @@
 _site/
 CLAUDE.md
 .DS_Store
+
+# shared secret between the brown bag scheduler and mailer (pushed to Apps Script, never committed)
+brownbag/**/Secret.js

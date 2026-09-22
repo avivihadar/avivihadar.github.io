@@ -60,7 +60,7 @@ function doGet() {
 function doPost(e) {
   var body;
   try { body = JSON.parse(e.postData && e.postData.contents || '{}'); } catch (err) { return jsonOut({ ok: false, error: 'bad JSON' }); }
-  var secret = props().getProperty('SHARED_SECRET');
+  var secret = props().getProperty('SHARED_SECRET') || (typeof SHARED_SECRET_FILE !== 'undefined' ? SHARED_SECRET_FILE : '');
   if (!secret || body.secret !== secret) return jsonOut({ ok: false, error: 'not authorised' });
 
   var to = clean(body.to), cc = clean(body.cc), bcc = clean(body.bcc);
