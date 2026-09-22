@@ -174,8 +174,9 @@ test('choiceDatesToKeep drops past and full, keeps half-full', () => {
 });
 
 test('applyTitles: latest wins, unmatched reported, manual title kept when response blank', () => {
-  const sched = [row('2026-10-05', 'Ann Lee', 60)];
+  const sched = [row('2026-10-05', 'Ann Lee', 60), row('2026-10-12', 'Bob Ray', 60)];
   const r = S.applyTitles(sched, [
+    { ts: 0, date: 'Mon 19 Oct 2026', presenter: 'Gone Person', title: 'Dropped date: ignored silently' },
     { ts: 2, date: 'Mon 5 Oct 2026', presenter: 'ann lee', title: 'Second' },
     { ts: 1, date: 'Mon 5 Oct 2026', presenter: 'Ann Lee', title: 'First' },
     { ts: 3, date: 'Mon 12 Oct 2026', presenter: 'Nobody', title: 'Lost' },
@@ -231,4 +232,48 @@ test('applySignupTitles fills blank titles only; title form still wins', () => {
   const res = S.run({ schedule: sched, ledger: [{ email: 'ann@x.com', name: 'Ann Lee' }, { email: 'bob@x.com', name: 'Bob Ray' }], signups, today: TODAY, minLeadDays: 7,
     titles: [{ ts: 9, date: 'Mon 5 Oct 2026', presenter: 'Ann Lee', title: 'From title form' }], rsvps: [], prevUnplaced: [] });
   assert.equal(res.schedule[0].title, 'From title form');
+});
+
+test('a newer sign-up from a placed person releases the old slot and re-places them', () => {
+  const sched = blankSchedule();
+  sched[1] = row('2026-10-05', 'Yikai Li', 30);                       // seeded placement, half-full date
+  const ledger = [{ email: 'yikai@x.com', name: 'Yikai Li', date: '2026-10-05', slot: 30, placedAt: TODAY, source: 'seed' }];
+  const res = S.placeSignups({
+    schedule: sched, ledger, today: TODAY, minLeadDays: 7,
+    signups: [signup(100, 'Yikai Li', 'yikai@x.com', ['2026-10-05'], 30),          // original
+              signup(200, 'Yikai Li', 'yikai@x.com', ['2027-03-01', '2027-03-08'], 60)]  // newer: different dates and length
+  });
+  const oct5 = res.schedule.filter(x => x.date === '2026-10-05');
+  assert.equal(oct5.length, 1);
+  assert.equal(oct5[0].presenter, '');                                 // date kept, now open
+  const moved = res.schedule.find(x => x.presenter === 'Yikai Li');
+  assert.equal(moved.date, '2027-03-01');
+  assert.equal(moved.slot, 60);
+  assert.deepEqual(res.replaced, [{ name: 'Yikai Li', email: 'yikai@x.com', from: ['2026-10-05'], to: '2027-03-01' }]);
+  assert.equal(res.placed.length, 0);
+  assert.equal(res.ledger.length, 1);
+  assert.equal(res.ledger[0].signupTs, 200);
+  assert.equal(ledger.length, 1);                                       // input not mutated
+  // running again with the updated ledger changes nothing
+  const again = S.placeSignups({ schedule: res.schedule, ledger: res.ledger, today: TODAY, minLeadDays: 7, signups: [
+    signup(100, 'Yikai Li', 'yikai@x.com', ['2026-10-05'], 30), signup(200, 'Yikai Li', 'yikai@x.com', ['2027-03-01', '2027-03-08'], 60)] });
+  assert.equal(again.replaced.length, 0);
+  assert.equal(again.newLedger.length, 0);
+});
+
+test('a single response for a seeded person stays put; resubmission that fits nowhere ends in Unplaced', () => {
+  const sched = blankSchedule();
+  sched[1] = row('2026-10-05', 'Ann Lee', 60);
+  sched[2] = row('2026-10-12', 'Bob Ray', 60);
+  const ledger = [{ email: 'ann@x.com', name: 'Ann Lee', date: '2026-10-05', slot: 60, placedAt: TODAY, source: 'seed' },
+                  { email: 'bob@x.com', name: 'Bob Ray', date: '2026-10-12', slot: 60, placedAt: TODAY, source: 'seed' }];
+  const res = S.placeSignups({ schedule: sched, ledger, today: TODAY, minLeadDays: 7, signups: [
+    signup(100, 'Ann Lee', 'ann@x.com', ['2026-10-05'], 60),
+    signup(100, 'Bob Ray', 'bob@x.com', ['2026-10-12'], 60),
+    signup(300, 'Bob Ray', 'bob@x.com', ['2026-10-05'], 60)] });          // wants Ann's date, which is full
+  assert.equal(res.schedule.find(x => x.presenter === 'Ann Lee').date, '2026-10-05');
+  assert.ok(!res.schedule.some(x => x.presenter === 'Bob Ray'));
+  assert.equal(res.schedule.filter(x => x.date === '2026-10-12')[0].presenter, '');
+  assert.equal(res.unplaced[0].name, 'Bob Ray');
+  assert.deepEqual(res.replaced[0], { name: 'Bob Ray', email: 'bob@x.com', from: ['2026-10-12'], to: null });
 });

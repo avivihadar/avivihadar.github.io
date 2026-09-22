@@ -19,11 +19,12 @@ var PRIVATE_SHEET_ID = '1Q5JzJnDdLg5wwlLByaMv5FYDdSHgZpWzUOioJGJ0BB0';
 var SIGNUP_TAB = 'Form Responses 1';
 var ORGANISER_EMAIL = 'h.avivi@ucl.ac.uk';
 var MIN_LEAD_DAYS = 7;
+var FIRST_SEMINAR_DATE = '2026-10-05';   // earlier Mondays are dropped from the schedule
 var TZ = 'Europe/London';
 
 var TAB = { schedule: 'Schedule', config: 'Config', ledger: 'Placements', unplaced: 'Unplaced', log: 'Log', rsvp: 'RSVP Responses', title: 'Title Responses' };
 var SCHEDULE_HEADER = ['date', 'term', 'start', 'end', 'presenter', 'slot_min', 'title', 'rsvps', 'notes'];
-var LEDGER_HEADER = ['email', 'name', 'date', 'slot_min', 'placed_at', 'source'];
+var LEDGER_HEADER = ['email', 'name', 'date', 'slot_min', 'placed_at', 'source', 'signup_ts'];
 var UNPLACED_HEADER = ['email', 'name', 'slot_min', 'dates_ticked', 'reason', 'first_seen'];
 var LOG_HEADER = ['run_at', 'mode', 'placed', 'new_unplaced', 'titles_updated', 'dates_removed', 'error'];
 
@@ -230,7 +231,7 @@ function runJob(dry) {
   var result;
   try {
     var input = {
-      schedule: readSchedule(sched),
+      schedule: readSchedule(sched).filter(function (r) { return r.date >= FIRST_SEMINAR_DATE; }),
       ledger: readLedger(priv),
       signups: readSignups(priv),
       titles: readTitleResponses(priv),
@@ -248,13 +249,14 @@ function runJob(dry) {
       return;
     }
     writeSchedule(sched, result.schedule);
-    appendLedger(priv, result.newLedger);
+    writeLedger(priv, result.ledger);
     writeUnplaced(priv, result.unplaced);
     removed = pruneSignupChoices(result.keepChoiceDates, result.halfFullDates);
     appendLog(priv, [new Date(), 'daily', result.changes.placed.length, result.changes.newUnplaced.length, result.changes.titlesUpdated.length, removed.join(' '), '']);
     var c = result.changes;
-    if (c.placed.length || c.newUnplaced.length || c.titlesUpdated.length || c.titlesUnmatched.length || removed.length) {
-      MailApp.sendEmail(ORGANISER_EMAIL, 'Brown bag: schedule updated', summaryText(c, removed, result.unplaced));
+    if (c.placed.length || c.replaced.length || c.newUnplaced.length || c.titlesUpdated.length || c.titlesUnmatched.length || removed.length) {
+      try { MailApp.sendEmail(ORGANISER_EMAIL, 'Brown bag: schedule updated', summaryText(c, removed, result.unplaced)); }
+      catch (mailErr) { console.error('email not sent: ' + mailErr); appendLog(priv, [new Date(), 'email', '', '', '', '', 'email not sent: ' + (mailErr && mailErr.message || mailErr) + ' (run sendTestEmail once to grant permission)']); }
     }
     console.log(JSON.stringify(c));
   } catch (e) {
@@ -271,6 +273,11 @@ function summaryText(c, removed, unplaced) {
   if (c.placed.length) {
     lines.push('Newly scheduled:');
     c.placed.forEach(function (p) { lines.push('  ' + labelForIso(p.date) + ' ' + p.start + '  ' + p.name + ' (' + p.slot + ' min)'); });
+    lines.push('');
+  }
+  if (c.replaced.length) {
+    lines.push('Re-submitted sign-ups (old slot released):');
+    c.replaced.forEach(function (r) { lines.push('  ' + r.name + ': ' + r.from.map(labelForIso).join(', ') + ' -> ' + (r.to ? labelForIso(r.to) : 'could not be placed')); });
     lines.push('');
   }
   if (c.newUnplaced.length) {
@@ -371,7 +378,7 @@ function readLedger(priv) {
   if (!sh || sh.getLastRow() < 2) return [];
   CELL_TZ = tzOf(priv);
   return sh.getRange(2, 1, sh.getLastRow() - 1, LEDGER_HEADER.length).getValues().filter(function (r) { return cellStr(r[0]) || cellStr(r[1]); })
-    .map(function (r) { return { email: normaliseEmail(r[0]), name: cellStr(r[1]), date: cellDate(r[2]), slot: parseSlot(r[3]), placedAt: cellDate(r[4]), source: cellStr(r[5]) }; });
+    .map(function (r) { return { email: normaliseEmail(r[0]), name: cellStr(r[1]), date: cellDate(r[2]), slot: parseSlot(r[3]), placedAt: cellDate(r[4]), source: cellStr(r[5]), signupTs: r[6] ? Number(r[6]) : 0 }; });
 }
 
 function readUnplaced(priv) {
@@ -406,10 +413,13 @@ function writeSchedule(sheet, rows) {
   sheet.getRange(2, 1, values.length, SCHEDULE_HEADER.length).setValues(values);
 }
 
-function appendLedger(priv, rows) {
-  if (!rows.length) return;
+function writeLedger(priv, rows) {
   var sh = getOrCreateTab(priv, TAB.ledger, LEDGER_HEADER);
-  sh.getRange(sh.getLastRow() + 1, 1, rows.length, LEDGER_HEADER.length).setValues(rows.map(function (l) { return [l.email, l.name, l.date, l.slot, l.placedAt, l.source]; }));
+  sh.getRange(1, 1, 1, LEDGER_HEADER.length).setValues([LEDGER_HEADER]).setFontWeight('bold');
+  var n = Math.max(sh.getLastRow() - 1, 0);
+  if (n > 0) sh.getRange(2, 1, n, LEDGER_HEADER.length).clearContent();
+  if (!rows.length) return;
+  sh.getRange(2, 1, rows.length, LEDGER_HEADER.length).setValues(rows.map(function (l) { return [l.email, l.name, l.date, l.slot, l.placedAt, l.source, l.signupTs || '']; }));
 }
 
 function writeUnplaced(priv, rows) {
@@ -469,7 +479,7 @@ function jsonOut(obj) {
 
 function publicSchedule() {
   var sched = SpreadsheetApp.getActive().getSheetByName(TAB.schedule);
-  return sortSchedule(readSchedule(sched)).map(function (r) {
+  return sortSchedule(readSchedule(sched)).filter(function (r) { return r.date >= FIRST_SEMINAR_DATE; }).map(function (r) {
     var o = {};
     PUBLIC_COLUMNS.forEach(function (k) { o[k] = r[k] === undefined || r[k] === null ? '' : r[k]; });
     return o;

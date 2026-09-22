@@ -6,7 +6,9 @@
  * Shapes
  *   Signup      { ts, name, email, dates: ['yyyy-mm-dd'], slot: 30|60|null, title, advisors, dietary }
  *   ScheduleRow { date, term, start, end, presenter, slot, title, rsvps, notes }
- *   LedgerRow   { email, name, date, slot, placedAt, source }
+ *   LedgerRow   { email, name, date, slot, placedAt, source, signupTs }
+ *                 signupTs = timestamp of the sign-up response the placement was based on;
+ *                 a newer response from the same person replaces their placement.
  *   TitleResp   { ts, date, presenter, title }
  *   RsvpResp    { ts, date, presenter, name }
  */
@@ -136,11 +138,36 @@ function endFor(start, slot) {
   return slot === 60 ? '13:00' : '12:30';
 }
 
-function isPlaced(person, ledger, schedule) {
+function ledgerRowsFor(person, ledger) {
   var email = normaliseEmail(person.email);
-  if (email && ledger.some(function (l) { return normaliseEmail(l.email) === email; })) return true;
-  if (ledger.some(function (l) { return namesMatch(l.name, person.name); })) return true;
+  return ledger.filter(function (l) { return (email && normaliseEmail(l.email) === email) || namesMatch(l.name, person.name); });
+}
+
+function isPlaced(person, ledger, schedule) {
+  if (ledgerRowsFor(person, ledger).length) return true;
   return schedule.some(function (r) { return hasPresenter(r) && namesMatch(r.presenter, person.name); });
+}
+
+/** Person sent a newer sign-up than the one their placement was based on. */
+function hasResubmitted(person, ledgerRows) {
+  var ref = Math.max.apply(null, ledgerRows.map(function (l) { return l.signupTs || person.ts; }));
+  return person.latestTs > ref;
+}
+
+/** Remove a person's placements (schedule rows on their ledger dates + ledger rows). Keeps the date on the schedule. */
+function removePlacement(person, ledgerRows, schedule, ledger) {
+  var dates = ledgerRows.map(function (l) { return l.date; });
+  var removedDates = [];
+  for (var i = schedule.length - 1; i >= 0; i--) {
+    var r = schedule[i];
+    if (dates.indexOf(r.date) >= 0 && hasPresenter(r) && namesMatch(r.presenter, person.name)) {
+      removedDates.push(r.date);
+      schedule.splice(i, 1);
+      if (!scheduleHasDate(schedule, r.date)) schedule.push({ date: r.date, term: r.term, start: '12:00', end: '13:00', presenter: '', slot: null, title: '', rsvps: '', notes: r.notes || '' });
+    }
+  }
+  ledgerRows.forEach(function (l) { var k = ledger.indexOf(l); if (k >= 0) ledger.splice(k, 1); });
+  return removedDates.sort();
 }
 
 function cloneRow(r) {
@@ -161,18 +188,25 @@ function sortSchedule(schedule) {
  */
 function placeSignups(input) {
   var schedule = input.schedule.map(cloneRow);
-  var ledger = input.ledger.slice();
+  var ledger = input.ledger.map(function (l) { var c = {}; Object.keys(l).forEach(function (k) { c[k] = l[k]; }); return c; });
   var today = input.today;
   var lead = input.minLeadDays === undefined ? 7 : input.minLeadDays;
   var cutoff = addDays(today, lead);
   var people = dedupeSignups(input.signups).people;
-  var placed = [], unplaced = [], newLedger = [];
+  var placed = [], unplaced = [], newLedger = [], replaced = [];
 
   people.forEach(function (p) {
-    if (isPlaced(p, ledger, schedule)) return;
-    if (!p.slot) { unplaced.push(unplacedRow(p, 'slot length missing')); return; }
+    var mine = ledgerRowsFor(p, ledger);
+    var movedFrom = null;
+    if (mine.length) {
+      if (!hasResubmitted(p, mine)) return;
+      movedFrom = removePlacement(p, mine, schedule, ledger);
+    } else if (isPlaced(p, ledger, schedule)) {
+      return;
+    }
+    if (!p.slot) { unplaced.push(unplacedRow(p, 'slot length missing')); if (movedFrom) replaced.push({ name: p.name, email: p.email, from: movedFrom, to: null }); return; }
     var candidates = p.dates.filter(function (d) { return d && d >= cutoff && scheduleHasDate(schedule, d); }).sort();
-    if (candidates.length === 0) { unplaced.push(unplacedRow(p, 'no future dates ticked')); return; }
+    if (candidates.length === 0) { unplaced.push(unplacedRow(p, 'no future dates ticked')); if (movedFrom) replaced.push({ name: p.name, email: p.email, from: movedFrom, to: null }); return; }
     var done = false;
     for (var i = 0; i < candidates.length && !done; i++) {
       var d = candidates[i];
@@ -187,15 +221,16 @@ function placeSignups(input) {
         row = { date: d, term: termOf(d), start: start, end: endFor(start, p.slot), presenter: p.name, slot: p.slot, title: '', rsvps: '', notes: '' };
         schedule.push(row);
       }
-      var l = { email: p.email, name: p.name, date: d, slot: p.slot, placedAt: today, source: 'auto' };
+      var l = { email: p.email, name: p.name, date: d, slot: p.slot, placedAt: today, source: 'auto', signupTs: p.latestTs };
       ledger.push(l); newLedger.push(l);
-      placed.push({ name: p.name, email: p.email, date: d, start: start, slot: p.slot });
+      if (movedFrom) replaced.push({ name: p.name, email: p.email, from: movedFrom, to: d });
+      else placed.push({ name: p.name, email: p.email, date: d, start: start, slot: p.slot });
       done = true;
     }
-    if (!done) unplaced.push(unplacedRow(p, 'no capacity on ticked dates'));
+    if (!done) { unplaced.push(unplacedRow(p, 'no capacity on ticked dates')); if (movedFrom) replaced.push({ name: p.name, email: p.email, from: movedFrom, to: null }); }
   });
 
-  return { schedule: sortSchedule(schedule), newLedger: newLedger, unplaced: unplaced, placed: placed };
+  return { schedule: sortSchedule(schedule), ledger: ledger, newLedger: newLedger, unplaced: unplaced, placed: placed, replaced: replaced };
 }
 
 function unplacedRow(p, reason) {
@@ -223,6 +258,7 @@ function applyTitles(schedule, titles) {
   var updated = [], unmatched = [];
   titles.slice().sort(function (a, b) { return a.ts - b.ts; }).forEach(function (t) {
     var date = parseChoiceLabel(t.date);
+    if (!scheduleHasDate(schedule, date)) return;   // date no longer on the schedule: nothing to attach it to
     var row = schedule.filter(function (r) { return r.date === date && hasPresenter(r) && namesMatch(r.presenter, t.presenter); })[0];
     if (!row) { unmatched.push({ date: t.date, presenter: t.presenter, title: t.title }); return; }
     var title = String(t.title || '').trim();
@@ -279,12 +315,14 @@ function run(input) {
   var newUnplaced = placedRes.unplaced.filter(function (u) { return !prevUnplacedKeys[normaliseEmail(u.email) || normaliseName(u.name)]; });
   return {
     schedule: schedule,
+    ledger: placedRes.ledger,
     newLedger: placedRes.newLedger,
     unplaced: placedRes.unplaced,
     keepChoiceDates: keep,
     halfFullDates: halfFullDates(schedule, input.today, input.minLeadDays),
     changes: {
       placed: placedRes.placed,
+      replaced: placedRes.replaced,
       newUnplaced: newUnplaced,
       titlesUpdated: signupTitles.concat(titleRes.updated),
       titlesUnmatched: titleRes.unmatched,
