@@ -418,13 +418,13 @@ function weeklyAnnouncement(input, date) {
   var talks = talksOn(input.schedule, date);
   if (!talks.length) return null;
   var lines = ['Dear all,', ''];
-  lines.push('Next Monday, ' + longDate(date) + ', ' + timeRange(talks) + ', ' + ROOM + ':', '');
+  lines.push('Next Monday at the Applied Micro Brown Bag, ' + longDate(date) + ', ' +
+    timeRange(talks) + ', ' + ROOM + ':', '');
   talks.forEach(function (t) {
     lines.push('  ' + t.presenter + (talks.length > 1 ? '  (' + t.start + '–' + t.end + ')' : ''));
     lines.push('  ' + (t.title || 'Title to be announced'), '');
   });
-  lines.push('Lunch is provided. If you have not already, please sign up for lunch by Friday at noon ' +
-    'so we order the right amount:');
+  lines.push('Lunch is provided. If you have not already, please sign up for lunch by Friday at noon:');
   lines.push(input.rsvpUrl(date, talks[0].presenter), '');
   var open = choiceDatesToKeep(input.schedule, input.today, input.minLeadDays);
   if (open.length) {
