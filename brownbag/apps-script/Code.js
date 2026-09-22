@@ -168,6 +168,13 @@ function listTriggers() {
   ScriptApp.getProjectTriggers().forEach(function (t) { console.log(t.getHandlerFunction() + ' ' + t.getEventType()); });
 }
 
+/** Rewrites the Schedule tab with repaired times; no placements, no email. */
+function repairTimes() {
+  var sched = SpreadsheetApp.getActive().getSheetByName(TAB.schedule);
+  writeSchedule(sched, sortSchedule(readSchedule(sched)));
+  console.log('times repaired');
+}
+
 function sendTestEmail() {
   MailApp.sendEmail(ORGANISER_EMAIL, 'Brown bag: test email', 'The brown bag script can email you.');
 }
@@ -254,27 +261,52 @@ function summaryText(c, removed, unplaced) {
 // ---- readers --------------------------------------------------------------
 function todayIso() { return Utilities.formatDate(new Date(), TZ, 'yyyy-MM-dd'); }
 
+/* Date/time cells are formatted in the spreadsheet's own time zone, so a cell showing 12:00
+ * reads as 12:00 whatever the file's clock is set to. */
+var CELL_TZ = null;
+function tzOf(ss) { return ss.getSpreadsheetTimeZone() || TZ; }
 function cellDate(v) {
-  if (v instanceof Date) return Utilities.formatDate(v, TZ, 'yyyy-MM-dd');
+  if (v instanceof Date) return Utilities.formatDate(v, CELL_TZ || TZ, 'yyyy-MM-dd');
   var s = String(v || '').trim();
   return parseChoiceLabel(s) || s;
 }
 function cellTime(v) {
-  if (v instanceof Date) return Utilities.formatDate(v, TZ, 'HH:mm');
+  if (v instanceof Date) return Utilities.formatDate(v, CELL_TZ || TZ, 'HH:mm');
   var m = String(v || '').match(/^(\d{1,2}):(\d{2})/);
   return m ? (m[1].length === 1 ? '0' + m[1] : m[1]) + ':' + m[2] : String(v || '');
+}
+
+/* Repair rows whose times are not seminar times (e.g. after a time-zone mix-up):
+ * within each date, keep the existing order and reassign 12:00 / 12:30 slots. */
+function sanitizeTimes(rows) {
+  var byDate = {};
+  rows.forEach(function (r) { (byDate[r.date] = byDate[r.date] || []).push(r); });
+  Object.keys(byDate).forEach(function (d) {
+    var group = byDate[d];
+    var ok = group.every(function (r) { return (r.start === '12:00' || r.start === '12:30') && (r.end === '12:30' || r.end === '13:00'); });
+    if (ok) return;
+    group.sort(function (a, b) { return a.start < b.start ? -1 : (a.start > b.start ? 1 : 0); });
+    var t = '12:00';
+    group.forEach(function (r) {
+      r.start = t;
+      r.end = (r.slot === 30) ? (t === '12:00' ? '12:30' : '13:00') : '13:00';
+      t = '12:30';
+    });
+  });
+  return rows;
 }
 function cellStr(v) { return v === null || v === undefined ? '' : String(v).trim(); }
 
 function readSchedule(sheet) {
   if (sheet.getLastRow() < 2) return [];
+  CELL_TZ = tzOf(sheet.getParent());
   var values = sheet.getRange(2, 1, sheet.getLastRow() - 1, SCHEDULE_HEADER.length).getValues();
-  return values.filter(function (r) { return cellStr(r[0]); }).map(function (r) {
+  return sanitizeTimes(values.filter(function (r) { return cellStr(r[0]); }).map(function (r) {
     var presenter = cellStr(r[4]);
     if (/^(\(open\)|tbd|tba)$/i.test(presenter)) presenter = '';
     return { date: cellDate(r[0]), term: cellStr(r[1]), start: cellTime(r[2]) || '12:00', end: cellTime(r[3]) || '13:00',
       presenter: presenter, slot: parseSlot(r[5]), title: cellStr(r[6]), rsvps: cellStr(r[7]) === '' ? '' : Number(r[7]), notes: cellStr(r[8]) };
-  });
+  }));
 }
 
 function headerIndex(headers, prefix) {
@@ -301,6 +333,7 @@ function readSignups(priv) {
 function readLedger(priv) {
   var sh = priv.getSheetByName(TAB.ledger);
   if (!sh || sh.getLastRow() < 2) return [];
+  CELL_TZ = tzOf(priv);
   return sh.getRange(2, 1, sh.getLastRow() - 1, LEDGER_HEADER.length).getValues().filter(function (r) { return cellStr(r[0]) || cellStr(r[1]); })
     .map(function (r) { return { email: normaliseEmail(r[0]), name: cellStr(r[1]), date: cellDate(r[2]), slot: parseSlot(r[3]), placedAt: cellDate(r[4]), source: cellStr(r[5]) }; });
 }
