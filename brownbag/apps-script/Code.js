@@ -548,12 +548,13 @@ function doGet(e) {
     var task = e.parameter.task || '';
     var allowed = { updateSignupForm: updateSignupForm, seedPeopleTab: seedPeopleTab, previewFor: null,
       setPerson: null, fixSignup: null, clearPlacement: null, createMailingListForm: createMailingListForm,
-      removeFormQuestion: null };
+      removeFormQuestion: null, renameFormQuestion: null };
     if (task === 'previewFor') return jsonOut({ ok: true, task: task, output: previewText(e.parameter.date) });
     if (task === 'setPerson') return jsonOut(setPerson(e.parameter.name, e.parameter.role, e.parameter.affiliation));
     if (task === 'fixSignup') return jsonOut(fixSignup(e.parameter.match, e.parameter.name, e.parameter.email));
     if (task === 'clearPlacement') return jsonOut(clearPlacement(e.parameter.name, e.parameter.date));
     if (task === 'removeFormQuestion') return jsonOut(removeFormQuestion(e.parameter.form, e.parameter.title));
+    if (task === 'renameFormQuestion') return jsonOut(renameFormQuestion(e.parameter.form, e.parameter.title, e.parameter.to));
     if (!allowed[task]) return jsonOut({ ok: false, error: 'unknown task' });
     try { allowed[task](); return jsonOut({ ok: true, task: task }); }
     catch (err) { return jsonOut({ ok: false, task: task, error: String(err && err.message || err) }); }
@@ -749,12 +750,27 @@ function removeFormQuestion(formKey, titlePrefix) {
   return removed.length ? { ok: true, removed: removed } : { ok: false, error: 'no question starts with ' + titlePrefix };
 }
 
+/** Renames a question on one of the forms (exact current title). */
+function renameFormQuestion(formKey, title, to) {
+  if (!formKey || !title || !to) return { ok: false, error: 'form, title and to are required' };
+  var cfg = readConfig(SpreadsheetApp.getActive());
+  var form = FormApp.openById(cfg[formKey] || formKey);
+  var done = [];
+  form.getItems().forEach(function (item) {
+    if (item.getTitle() === title) { item.setTitle(to); done.push(title + ' -> ' + to); }
+  });
+  return done.length ? { ok: true, renamed: done } : { ok: false, error: 'no question titled ' + title };
+}
+
 function readMailingList(priv) {
   var sh = priv.getSheetByName(TAB.mailing);
   if (!sh || sh.getLastRow() < 2) return [];
   var data = sh.getDataRange().getValues();
   var h = data[0];
-  var iEmail = headerIndex(h, 'Email'), iName = headerIndex(h, 'Name'), iUnsub = headerIndex(h, 'Unsubscribed');
+  var iEmail = headerIndex(h, 'Email');
+  var iName = headerIndex(h, 'Full name');
+  if (iName < 0) iName = headerIndex(h, 'Name');
+  var iUnsub = headerIndex(h, 'Unsubscribed');
   if (iEmail < 0) iEmail = 1;
   return data.slice(1).map(function (r) {
     return { email: cellStr(r[iEmail]), name: iName >= 0 ? cellStr(r[iName]) : '',
@@ -885,7 +901,7 @@ function createMailingListForm() {
   var f = FormApp.create('Applied Micro Brown Bag: mailing list');
   f.setDescription('Get a weekly email with the next brown bag talk. Mondays 12-1pm, Room 321, Drayton House.')
    .setCollectEmail(false).setConfirmationMessage('Thanks, you are on the list.').setAllowResponseEdits(false);
-  f.addTextItem().setTitle('Name').setRequired(true);
+  f.addTextItem().setTitle('Full name').setRequired(true);
   f.addTextItem().setTitle('Email address').setRequired(true);
   var before = priv.getSheets().map(function (sh) { return sh.getSheetId(); });
   f.setDestination(FormApp.DestinationType.SPREADSHEET, priv.getId());
