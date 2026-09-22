@@ -553,7 +553,7 @@ function doGet(e) {
     var allowed = { updateSignupForm: updateSignupForm, seedPeopleTab: seedPeopleTab, previewFor: null,
       setPerson: null, fixSignup: null, clearPlacement: null, createMailingListForm: createMailingListForm,
       removeFormQuestion: null, renameFormQuestion: null, sendPresenterReminder: null,
-      installTriggers: installTriggers, listTriggers: null };
+      installTriggers: installTriggers, listTriggers: null, stats: null };
     if (task === 'previewFor') return jsonOut({ ok: true, task: task, output: previewText(e.parameter.date) });
     if (task === 'setPerson') return jsonOut(setPerson(e.parameter.name, e.parameter.role, e.parameter.affiliation));
     if (task === 'fixSignup') return jsonOut(fixSignup(e.parameter.match, e.parameter.name, e.parameter.email));
@@ -562,6 +562,7 @@ function doGet(e) {
     if (task === 'renameFormQuestion') return jsonOut(renameFormQuestion(e.parameter.form, e.parameter.title, e.parameter.to));
     if (task === 'sendPresenterReminder') return jsonOut(sendPresenterReminder(e.parameter.date));
     if (task === 'listTriggers') return jsonOut({ ok: true, triggers: listTriggers() });
+    if (task === 'stats') return jsonOut(stats());
     if (!allowed[task]) return jsonOut({ ok: false, error: 'unknown task' });
     try { allowed[task](); return jsonOut({ ok: true, task: task }); }
     catch (err) { return jsonOut({ ok: false, task: task, error: String(err && err.message || err) }); }
@@ -977,4 +978,22 @@ function sendPresenterReminder(dateIso) {
   appendLog(priv, [new Date(), 'emails', 'presenter', sent.map(function (x) { return x.to.join(','); }).join('; '),
     sent[0].subject, '', 'sent by hand for ' + date]);
   return { ok: true, sent: sent };
+}
+
+/** Small counts for a quick check, without pulling whole sheets around. */
+function stats() {
+  var priv = SpreadsheetApp.openById(PRIVATE_SHEET_ID);
+  var list = readMailingList(priv);
+  var signups = readSignups(priv);
+  var rsvps = readRsvpResponses(priv);
+  var monday = nextMonday(todayIso());
+  var forMonday = rsvps.filter(function (r) { return parseChoiceLabel(r.date) === monday; });
+  var people = {};
+  signups.forEach(function (s) { people[normaliseEmail(s.email) || normaliseName(s.name)] = s.name; });
+  return { ok: true, today: todayIso(), nextMonday: monday,
+    mailingList: { count: list.length, latest: list.slice(-6).map(function (m) { return m.name || m.email; }) },
+    signups: { responses: signups.length, people: Object.keys(people).length,
+               latest: signups.slice(-4).map(function (s) { return s.name + ' (' + (s.affiliation || '?') + ')'; }) },
+    rsvps: { total: rsvps.length, forNextMonday: forMonday.length,
+             names: forMonday.map(function (r) { return r.name; }) } };
 }
