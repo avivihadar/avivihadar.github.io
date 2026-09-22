@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <title>Ink sketch: paper bag stamped with a scatter plot, with falafel in pita and an apple</title>
+  <!-- watercolour washes -->
+  <path d="M50 100 q50 -8 100 2 q6 36 4 72 q-52 8 -108 0 q-2 -40 4 -74 z" fill="#c9a06c" opacity=".55"/>
+  <circle cx="62" cy="70" r="16" fill="#d94a4a" opacity=".6"/>
+  <!-- pita pocket wash (half round, opening up) -->
+  <path d="M92 86 a32 32 0 0 1 64 0 z" fill="#e9c98a" opacity=".8"/>
+  <path d="M96 86 a28 28 0 0 1 56 0 z" fill="#f4e2b6" opacity=".9"/>
+  <!-- greens -->
+  <path d="M104 64 q6 -12 16 -10 M140 58 q8 -8 16 -2 M118 52 q4 -8 12 -6" fill="none" stroke="#5da85b" stroke-width="3.2" stroke-linecap="round" opacity=".75"/>
+  <!-- falafel washes -->
+  <circle cx="112" cy="70" r="10" fill="#8a5a2b" opacity=".6"/>
+  <circle cx="132" cy="66" r="10" fill="#8a5a2b" opacity=".6"/>
+  <circle cx="122" cy="56" r="9" fill="#8a5a2b" opacity=".6"/>
+  <g fill="none" stroke="#1d2b3a" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+    <!-- bag, slightly wobbly -->
+    <path d="M47 97 q52 -6 106 1 q3 36 6 74 q-58 6 -112 0 q-2 -38 0 -75"/>
+    <path d="M48 96 q1 -10 2 -14 q50 -5 100 1 q1 8 2 13"/>
+    <path d="M63 80 q-3 -15 13 -15 q24 -2 50 0 q14 1 11 15"/>
+    <path d="M45 99 q54 -3 110 -1" stroke-width="1.6"/>
+    <path d="M62 110 q1 30 0 58 M138 108 q-1 30 1 60" stroke-dasharray="3 6" stroke-width="1.8"/>
+    <!-- hatching on the bag -->
+    <path d="M54 160 l10 -12 M56 170 l14 -16 M60 176 l16 -18 M140 118 l8 -8 M142 130 l10 -10 M144 142 l10 -10" stroke-width="1.2" opacity=".6"/>
+    <!-- pita: outer half-circle and inner rim -->
+    <path d="M92 86 a32 32 0 0 1 64 0"/>
+    <path d="M95 84 q30 -6 58 0" stroke-width="2"/>
+    <path d="M100 80 q4 -14 10 -20 M148 80 q-3 -14 -9 -20" stroke-width="1.6" opacity=".7"/>
+    <!-- falafel balls, rough outlines -->
+    <path d="M112 60 q10 0 10 10 q0 10 -10 10 q-10 0 -10 -10 q0 -10 10 -10 z"/>
+    <path d="M132 56 q10 0 10 10 q0 10 -10 10 q-10 0 -10 -10 q0 -10 10 -10 z"/>
+    <path d="M122 47 q9 0 9 9 q0 9 -9 9 q-9 0 -9 -9 q0 -9 9 -9 z"/>
+    <!-- crumb texture -->
+    <path d="M108 68 l2 1 M114 73 l2 1 M128 63 l2 1 M135 70 l1 2 M119 53 l2 1 M125 59 l1 1" stroke-width="1.4"/>
+    <!-- apple -->
+    <path d="M62 54 q17 0 16 17 q-1 16 -16 15 q-16 0 -16 -16 q0 -16 16 -16 z"/>
+    <path d="M63 54 q2 -9 9 -11 M65 51 q7 -6 11 1 q-7 4 -11 -1"/>
+    <!-- scatter plot stamped on the bag -->
+    <path d="M78 156 q0 -12 1 -24 M78 156 q22 0 44 -1" stroke-width="2.2"/>
+    <path d="M81 152 q18 -12 38 -22" stroke="#b1262e" stroke-width="2.6"/>
+  </g>
+  <g fill="#1d2b3a"><circle cx="84" cy="150" r="2.4"/><circle cx="91" cy="144" r="2.4"/><circle cx="97" cy="147" r="2.4"/><circle cx="104" cy="137" r="2.4"/><circle cx="111" cy="134" r="2.4"/><circle cx="116" cy="130" r="2.4"/></g>
+</svg>
