@@ -183,13 +183,14 @@
     var coIn = el('input'); coIn.type = 'text'; coIn.maxLength = 300; coIn.placeholder = 'Co-authors (optional)'; coIn.setAttribute('aria-label', 'Co-authors');
     var emailIn = el('input'); emailIn.type = 'email'; emailIn.required = true; emailIn.maxLength = 200; emailIn.autocomplete = 'email';
     emailIn.placeholder = 'Email you used to sign up'; emailIn.setAttribute('aria-label', 'Email you used to sign up');
+    var emailNote = el('p', 'title-form__required', 'Required: enter the email address you used on the sign-up form. The title is saved only if it matches.');
     var row = el('div', 'title-form__row');
     var save = el('button', 'btn', 'Save title'); save.type = 'submit';
     var cancel = el('button', 'btn btn--ghost', 'Cancel'); cancel.type = 'button';
     var note = el('span', 'title-form__note', 'Posting as ' + talk.presenter + ', ' + labelForIso(date) + '.');
     row.appendChild(save); row.appendChild(cancel); row.appendChild(note);
     var msg = el('p', 'title-form__msg');
-    form.appendChild(titleIn); form.appendChild(coIn); form.appendChild(emailIn); form.appendChild(row); form.appendChild(msg);
+    form.appendChild(emailNote); form.appendChild(emailIn); form.appendChild(titleIn); form.appendChild(coIn); form.appendChild(row); form.appendChild(msg);
     cancel.addEventListener('click', function () { form.remove(); });
     form.addEventListener('submit', function (ev) {
       ev.preventDefault();
@@ -212,7 +213,7 @@
         });
     });
     box.appendChild(form);
-    titleIn.focus();
+    emailIn.focus();
   }
 
   function submitTitle(payload) {

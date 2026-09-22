@@ -40,6 +40,12 @@ also need a new version of the web app deployment:
 `npx @google/clasp deploy -i AKfycbxeGbFJ73Pc5G48M6j99deH7JyHIXKf0fRw6ikPyWLOJBcz_JqQY2PBXBNVwYt53X1W --description "update"`.
 The deployment URL (in `brownbag/config.js` as `apiUrl`) stays the same.
 
+## Running the job before noon
+
+Open this address in a browser (or ask Claude to): the script's web app URL from `brownbag/config.js`
+with `?action=run` appended. It runs the same job as the noon trigger, at most once every ten
+minutes, and replies with a short JSON summary. The Log tab records the run like any other.
+
 ## Editing the schedule by hand
 
 The Schedule tab is the source of truth. The job never deletes or moves a presenter row.

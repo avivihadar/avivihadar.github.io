@@ -63,6 +63,7 @@ h1 { font-size: clamp(2rem, 4vw, 3.35rem); line-height: 1.08; margin-bottom: 12p
 .title-form input:focus { outline: 2px solid var(--blue); outline-offset: 1px; }
 .title-form__row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .title-form__note { font-size: .82rem; color: var(--muted); }
+.title-form__required { margin: 0; font-size: .88rem; font-weight: 700; color: #b1262e; }
 .title-form__msg { margin: 0; font-size: .88rem; color: var(--muted); }
 .title-form__msg:empty { display: none; }
 .title-form__msg.is-error { color: #7a1c1c; }

@@ -216,7 +216,7 @@ function runNow() { runJob(false); }
 
 function runJob(dry) {
   var lock = LockService.getScriptLock();
-  if (!lock.tryLock(30000)) { console.log('another run is in progress'); return; }
+  if (!lock.tryLock(30000)) { console.log('another run is in progress'); return null; }
   var pub = SpreadsheetApp.getActive();
   var priv = SpreadsheetApp.openById(PRIVATE_SHEET_ID);
   var sched = pub.getSheetByName(TAB.schedule);
@@ -239,7 +239,7 @@ function runJob(dry) {
       console.log('DRY RUN ' + JSON.stringify(result.changes));
       console.log('dates that would stay on the form: ' + result.keepChoiceDates.join(', '));
       console.log('unplaced: ' + JSON.stringify(result.unplaced));
-      return;
+      return result.changes;
     }
     writeSchedule(sched, result.schedule);
     writeLedger(priv, result.ledger);
@@ -249,6 +249,7 @@ function runJob(dry) {
     var changed = c.placed.length || c.replaced.length || c.newUnplaced.length || c.titlesUpdated.length || c.titlesUnmatched.length || removed.length;
     appendLog(priv, [new Date(), 'daily', c.placed.length, c.newUnplaced.length, c.titlesUpdated.length, removed.join(' '), changed ? summaryText(c, removed, result.unplaced) : '']);
     console.log(JSON.stringify(c));
+    return c;
   } catch (e) {
     console.error(e);
     if (!dry) appendLog(priv, [new Date(), 'daily', '', '', '', '', String(e && e.message || e)]);
@@ -475,11 +476,22 @@ function publicSchedule() {
   });
 }
 
-/** GET ?action=schedule -> { ok, generatedAt, rows: [...] } */
+/**
+ * GET ?action=schedule -> { ok, generatedAt, rows: [...] }
+ * GET ?action=run      -> runs the daily job now (same as the noon trigger), at most once every 10 minutes
+ */
 function doGet(e) {
   var action = (e && e.parameter && e.parameter.action) || 'schedule';
-  if (action !== 'schedule') return jsonOut({ ok: false, error: 'unknown action' });
-  return jsonOut({ ok: true, generatedAt: new Date().toISOString(), rows: publicSchedule() });
+  if (action === 'schedule') return jsonOut({ ok: true, generatedAt: new Date().toISOString(), rows: publicSchedule() });
+  if (action === 'run') {
+    var cache = CacheService.getScriptCache();
+    if (cache.get('lastManualRun')) return jsonOut({ ok: false, error: 'the job ran in the last 10 minutes; try again later' });
+    cache.put('lastManualRun', String(Date.now()), 600);
+    var changes = runJob(false);
+    if (!changes) return jsonOut({ ok: false, error: 'another run is in progress' });
+    return jsonOut({ ok: true, placed: changes.placed.length, replaced: changes.replaced.length, unplaced: changes.newUnplaced.length, titles: changes.titlesUpdated.length });
+  }
+  return jsonOut({ ok: false, error: 'unknown action' });
 }
 
 /**
