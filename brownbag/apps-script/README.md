@@ -40,6 +40,25 @@ also need a new version of the web app deployment:
 `npx @google/clasp deploy -i AKfycbxeGbFJ73Pc5G48M6j99deH7JyHIXKf0fRw6ikPyWLOJBcz_JqQY2PBXBNVwYt53X1W --description "update"`.
 The deployment URL (in `brownbag/config.js` as `apiUrl`) stays the same.
 
+## Emails
+
+The scheduler never sends email itself. It asks the **mailer** script, which runs under
+appliedmicrobrownbag@gmail.com (see `brownbag/apps-script-mailer/`), over https with a shared
+secret. Three messages, all cc'ing Hadar and Gabriel, with replies directed to Hadar:
+
+| When | What |
+|---|---|
+| Monday 09:00 | reminder to next Monday's presenter(s); asks for a title if we have none; students are told they may invite faculty in their field |
+| Thursday 13:00 | announcement to the mailing list (Bcc) with the talk, the lunch RSVP link and the Friday noon deadline; mentions open slots when there are any |
+| Friday 12:00 | lunch count and the list of names to the organisers |
+
+Nothing is sent in a week where the coming Monday has no presenter.
+
+`previewFor('2026-10-01')` prints exactly what would go out on that date without sending anything.
+`previewEmails()` does the same for today and logs it. `sendScheduledEmails()` sends for real.
+The mailer address and secret live in Script Properties as `MAILER_URL` and `MAILER_SECRET`
+(set them with `setMailer(url, secret)`); `installTriggers()` installs all four triggers.
+
 ## Running the job before noon
 
 Open this address in a browser (or ask Claude to): the script's web app URL from `brownbag/config.js`

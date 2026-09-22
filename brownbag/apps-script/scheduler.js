@@ -341,12 +341,169 @@ function run(input) {
   };
 }
 
+// ---- emails -------------------------------------------------------------
+var PAGE_URL = 'https://avivihadar.github.io/brownbag/';
+var ROOM = 'Room 321, Drayton House';
+var UNSUB_LINE = 'To stop receiving these, reply with "unsubscribe".';
+
+function firstName(full) {
+  var n = String(full || '').trim().replace(/\(.*?\)/g, ' ').replace(/\s+/g, ' ').trim();
+  return n ? n.split(' ')[0] : '';
+}
+
+/** Monday of the week after `today` (today itself never counts). */
+function nextMonday(today) {
+  var p = today.split('-').map(Number);
+  var d = new Date(Date.UTC(p[0], p[1] - 1, p[2]));
+  var delta = (8 - d.getUTCDay()) % 7 || 7;
+  return addDays(today, delta);
+}
+
+function talksOn(schedule, date) {
+  return schedule.filter(function (r) { return r.date === date && hasPresenter(r); })
+    .sort(function (a, b) { return a.start < b.start ? -1 : (a.start > b.start ? 1 : 0); });
+}
+
+function longDate(iso) {
+  var MONTHS_LONG = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  var p = iso.split('-').map(Number);
+  return p[2] + ' ' + MONTHS_LONG[p[1] - 1];
+}
+
+/** A presenter counts as a student when their sign-up lists advisors other than NA. */
+function isStudent(presenter, signups) {
+  var s = (signups || []).filter(function (x) { return namesMatch(x.name, presenter); })[0];
+  if (!s) return false;
+  var adv = String(s.advisors || '').trim();
+  return !!adv && !/^n\.?\/?a\.?$/i.test(adv);
+}
+
+function emailOf(presenter, signups, ledger) {
+  var s = (signups || []).filter(function (x) { return namesMatch(x.name, presenter) && x.email; })[0];
+  if (s) return normaliseEmail(s.email);
+  var l = (ledger || []).filter(function (x) { return namesMatch(x.name, presenter) && x.email; })[0];
+  return l ? normaliseEmail(l.email) : '';
+}
+
+function timeRange(talks) {
+  if (talks.length === 1 && talks[0].slot === 30) return talks[0].start + ' to ' + talks[0].end;
+  return '12:00 to 13:00';
+}
+
+/** Reminder to each presenter of `date`. One message per presenter. */
+function presenterReminders(input, date) {
+  var talks = talksOn(input.schedule, date);
+  return talks.map(function (t) {
+    var to = emailOf(t.presenter, input.signups, input.ledger);
+    var lines = ['Dear ' + firstName(t.presenter) + ',', ''];
+    lines.push('A reminder that you are presenting at the Applied Micro Brown Bag next Monday, ' +
+      longDate(date) + ', ' + t.start + ' to ' + t.end + ', ' + ROOM + '.');
+    lines.push('Schedule: ' + PAGE_URL, '');
+    if (!t.title) {
+      lines.push('We do not have a title for your talk yet. Please add it today so it can go into ' +
+        'Thursday’s announcement: open the schedule page, click "Add title" under your name, ' +
+        'enter the email address you used on the sign-up form, and type the title.', '');
+    }
+    if (isStudent(t.presenter, input.signups)) {
+      lines.push('Feel free to invite faculty and visitors in your field.', '');
+    }
+    lines.push('See you on Monday,', 'Hadar and Gabriel');
+    return { kind: 'presenter', to: to ? [to] : [], presenter: t.presenter, date: date,
+      subject: 'Your brown bag talk on ' + labelForIso(date), body: lines.join('\n') };
+  }).filter(function (m) { return m.to.length; });
+}
+
+/** Thursday announcement. Returns null when the coming Monday has no presenter. */
+function weeklyAnnouncement(input, date) {
+  var talks = talksOn(input.schedule, date);
+  if (!talks.length) return null;
+  var lines = ['Dear all,', ''];
+  lines.push('Next Monday, ' + longDate(date) + ', ' + timeRange(talks) + ', ' + ROOM + ':', '');
+  talks.forEach(function (t) {
+    lines.push('  ' + t.presenter + (talks.length > 1 ? '  (' + t.start + '–' + t.end + ')' : ''));
+    lines.push('  ' + (t.title || 'Title to be announced'), '');
+  });
+  lines.push('Lunch is provided. If you have not already, please sign up for lunch by Friday at noon ' +
+    'so we order the right amount:');
+  lines.push(input.rsvpUrl(date, talks[0].presenter), '');
+  var open = choiceDatesToKeep(input.schedule, input.today, input.minLeadDays);
+  if (open.length) {
+    lines.push('There are still open slots this year. To present, sign up here:');
+    lines.push(input.signupUrl, '');
+  }
+  lines.push('Full schedule: ' + PAGE_URL, '');
+  lines.push('Best wishes,', 'Hadar and Gabriel', '', UNSUB_LINE);
+  var subject = 'Brown bag on Monday ' + labelForIso(date).replace(/^Mon /, '') + ': ' +
+    talks.map(function (t) { return t.presenter; }).join(' and ');
+  return { kind: 'announcement', to: [], bcc: mailingListAddresses(input.mailingList), date: date,
+    subject: subject, body: lines.join('\n') };
+}
+
+function mailingListAddresses(list) {
+  var seen = {}, out = [];
+  (list || []).forEach(function (m) {
+    var e = normaliseEmail(m.email);
+    if (!e || m.unsubscribed) return;
+    if (seen[e]) return;
+    seen[e] = true; out.push(e);
+  });
+  return out;
+}
+
+/** Friday lunch count to the organisers. Returns null when nobody presents. */
+function rsvpReport(input, date) {
+  var talks = talksOn(input.schedule, date);
+  if (!talks.length) return null;
+  var people = [];
+  var seen = {};
+  (input.rsvps || []).forEach(function (r) {
+    if (parseChoiceLabel(r.date) !== date) return;
+    var key = normaliseName(r.name) || String(r.ts);
+    if (seen[key]) return;
+    seen[key] = true;
+    people.push({ name: String(r.name || '').trim(), dietary: String(r.dietary || '').trim() });
+  });
+  people.sort(function (a, b) { return normaliseName(a.name) < normaliseName(b.name) ? -1 : 1; });
+  var lines = ['Presenter: ' + talks.map(function (t) { return t.presenter; }).join(', ')];
+  lines.push('RSVPs received: ' + people.length, '');
+  people.forEach(function (p) { lines.push('  ' + p.name + (p.dietary ? '   [' + p.dietary + ']' : '')); });
+  if (!people.length) lines.push('  (nobody has signed up yet)');
+  lines.push('');
+  var open = choiceDatesToKeep(input.schedule, input.today, input.minLeadDays);
+  if (open.length) {
+    lines.push('Sign-up form still open for: ' + open.map(function (d) {
+      var used = usedMinutes(input.schedule, d);
+      return labelForIso(d) + (used === 30 ? ' (30 min)' : '');
+    }).join(', '));
+  }
+  return { kind: 'rsvpReport', to: [], date: date,
+    subject: 'Lunch count for Monday ' + labelForIso(date).replace(/^Mon /, '') + ': ' + people.length + ' ' + (people.length === 1 ? 'person' : 'people'),
+    body: lines.join('\n') };
+}
+
+/**
+ * Messages due today. `weekday`: 0=Sun..6=Sat, derived from input.today.
+ * Monday -> presenter reminders; Thursday -> announcement; Friday -> lunch count.
+ */
+function emailsFor(input) {
+  var p = input.today.split('-').map(Number);
+  var weekday = new Date(Date.UTC(p[0], p[1] - 1, p[2])).getUTCDay();
+  var target = nextMonday(input.today);
+  if (weekday === 1) return presenterReminders(input, target);
+  if (weekday === 4) { var a = weeklyAnnouncement(input, target); return a ? [a] : []; }
+  if (weekday === 5) { var r = rsvpReport(input, target); return r ? [r] : []; }
+  return [];
+}
+
 if (typeof module !== 'undefined') {
   module.exports = {
     parseChoiceLabel: parseChoiceLabel, labelForIso: labelForIso, addDays: addDays, termOf: termOf,
     normaliseName: normaliseName, namesMatch: namesMatch, normaliseEmail: normaliseEmail, parseSlot: parseSlot,
     dedupeSignups: dedupeSignups, usedMinutes: usedMinutes, freeStart: freeStart, isPlaced: isPlaced,
     placeSignups: placeSignups, choiceDatesToKeep: choiceDatesToKeep, halfFullDates: halfFullDates,
-    applyTitles: applyTitles, applySignupTitles: applySignupTitles, presenterEmailOk: presenterEmailOk, applyRsvps: applyRsvps, sortSchedule: sortSchedule, run: run
+    applyTitles: applyTitles, applySignupTitles: applySignupTitles, presenterEmailOk: presenterEmailOk,
+    firstName: firstName, nextMonday: nextMonday, isStudent: isStudent, emailOf: emailOf, longDate: longDate,
+    presenterReminders: presenterReminders, weeklyAnnouncement: weeklyAnnouncement, rsvpReport: rsvpReport,
+    mailingListAddresses: mailingListAddresses, emailsFor: emailsFor, applyRsvps: applyRsvps, sortSchedule: sortSchedule, run: run
   };
 }

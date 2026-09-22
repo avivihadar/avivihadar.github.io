@@ -20,11 +20,12 @@ var MIN_LEAD_DAYS = 7;
 var FIRST_SEMINAR_DATE = '2026-10-05';   // earlier Mondays are dropped from the schedule
 var TZ = 'Europe/London';
 
-var TAB = { schedule: 'Schedule', config: 'Config', ledger: 'Placements', unplaced: 'Unplaced', log: 'Log', rsvp: 'RSVP Responses', title: 'Title Responses' };
+var TAB = { schedule: 'Schedule', config: 'Config', ledger: 'Placements', unplaced: 'Unplaced', log: 'Log', rsvp: 'RSVP Responses', title: 'Title Responses', mailing: 'Mailing list' };
+var ORGANISERS = ['h.avivi@ucl.ac.uk', 'g.ulyssea@ucl.ac.uk'];
 var SCHEDULE_HEADER = ['date', 'term', 'start', 'end', 'presenter', 'slot_min', 'title', 'rsvps', 'notes'];
 var LEDGER_HEADER = ['email', 'name', 'date', 'slot_min', 'placed_at', 'source', 'signup_ts'];
 var UNPLACED_HEADER = ['email', 'name', 'slot_min', 'dates_ticked', 'reason', 'first_seen'];
-var LOG_HEADER = ['run_at', 'mode', 'placed', 'new_unplaced', 'titles_updated', 'dates_removed', 'summary_or_error'];
+var LOG_HEADER = ['run_at', 'mode', 'placed_or_kind', 'unplaced_or_to', 'titles_or_subject', 'dates_removed', 'summary_or_error'];
 
 // ---- one-time setup -------------------------------------------------------
 function setup() {
@@ -392,7 +393,7 @@ function readFormTab(priv, tabName, fields) {
   });
 }
 function readTitleResponses(priv) { return readFormTab(priv, TAB.title, { date: 'Seminar date', presenter: 'Presenter', title: 'Paper title' }); }
-function readRsvpResponses(priv) { return readFormTab(priv, TAB.rsvp, { date: 'Seminar date', presenter: 'Presenter', name: 'Your name' }); }
+function readRsvpResponses(priv) { return readFormTab(priv, TAB.rsvp, { date: 'Seminar date', presenter: 'Presenter', name: 'Your name', dietary: 'Dietary' }); }
 
 // ---- writers --------------------------------------------------------------
 function writeSchedule(sheet, rows) {
@@ -537,4 +538,146 @@ function doPost(e) {
   } finally {
     lock.releaseLock();
   }
+}
+
+
+// ---- emails ---------------------------------------------------------------
+/** Everything the pure email functions need. */
+function emailInput() {
+  var pub = SpreadsheetApp.getActive();
+  var priv = SpreadsheetApp.openById(PRIVATE_SHEET_ID);
+  var cfg = readConfig(pub);
+  var rsvpBase = cfg.rsvp_form_url, rsvpDate = cfg.rsvp_entry_date, rsvpPres = cfg.rsvp_entry_presenter;
+  return {
+    schedule: readSchedule(pub.getSheetByName(TAB.schedule)).filter(function (r) { return r.date >= FIRST_SEMINAR_DATE; }),
+    signups: readSignups(priv),
+    ledger: readLedger(priv),
+    rsvps: readRsvpResponses(priv),
+    mailingList: readMailingList(priv),
+    today: todayIso(),
+    minLeadDays: MIN_LEAD_DAYS,
+    signupUrl: cfg.signup_form_url,
+    rsvpUrl: function (date, presenter) {
+      return rsvpBase + '?usp=pp_url&entry.' + rsvpDate + '=' + encodeURIComponent(labelForIso(date)) +
+        '&entry.' + rsvpPres + '=' + encodeURIComponent(presenter);
+    }
+  };
+}
+
+function readMailingList(priv) {
+  var sh = priv.getSheetByName(TAB.mailing);
+  if (!sh || sh.getLastRow() < 2) return [];
+  var data = sh.getDataRange().getValues();
+  var h = data[0];
+  var iEmail = headerIndex(h, 'Email'), iName = headerIndex(h, 'Name'), iUnsub = headerIndex(h, 'Unsubscribed');
+  if (iEmail < 0) iEmail = 1;
+  return data.slice(1).map(function (r) {
+    return { email: cellStr(r[iEmail]), name: iName >= 0 ? cellStr(r[iName]) : '',
+      unsubscribed: iUnsub >= 0 && /^(y|yes|true|1|x)$/i.test(cellStr(r[iUnsub])) };
+  }).filter(function (m) { return m.email; });
+}
+
+/** Sends one composed message through the mailer script. */
+function callMailer(msg, test) {
+  var p = PropertiesService.getScriptProperties();
+  var url = p.getProperty('MAILER_URL'), secret = p.getProperty('MAILER_SECRET');
+  if (!url || !secret) throw new Error('mailer not configured: set MAILER_URL and MAILER_SECRET in Script Properties');
+  var payload = { secret: secret, subject: msg.subject, body: msg.body, test: !!test,
+    to: (msg.to && msg.to.length) ? msg.to : ORGANISERS,
+    cc: (msg.to && msg.to.length) ? ORGANISERS : [],
+    bcc: msg.bcc || [] };
+  var res = UrlFetchApp.fetch(url, { method: 'post', contentType: 'text/plain;charset=utf-8',
+    payload: JSON.stringify(payload), muteHttpExceptions: true, followRedirects: true });
+  var out;
+  try { out = JSON.parse(res.getContentText()); } catch (e) { throw new Error('mailer replied with something unexpected'); }
+  if (!out.ok) throw new Error('mailer: ' + out.error);
+  return out;
+}
+
+function runEmails(test) {
+  var input = emailInput();
+  var msgs = emailsFor(input);
+  var priv = SpreadsheetApp.openById(PRIVATE_SHEET_ID);
+  if (!msgs.length) { console.log('nothing to send today'); appendLog(priv, [new Date(), test ? 'emails-preview' : 'emails', 0, '', '', '', 'nothing to send']); return []; }
+  msgs.forEach(function (m) {
+    var recipients = (m.to && m.to.length ? m.to : ORGANISERS).join(', ') + (m.bcc && m.bcc.length ? ' + ' + m.bcc.length + ' bcc' : '');
+    try {
+      callMailer(m, test);
+      appendLog(priv, [new Date(), test ? 'emails-preview' : 'emails', m.kind, recipients, m.subject, '', test ? m.body : '']);
+      console.log((test ? 'PREVIEW ' : 'SENT ') + m.kind + ' -> ' + recipients + ' | ' + m.subject);
+      if (test) console.log(m.body);
+    } catch (err) {
+      console.error(err);
+      appendLog(priv, [new Date(), 'emails', m.kind, recipients, m.subject, '', String(err && err.message || err)]);
+    }
+  });
+  return msgs;
+}
+
+/** Scheduled entry points. Each checks the weekday itself, so a stray run does nothing. */
+function sendScheduledEmails() { runEmails(false); }
+function previewEmails() { runEmails(true); }
+
+/** Shows what would go out on a given weekday without touching the mailer, e.g. previewFor('2026-10-01'). */
+function previewFor(dateIso) {
+  var input = emailInput();
+  input.today = dateIso || input.today;
+  var msgs = emailsFor(input);
+  if (!msgs.length) { console.log('nothing would be sent on ' + input.today); return; }
+  msgs.forEach(function (m) {
+    console.log('--- ' + m.kind + ' -> ' + ((m.to && m.to.length ? m.to : ORGANISERS).join(', ')) + (m.bcc && m.bcc.length ? ' + ' + m.bcc.length + ' bcc' : ''));
+    console.log('Subject: ' + m.subject);
+    console.log(m.body);
+  });
+}
+
+/** Installs the daily job and the three email triggers. Run once after setting the mailer properties. */
+function installTriggers() {
+  ScriptApp.getProjectTriggers().forEach(function (t) {
+    if (['dailyJob', 'sendScheduledEmails'].indexOf(t.getHandlerFunction()) >= 0) ScriptApp.deleteTrigger(t);
+  });
+  ScriptApp.newTrigger('dailyJob').timeBased().atHour(12).everyDays(1).inTimezone(TZ).create();
+  ScriptApp.newTrigger('sendScheduledEmails').timeBased().onWeekDay(ScriptApp.WeekDay.MONDAY).atHour(9).inTimezone(TZ).create();
+  ScriptApp.newTrigger('sendScheduledEmails').timeBased().onWeekDay(ScriptApp.WeekDay.THURSDAY).atHour(13).inTimezone(TZ).create();
+  ScriptApp.newTrigger('sendScheduledEmails').timeBased().onWeekDay(ScriptApp.WeekDay.FRIDAY).atHour(12).inTimezone(TZ).create();
+  console.log('triggers installed: daily 12:00, emails Mon 09:00 / Thu 13:00 / Fri 12:00');
+}
+
+/** Stores the mailer address and secret. */
+function setMailer(url, secret) {
+  if (!url || !secret) throw new Error('usage: setMailer("https://script.google.com/macros/s/.../exec", "secret")');
+  PropertiesService.getScriptProperties().setProperties({ MAILER_URL: url, MAILER_SECRET: secret });
+  console.log('mailer configured');
+}
+
+/** Creates the mailing-list form (once) and records it in Config. */
+function createMailingListForm() {
+  var pub = SpreadsheetApp.getActive();
+  var cfg = readConfig(pub);
+  if (cfg.mailing_form_id) {
+    try { FormApp.openById(cfg.mailing_form_id); console.log('mailing list form already exists: ' + cfg.mailing_form_url); return; }
+    catch (e) { /* recreate below */ }
+  }
+  var priv = SpreadsheetApp.openById(PRIVATE_SHEET_ID);
+  var f = FormApp.create('Applied Micro Brown Bag: mailing list');
+  f.setDescription('Get a weekly email with the next brown bag talk. Mondays 12-1pm, Room 321, Drayton House.')
+   .setCollectEmail(false).setConfirmationMessage('Thanks, you are on the list.').setAllowResponseEdits(false);
+  f.addTextItem().setTitle('Name').setRequired(true);
+  f.addTextItem().setTitle('Email address').setRequired(true);
+  f.addMultipleChoiceItem().setTitle('Are you a PhD student in the applied group?').setChoiceValues(['Yes', 'No']).setRequired(false);
+  var before = priv.getSheets().map(function (sh) { return sh.getSheetId(); });
+  f.setDestination(FormApp.DestinationType.SPREADSHEET, priv.getId());
+  SpreadsheetApp.flush();
+  var fresh = SpreadsheetApp.openById(priv.getId());
+  var made = fresh.getSheets().filter(function (sh) { return before.indexOf(sh.getSheetId()) < 0; })[0];
+  if (made) {
+    made.setName(TAB.mailing);
+    var h = made.getRange(1, 1, 1, made.getLastColumn()).getValues()[0];
+    made.getRange(1, made.getLastColumn() + 1).setValue('Unsubscribed').setFontWeight('bold');
+  }
+  var url = f.getPublishedUrl().split('?')[0];
+  var sh = getOrCreateTab(pub, TAB.config, ['key', 'value']);
+  sh.appendRow(['mailing_form_id', f.getId()]);
+  sh.appendRow(['mailing_form_url', url]);
+  console.log('mailing list form: ' + url);
 }
