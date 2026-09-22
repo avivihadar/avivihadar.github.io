@@ -9,7 +9,6 @@
  *   setup()          once, after pasting the code
  *   dryRun()         shows what dailyJob would do, writes nothing
  *   dailyJob()       the daily job (also installed as a 12:00 trigger)
- *   sendTestEmail()  checks that summary emails arrive
  *   listTriggers()   shows the installed trigger
  */
 
@@ -17,7 +16,6 @@
 var SIGNUP_FORM_ID = '1n6CPnkBOPCMrWJ7WRAovjcy3FkdxwJ2JpYlAqaemMAM';
 var PRIVATE_SHEET_ID = '1Q5JzJnDdLg5wwlLByaMv5FYDdSHgZpWzUOioJGJ0BB0';
 var SIGNUP_TAB = 'Form Responses 1';
-var ORGANISER_EMAIL = 'h.avivi@ucl.ac.uk';
 var MIN_LEAD_DAYS = 7;
 var FIRST_SEMINAR_DATE = '2026-10-05';   // earlier Mondays are dropped from the schedule
 var TZ = 'Europe/London';
@@ -26,7 +24,7 @@ var TAB = { schedule: 'Schedule', config: 'Config', ledger: 'Placements', unplac
 var SCHEDULE_HEADER = ['date', 'term', 'start', 'end', 'presenter', 'slot_min', 'title', 'rsvps', 'notes'];
 var LEDGER_HEADER = ['email', 'name', 'date', 'slot_min', 'placed_at', 'source', 'signup_ts'];
 var UNPLACED_HEADER = ['email', 'name', 'slot_min', 'dates_ticked', 'reason', 'first_seen'];
-var LOG_HEADER = ['run_at', 'mode', 'placed', 'new_unplaced', 'titles_updated', 'dates_removed', 'error'];
+var LOG_HEADER = ['run_at', 'mode', 'placed', 'new_unplaced', 'titles_updated', 'dates_removed', 'summary_or_error'];
 
 // ---- one-time setup -------------------------------------------------------
 function setup() {
@@ -105,7 +103,6 @@ function setup() {
     ['title_entry_date', title.entries['Seminar date']],
     ['title_entry_presenter', title.entries['Presenter']],
     ['min_lead_days', MIN_LEAD_DAYS],
-    ['organiser_email', ORGANISER_EMAIL],
     ['setup_at', new Date().toISOString()]
   ];
   var cfg = getOrCreateTab(pub, TAB.config, ['key', 'value']);
@@ -212,10 +209,6 @@ function repairTimes() {
   console.log('times repaired');
 }
 
-function sendTestEmail() {
-  MailApp.sendEmail(ORGANISER_EMAIL, 'Brown bag: test email', 'The brown bag script can email you.');
-}
-
 // ---- daily job ------------------------------------------------------------
 function dailyJob() { runJob(false); }
 function dryRun() { runJob(true); }
@@ -252,12 +245,9 @@ function runJob(dry) {
     writeLedger(priv, result.ledger);
     writeUnplaced(priv, result.unplaced);
     removed = pruneSignupChoices(result.keepChoiceDates, result.halfFullDates);
-    appendLog(priv, [new Date(), 'daily', result.changes.placed.length, result.changes.newUnplaced.length, result.changes.titlesUpdated.length, removed.join(' '), '']);
     var c = result.changes;
-    if (c.placed.length || c.replaced.length || c.newUnplaced.length || c.titlesUpdated.length || c.titlesUnmatched.length || removed.length) {
-      try { MailApp.sendEmail(ORGANISER_EMAIL, 'Brown bag: schedule updated', summaryText(c, removed, result.unplaced)); }
-      catch (mailErr) { console.error('email not sent: ' + mailErr); appendLog(priv, [new Date(), 'email', '', '', '', '', 'email not sent: ' + (mailErr && mailErr.message || mailErr) + ' (run sendTestEmail once to grant permission)']); }
-    }
+    var changed = c.placed.length || c.replaced.length || c.newUnplaced.length || c.titlesUpdated.length || c.titlesUnmatched.length || removed.length;
+    appendLog(priv, [new Date(), 'daily', c.placed.length, c.newUnplaced.length, c.titlesUpdated.length, removed.join(' '), changed ? summaryText(c, removed, result.unplaced) : '']);
     console.log(JSON.stringify(c));
   } catch (e) {
     console.error(e);
@@ -297,7 +287,6 @@ function summaryText(c, removed, unplaced) {
   }
   if (removed.length) lines.push('Dates removed from the sign-up form: ' + removed.join(', '), '');
   lines.push('Still unplaced in total: ' + unplaced.length);
-  lines.push('', 'Schedule: ' + SpreadsheetApp.getActive().getUrl());
   return lines.join('\n');
 }
 

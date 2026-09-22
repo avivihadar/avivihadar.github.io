@@ -11,7 +11,8 @@ title shows on the page immediately. The same Apps Script runs every day at 12:0
    "talk title" form (the latest submission there wins);
 3. counts RSVPs per date (for lunch ordering);
 4. removes past and fully booked dates from the sign-up form;
-5. emails the organiser a summary, but only when something changed.
+5. writes a summary of what changed to the **Log** tab of the private spreadsheet (the script
+   sends no email and has no email permission).
 
 Everything with an email address stays in the private sign-up spreadsheet
 (*Applied Micro Brown Bag Sign-up 2026/27 (Responses)*): the form responses, the **Placements**
@@ -30,7 +31,7 @@ ledger, the **Unplaced** list and the **Log**.
    (Advanced > Go to project if Google warns the app is unverified: it is your own script).
    This creates the RSVP and title forms, adds an optional "Title of your talk" question to the
    sign-up form, creates the private tabs, the Config tab and the daily trigger.
-4. Run `dryRun` to see what the job would do, then `dailyJob` to do it. Check the summary email and
+4. Run `dryRun` to see what the job would do, then `dailyJob` to do it. Check the Log tab and
    the sign-up form (only future, open dates should remain).
 
 The script was in fact uploaded with `clasp` (script id in `.clasp.json`). To update it after editing
