@@ -6,7 +6,8 @@ spreadsheet runs every day at 12:00 London time and:
 
 1. places new sign-ups from the sign-up form into the earliest date they ticked that still has room
    (60-minute talks need an empty Monday; 30-minute talks take 12:00, then 12:30);
-2. copies the latest title each presenter submitted through the "talk title" form;
+2. fills in titles: first from the optional title question on the sign-up form, then from the
+   "talk title" form (the latest submission there wins);
 3. counts RSVPs per date (for lunch ordering);
 4. removes past and fully booked dates from the sign-up form;
 5. emails the organiser a summary, but only when something changed.
@@ -26,7 +27,8 @@ ledger, the **Unplaced** list and the **Log**.
    - Save (Ctrl/Cmd+S).
 3. Pick `setup` in the function dropdown and press Run. Approve the permissions
    (Advanced > Go to project if Google warns the app is unverified: it is your own script).
-   This creates the RSVP and title forms, the private tabs, the Config tab and the daily trigger.
+   This creates the RSVP and title forms, adds an optional "Title of your talk" question to the
+   sign-up form, creates the private tabs, the Config tab and the daily trigger.
 4. Publish the Schedule tab: File > Share > Publish to web > pick **Schedule** (not "Entire
    document") and **Comma-separated values (.csv)** > Publish. Copy the link and send it to Claude;
    it goes into `brownbag/config.js` on the website.
@@ -46,7 +48,7 @@ The Schedule tab is the source of truth. The job never deletes or moves a presen
 - **Re-place someone from their sign-up**: delete their row in the Placements ledger; the next run
   places them again.
 - **Add a talk that did not come through the form** (faculty, visitors): add a row with `slot_min`
-  30 or 60. Leave `presenter` blank for an open slot; blank shows as "TBD" on the page.
+  30 or 60. Leave `presenter` blank for an open slot; blank shows as "TBD" on the page; a blank title shows as "Title TBD".
 - **Cancel a week**: delete all rows for that date.
 - **Fix a wrong title**: edit the row in *Title Responses* in the private spreadsheet, or ask the
   presenter to resubmit. A title typed straight into the Schedule tab is overwritten by the latest

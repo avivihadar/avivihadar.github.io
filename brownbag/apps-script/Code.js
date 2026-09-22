@@ -81,8 +81,11 @@ function setup() {
       { type: 'paragraph', title: 'Abstract or link (optional)', required: false }
     ], 'Thanks, the schedule updates once a day at noon.');
 
-  // 5. Config tab in the public file (nothing sensitive).
+  // 5. Optional title question on the sign-up form (responses land in a new column automatically).
   var signupForm = FormApp.openById(SIGNUP_FORM_ID);
+  ensureSignupTitleQuestion(signupForm);
+
+  // 6. Config tab in the public file (nothing sensitive).
   var config = [
     ['key', 'value'],
     ['signup_form_id', SIGNUP_FORM_ID],
@@ -105,13 +108,24 @@ function setup() {
   cfg.getRange(1, 1, config.length, 2).setValues(config);
   cfg.getRange('A:B').setNumberFormat('@');
 
-  // 6. Daily trigger at 12:00 London.
+  // 7. Daily trigger at 12:00 London.
   installTrigger();
 
   props.setProperties({ RSVP_FORM_ID: rsvp.id, TITLE_FORM_ID: title.id, SETUP_DONE: new Date().toISOString() });
   console.log('setup complete. Ledger seeded: ' + seeded.length + '. Names without a sign-up email (fine for faculty): ' + unresolved.join(', '));
   console.log('RSVP prefilled example: ' + rsvp.example);
   console.log('Title prefilled example: ' + title.example);
+}
+
+var SIGNUP_TITLE_QUESTION = 'Title of your talk (leave blank if you do not have one yet)';
+
+function ensureSignupTitleQuestion(form) {
+  var exists = form.getItems().some(function (i) { return i.getTitle().indexOf('Title of your talk') === 0; });
+  if (exists) return;
+  var item = form.addTextItem().setTitle(SIGNUP_TITLE_QUESTION).setRequired(false)
+    .setHelpText('You can add or change it later through the link next to your name on the schedule page.');
+  var slotIdx = form.getItems().map(function (i) { return i.getTitle(); }).findIndex(function (t) { return t.indexOf('How long') === 0; });
+  if (slotIdx >= 0) form.moveItem(item.getIndex(), slotIdx + 1);
 }
 
 function createForm(priv, name, description, tabName, items, confirmation) {
@@ -274,11 +288,13 @@ function readSignups(priv) {
   var data = sh.getDataRange().getValues();
   var h = data[0];
   var iTs = headerIndex(h, 'Timestamp'), iName = headerIndex(h, 'Full name'), iEmail = headerIndex(h, 'Email'),
-      iDates = headerIndex(h, 'Which Mondays'), iSlot = headerIndex(h, 'How long'), iAdv = headerIndex(h, 'If you are a PhD'), iDiet = headerIndex(h, 'Do you have any dietary');
+      iDates = headerIndex(h, 'Which Mondays'), iSlot = headerIndex(h, 'How long'), iAdv = headerIndex(h, 'If you are a PhD'), iDiet = headerIndex(h, 'Do you have any dietary'),
+      iTitle = headerIndex(h, 'Title of your talk');
   return data.slice(1).filter(function (r) { return cellStr(r[iName]) || cellStr(r[iEmail]); }).map(function (r) {
     var dates = cellStr(r[iDates]).split(/,\s*/).map(parseChoiceLabel).filter(Boolean);
     return { ts: r[iTs] instanceof Date ? r[iTs].getTime() : Date.parse(r[iTs]) || 0, name: cellStr(r[iName]), email: normaliseEmail(r[iEmail]),
-      dates: dates, slot: parseSlot(r[iSlot]), advisors: iAdv >= 0 ? cellStr(r[iAdv]) : '', dietary: iDiet >= 0 ? cellStr(r[iDiet]) : '' };
+      dates: dates, slot: parseSlot(r[iSlot]), title: iTitle >= 0 ? cellStr(r[iTitle]) : '',
+      advisors: iAdv >= 0 ? cellStr(r[iAdv]) : '', dietary: iDiet >= 0 ? cellStr(r[iDiet]) : '' };
   });
 }
 

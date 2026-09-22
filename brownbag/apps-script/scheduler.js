@@ -4,7 +4,7 @@
  * (for tests) and inside the Apps Script project (as a plain global file).
  *
  * Shapes
- *   Signup      { ts, name, email, dates: ['yyyy-mm-dd'], slot: 30|60|null, advisors, dietary }
+ *   Signup      { ts, name, email, dates: ['yyyy-mm-dd'], slot: 30|60|null, title, advisors, dietary }
  *   ScheduleRow { date, term, start, end, presenter, slot, title, rsvps, notes }
  *   LedgerRow   { email, name, date, slot, placedAt, source }
  *   TitleResp   { ts, date, presenter, title }
@@ -89,14 +89,14 @@ function dedupeSignups(signups) {
   signups.forEach(function (s) {
     var key = normaliseEmail(s.email) || ('name:' + normaliseName(s.name));
     if (!byKey[key]) {
-      byKey[key] = { ts: s.ts, name: s.name, email: normaliseEmail(s.email), dates: s.dates.slice(), slot: s.slot, advisors: s.advisors, dietary: s.dietary, latestTs: s.ts };
+      byKey[key] = { ts: s.ts, name: s.name, email: normaliseEmail(s.email), dates: s.dates.slice(), slot: s.slot, title: s.title || '', advisors: s.advisors, dietary: s.dietary, latestTs: s.ts };
       order.push(key);
     } else {
       var p = byKey[key];
       if (s.ts < p.ts) p.ts = s.ts;
       if (s.ts >= p.latestTs) {
         p.latestTs = s.ts; p.name = s.name || p.name; p.dates = s.dates.slice(); p.slot = s.slot || p.slot;
-        p.advisors = s.advisors || p.advisors; p.dietary = s.dietary || p.dietary;
+        p.title = s.title || p.title; p.advisors = s.advisors || p.advisors; p.dietary = s.dietary || p.dietary;
       }
     }
   });
@@ -231,6 +231,22 @@ function applyTitles(schedule, titles) {
   return { updated: updated, unmatched: unmatched };
 }
 
+/** Titles given on the sign-up form fill blank titles of that person's rows (the title form still wins). */
+function applySignupTitles(schedule, signups) {
+  var updated = [];
+  dedupeSignups(signups).people.forEach(function (p) {
+    var title = String(p.title || '').trim();
+    if (!title) return;
+    schedule.forEach(function (row) {
+      if (hasPresenter(row) && !row.title && namesMatch(row.presenter, p.name)) {
+        row.title = title;
+        updated.push({ date: row.date, presenter: row.presenter, title: title });
+      }
+    });
+  });
+  return updated;
+}
+
 /** Count distinct attendees per date; write to every row of that date. */
 function applyRsvps(schedule, rsvps) {
   var seen = {};
@@ -254,6 +270,7 @@ function applyRsvps(schedule, rsvps) {
 function run(input) {
   var placedRes = placeSignups(input);
   var schedule = placedRes.schedule;
+  var signupTitles = applySignupTitles(schedule, input.signups || []);
   var titleRes = applyTitles(schedule, input.titles || []);
   var rsvpChanged = applyRsvps(schedule, input.rsvps || []);
   var keep = choiceDatesToKeep(schedule, input.today, input.minLeadDays);
@@ -269,7 +286,7 @@ function run(input) {
     changes: {
       placed: placedRes.placed,
       newUnplaced: newUnplaced,
-      titlesUpdated: titleRes.updated,
+      titlesUpdated: signupTitles.concat(titleRes.updated),
       titlesUnmatched: titleRes.unmatched,
       rsvpChanged: rsvpChanged
     }
@@ -282,6 +299,6 @@ if (typeof module !== 'undefined') {
     normaliseName: normaliseName, namesMatch: namesMatch, normaliseEmail: normaliseEmail, parseSlot: parseSlot,
     dedupeSignups: dedupeSignups, usedMinutes: usedMinutes, freeStart: freeStart, isPlaced: isPlaced,
     placeSignups: placeSignups, choiceDatesToKeep: choiceDatesToKeep, halfFullDates: halfFullDates,
-    applyTitles: applyTitles, applyRsvps: applyRsvps, sortSchedule: sortSchedule, run: run
+    applyTitles: applyTitles, applySignupTitles: applySignupTitles, applyRsvps: applyRsvps, sortSchedule: sortSchedule, run: run
   };
 }

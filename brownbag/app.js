@@ -134,7 +134,7 @@
     box.appendChild(el('p', 'tag', slotText + (talk.slot === 30 ? ' · ' + talk.start + '–' + talk.end : '')));
     box.appendChild(el('h2', 'speaker', talk.presenter));
     var paper = el('p', 'paper');
-    if (talk.title) paper.textContent = talk.title; else paper.appendChild(el('span', 'tba', 'TBA'));
+    if (talk.title) paper.textContent = talk.title; else paper.appendChild(el('span', 'tba', 'Title TBD'));
     box.appendChild(paper);
     if (!isPast) {
       var actions = el('p', 'actions');

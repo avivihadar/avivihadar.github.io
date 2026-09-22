@@ -215,3 +215,20 @@ test('run is idempotent and does not mutate input', () => {
   assert.equal(second.newLedger.length, 0);
   assert.deepEqual(second.schedule, first.schedule);
 });
+
+test('applySignupTitles fills blank titles only; title form still wins', () => {
+  const sched = [row('2026-10-05', 'Ann Lee', 60), row('2026-10-12', 'Bob Ray', 60)];
+  sched[1].title = 'Kept';
+  const signups = [
+    { ts: 1, name: 'Ann Lee', email: 'ann@x.com', dates: ['2026-10-05'], slot: 60, title: '', advisors: '', dietary: '' },
+    { ts: 2, name: 'Ann Lee', email: 'ann@x.com', dates: ['2026-10-05'], slot: 60, title: 'From sign-up', advisors: '', dietary: '' },
+    { ts: 3, name: 'Bob Ray', email: 'bob@x.com', dates: ['2026-10-12'], slot: 60, title: 'Ignored', advisors: '', dietary: '' },
+  ];
+  const updated = S.applySignupTitles(sched, signups);
+  assert.equal(sched[0].title, 'From sign-up');
+  assert.equal(sched[1].title, 'Kept');
+  assert.equal(updated.length, 1);
+  const res = S.run({ schedule: sched, ledger: [{ email: 'ann@x.com', name: 'Ann Lee' }, { email: 'bob@x.com', name: 'Bob Ray' }], signups, today: TODAY, minLeadDays: 7,
+    titles: [{ ts: 9, date: 'Mon 5 Oct 2026', presenter: 'Ann Lee', title: 'From title form' }], rsvps: [], prevUnplaced: [] });
+  assert.equal(res.schedule[0].title, 'From title form');
+});
