@@ -30,9 +30,13 @@ var LOG_HEADER = ['run_at', 'mode', 'placed', 'new_unplaced', 'titles_updated', 
 // ---- one-time setup -------------------------------------------------------
 function setup() {
   var props = PropertiesService.getScriptProperties();
-  if (props.getProperty('SETUP_DONE')) throw new Error('setup() already ran. Delete the SETUP_DONE script property to run it again.');
   var pub = SpreadsheetApp.getActive();
   var priv = SpreadsheetApp.openById(PRIVATE_SHEET_ID);
+  var existingConfig = readConfig(pub);
+  if (props.getProperty('SETUP_DONE') || existingConfig.setup_at) {
+    console.log('setup already ran on ' + (existingConfig.setup_at || props.getProperty('SETUP_DONE')) + '. Re-running safely: forms are reused, nothing is duplicated.');
+  }
+  removeEmptyFormTabs(priv);
 
   // 1. Schedule tab: rename the seeded sheet, fix header, plain-text formats.
   var sched = pub.getSheetByName(TAB.schedule) || pub.getSheets()[0].setName(TAB.schedule);
@@ -62,8 +66,8 @@ function setup() {
   });
   if (seeded.length) ledger.getRange(ledger.getLastRow() + 1, 1, seeded.length, LEDGER_HEADER.length).setValues(seeded);
 
-  // 4. RSVP and Title forms, responses into the private spreadsheet.
-  var rsvp = createForm(priv, 'Applied Micro Brown Bag: RSVP',
+  // 4. RSVP and Title forms, responses into the private spreadsheet (reused if they already exist).
+  var rsvp = existingForm(existingConfig, 'rsvp', TAB.rsvp) || createForm(priv, 'Applied Micro Brown Bag: RSVP',
     'Let us know you are coming so we order enough lunch. Mondays 12-1pm, Room 321, Drayton House.',
     TAB.rsvp, [
       { type: 'text', title: 'Seminar date', required: true },
@@ -71,7 +75,7 @@ function setup() {
       { type: 'text', title: 'Your name', required: true },
       { type: 'text', title: 'Dietary requirements (optional)', required: false }
     ], 'Thanks, see you on Monday.');
-  var title = createForm(priv, 'Applied Micro Brown Bag: talk title',
+  var title = existingForm(existingConfig, 'title', TAB.title) || createForm(priv, 'Applied Micro Brown Bag: talk title',
     'Presenters: add the title of your talk so it appears on the schedule. You can resubmit to change it.',
     TAB.title, [
       { type: 'text', title: 'Seminar date', required: true },
@@ -118,6 +122,35 @@ function setup() {
 }
 
 var SIGNUP_TITLE_QUESTION = 'Title of your talk (leave blank if you do not have one yet)';
+
+function readConfig(pub) {
+  var sh = pub.getSheetByName(TAB.config);
+  var out = {};
+  if (!sh || sh.getLastRow() < 2) return out;
+  sh.getRange(2, 1, sh.getLastRow() - 1, 2).getValues().forEach(function (r) { if (r[0]) out[String(r[0])] = String(r[1]); });
+  return out;
+}
+
+/** Reuse a form recorded in Config if it still exists. */
+function existingForm(cfg, prefix, tabName) {
+  var id = cfg[prefix + '_form_id'];
+  if (!id) return null;
+  try { FormApp.openById(id); } catch (e) { return null; }
+  var entries = {};
+  entries['Seminar date'] = cfg[prefix + '_entry_date'];
+  entries['Presenter'] = cfg[prefix + '_entry_presenter'];
+  var base = cfg[prefix + '_form_url'];
+  return { id: id, url: base, entries: entries, example: base + '?usp=pp_url&entry.' + entries['Seminar date'] + '=Mon+5+Oct+2026&entry.' + entries['Presenter'] + '=Test+Presenter' };
+}
+
+/** Delete empty "Form Responses N" tabs left behind by duplicate forms (never the sign-up tab). */
+function removeEmptyFormTabs(priv) {
+  priv.getSheets().forEach(function (sh) {
+    var name = sh.getName();
+    if (name === SIGNUP_TAB || name === TAB.rsvp || name === TAB.title) return;
+    if (/^Form Responses \d+$/.test(name) && sh.getLastRow() <= 1) { console.log('removing empty tab ' + name); priv.deleteSheet(sh); }
+  });
+}
 
 function ensureSignupTitleQuestion(form) {
   var exists = form.getItems().some(function (i) { return i.getTitle().indexOf('Title of your talk') === 0; });
