@@ -47,3 +47,11 @@ test('prefilledUrl encodes label and presenter', () => {
 test('todayIso returns yyyy-mm-dd', () => {
   assert.match(A.todayIso('Europe/London'), /^\d{4}-\d{2}-\d{2}$/);
 });
+
+test('actionUrl falls back to a mailto link until the form exists', () => {
+  const m = A.actionUrl('title', { base: '' }, '2026-10-05', 'Hao Hu', 'h.avivi@ucl.ac.uk');
+  assert.ok(m.startsWith('mailto:h.avivi@ucl.ac.uk?subject=Brown%20bag%20title%3A%20Hao%20Hu%2C%20Mon%205%20Oct%202026'));
+  const f = A.actionUrl('title', { base: 'https://docs.google.com/forms/d/e/X/viewform', dateEntry: '1', presenterEntry: '2' }, '2026-10-05', 'Hao Hu', 'h.avivi@ucl.ac.uk');
+  assert.ok(f.startsWith('https://docs.google.com/forms/d/e/X/viewform?usp=pp_url&entry.1='));
+  assert.equal(A.actionUrl('rsvp', { base: '' }, '2026-10-05', 'Hao Hu', ''), null);
+});

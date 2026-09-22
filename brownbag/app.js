@@ -95,6 +95,17 @@
     return { weekday: DAY_NAMES[d.getUTCDay()], short: p[2] + ' ' + MONTH_NAMES[p[1] - 1] };
   }
 
+  /** Form link when the form exists; otherwise an email to the organiser with the details prefilled. */
+  function actionUrl(kind, cfg, date, presenter, organiserEmail) {
+    var url = prefilledUrl(cfg, date, presenter);
+    if (url) return url;
+    if (!organiserEmail) return null;
+    var subject = (kind === 'rsvp' ? 'Brown bag RSVP: ' : 'Brown bag title: ') + presenter + ', ' + labelForIso(date);
+    var body = kind === 'rsvp' ? 'I will attend the brown bag on ' + labelForIso(date) + ' (' + presenter + ').\n\nName:\nDietary requirements (optional):'
+                               : 'Talk on ' + labelForIso(date) + '\nPresenter: ' + presenter + '\n\nTitle:\nCo-authors (optional):';
+    return 'mailto:' + organiserEmail + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+  }
+
   function prefilledUrl(cfg, date, presenter) {
     if (!cfg || !cfg.base) return null;
     return cfg.base + '?usp=pp_url&entry.' + cfg.dateEntry + '=' + encodeURIComponent(labelForIso(date)) +
@@ -111,7 +122,7 @@
   }
 
   var helpers = { parseCsv: parseCsv, rowsToObjects: rowsToObjects, normaliseRow: normaliseRow, groupByDate: groupByDate,
-    labelForIso: labelForIso, prefilledUrl: prefilledUrl, todayIso: todayIso, isoFromLoose: isoFromLoose };
+    labelForIso: labelForIso, prefilledUrl: prefilledUrl, actionUrl: actionUrl, todayIso: todayIso, isoFromLoose: isoFromLoose };
   if (typeof module !== 'undefined') module.exports = helpers;
   if (typeof window === 'undefined') return;
 
@@ -126,7 +137,7 @@
     if (text !== undefined) e.textContent = text;
     return e;
   }
-  function link(href, text) { var a = el('a', null, text); a.href = href; a.target = '_blank'; a.rel = 'noopener'; return a; }
+  function link(href, text) { var a = el('a', null, text); a.href = href; if (href.indexOf('mailto:') !== 0) { a.target = '_blank'; a.rel = 'noopener'; } return a; }
 
   function renderTalk(group, talk, isPast) {
     var box = el('div', 'talk');
@@ -138,8 +149,8 @@
     box.appendChild(paper);
     if (!isPast) {
       var actions = el('p', 'actions');
-      var rsvp = prefilledUrl(CFG.rsvp, group.date, talk.presenter);
-      var title = prefilledUrl(CFG.title, group.date, talk.presenter);
+      var rsvp = actionUrl('rsvp', CFG.rsvp, group.date, talk.presenter, CFG.organiserEmail);
+      var title = actionUrl('title', CFG.title, group.date, talk.presenter, CFG.organiserEmail);
       if (rsvp) actions.appendChild(link(rsvp, 'RSVP'));
       if (title) actions.appendChild(link(title, 'Add title'));
       if (actions.childNodes.length) box.appendChild(actions);
