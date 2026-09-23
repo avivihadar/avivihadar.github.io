@@ -19,6 +19,23 @@ from their UCL mailbox.** All seminar email goes through the dedicated account
 - Do not use the Gmail connector on Hadar's account for anything to do with this seminar.
 - Before sending anything new, show Hadar the exact text first and wait for their word.
 
+## Always work from live data
+
+**Before answering any question about who is presenting, who has signed up, how many people are on
+the mailing list, or what dates are free, fetch the current state first.** Never answer from what
+was true earlier in the conversation. The daily job runs at noon and people submit forms all day,
+so anything more than a few minutes old is probably wrong.
+
+Cheapest ways to look:
+
+- `?action=schedule` on the scheduler's web address returns the whole schedule as JSON.
+- `?action=admin&secret=<secret>&task=stats` returns mailing-list, sign-up and RSVP counts.
+- `?action=admin&secret=<secret>&task=findSignup&q=<name>` looks one person up and says whether
+  they have a slot.
+
+This happened once already: Claude told Hadar that 19 October had a free half hour, from data
+read the day before, when the noon job had since filled it. Hadar had to correct it.
+
 ## Working agreements
 
 - Hadar is an economist, not a developer. Explain in plain words; never ask them to hunt through

@@ -554,7 +554,7 @@ function doGet(e) {
       setPerson: null, fixSignup: null, clearPlacement: null, createMailingListForm: createMailingListForm,
       removeFormQuestion: null, renameFormQuestion: null, sendPresenterReminder: null,
       installTriggers: installTriggers, listTriggers: null, stats: null, addToMailingList: null,
-      addPresentersToMailingList: null };
+      addPresentersToMailingList: null, findSignup: null, placePerson: null };
     if (task === 'previewFor') return jsonOut({ ok: true, task: task, output: previewText(e.parameter.date) });
     if (task === 'setPerson') return jsonOut(setPerson(e.parameter.name, e.parameter.role, e.parameter.affiliation));
     if (task === 'fixSignup') return jsonOut(fixSignup(e.parameter.match, e.parameter.name, e.parameter.email));
@@ -566,6 +566,8 @@ function doGet(e) {
     if (task === 'stats') return jsonOut(stats());
     if (task === 'addToMailingList') return jsonOut(addToMailingList(e.parameter.people));
     if (task === 'addPresentersToMailingList') return jsonOut(addPresentersToMailingList());
+    if (task === 'findSignup') return jsonOut(findSignup(e.parameter.q));
+    if (task === 'placePerson') return jsonOut(placePerson(e.parameter.name, e.parameter.date, e.parameter.slot, e.parameter.start));
     if (!allowed[task]) return jsonOut({ ok: false, error: 'unknown task' });
     try { allowed[task](); return jsonOut({ ok: true, task: task }); }
     catch (err) { return jsonOut({ ok: false, task: task, error: String(err && err.message || err) }); }
@@ -1057,4 +1059,62 @@ function addPresentersToMailingList() {
   var res = addToMailingList(entries.join('; '));
   res.noEmailKnown = missing;
   return res;
+}
+
+/** Looks up sign-ups whose name or email contains `q`, and says whether they have a slot. */
+function findSignup(q) {
+  if (!q) return { ok: false, error: 'q is required' };
+  var needle = String(q).toLowerCase();
+  var priv = SpreadsheetApp.openById(PRIVATE_SHEET_ID);
+  var ledger = readLedger(priv);
+  var schedule = readSchedule(SpreadsheetApp.getActive().getSheetByName(TAB.schedule));
+  var hits = readSignups(priv).filter(function (s) {
+    return (s.name || '').toLowerCase().indexOf(needle) >= 0 || (s.email || '').indexOf(needle) >= 0;
+  }).map(function (s) {
+    var row = schedule.filter(function (r) { return hasPresenter(r) && namesMatch(r.presenter, s.name); })[0];
+    return { when: new Date(s.ts).toISOString(), name: s.name, email: s.email, slot: s.slot,
+      dates: s.dates, position: s.role, affiliation: s.affiliation, title: s.title,
+      scheduled: row ? row.date + ' ' + row.start : null,
+      onLedger: ledger.some(function (l) { return normaliseEmail(l.email) === normaliseEmail(s.email); }) };
+  });
+  return { ok: true, count: hits.length, hits: hits };
+}
+
+/**
+ * Puts someone on a date by hand and records it, so the daily job leaves them alone.
+ * The name is matched against the sign-ups to pick up their email and title.
+ */
+function placePerson(name, date, slot, start) {
+  if (!name || !date) return { ok: false, error: 'name and date are required' };
+  var iso = parseChoiceLabel(date) || date;
+  var mins = parseSlot(slot) || 60;
+  var pub = SpreadsheetApp.getActive();
+  var priv = SpreadsheetApp.openById(PRIVATE_SHEET_ID);
+  var sched = pub.getSheetByName(TAB.schedule);
+  var rows = sortSchedule(readSchedule(sched));
+  if (!scheduleHasDate(rows, iso)) return { ok: false, error: iso + ' is not on the schedule' };
+  var at = start || freeStart(rows, iso, mins);
+  if (!at) return { ok: false, error: iso + ' has no room for ' + mins + ' minutes' };
+
+  var signup = readSignups(priv).filter(function (s) { return namesMatch(s.name, name); })
+    .sort(function (a, b) { return b.ts - a.ts; })[0];
+  var fullName = signup ? signup.name : name;
+
+  var blank = rows.filter(function (r) { return r.date === iso && !hasPresenter(r); })[0];
+  if (blank) {
+    blank.presenter = fullName; blank.slot = mins; blank.start = at; blank.end = endFor(at, mins);
+    if (signup && signup.title) blank.title = signup.title;
+  } else {
+    rows.push({ date: iso, term: termOf(iso), start: at, end: endFor(at, mins), presenter: fullName,
+      slot: mins, title: (signup && signup.title) || '', rsvps: '', notes: '' });
+  }
+  writeSchedule(sched, sortSchedule(rows));
+
+  var ledger = readLedger(priv);
+  ledger = ledger.filter(function (l) { return !namesMatch(l.name, fullName); });
+  ledger.push({ email: signup ? signup.email : '', name: fullName, date: iso, slot: mins,
+    placedAt: todayIso(), source: 'manual', signupTs: signup ? signup.ts : Date.now() });
+  writeLedger(priv, ledger);
+  appendLog(priv, [new Date(), 'manual', 'placed', fullName, iso + ' ' + at, '', 'placed by hand']);
+  return { ok: true, placed: { name: fullName, date: iso, start: at, slot: mins, title: (signup && signup.title) || '' } };
 }
