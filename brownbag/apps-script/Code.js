@@ -554,7 +554,8 @@ function doGet(e) {
       setPerson: null, fixSignup: null, clearPlacement: null, createMailingListForm: createMailingListForm,
       removeFormQuestion: null, renameFormQuestion: null, sendPresenterReminder: null,
       installTriggers: installTriggers, listTriggers: null, stats: null, addToMailingList: null,
-      addPresentersToMailingList: null, findSignup: null, placePerson: null };
+      addPresentersToMailingList: null, findSignup: null, placePerson: null,
+      addSignupsToMailingList: null, dedupeMailingList: null };
     if (task === 'previewFor') return jsonOut({ ok: true, task: task, output: previewText(e.parameter.date) });
     if (task === 'setPerson') return jsonOut(setPerson(e.parameter.name, e.parameter.role, e.parameter.affiliation));
     if (task === 'fixSignup') return jsonOut(fixSignup(e.parameter.match, e.parameter.name, e.parameter.email));
@@ -568,6 +569,8 @@ function doGet(e) {
     if (task === 'addPresentersToMailingList') return jsonOut(addPresentersToMailingList());
     if (task === 'findSignup') return jsonOut(findSignup(e.parameter.q));
     if (task === 'placePerson') return jsonOut(placePerson(e.parameter.name, e.parameter.date, e.parameter.slot, e.parameter.start));
+    if (task === 'addSignupsToMailingList') return jsonOut(addSignupsToMailingList());
+    if (task === 'dedupeMailingList') return jsonOut(dedupeMailingList());
     if (!allowed[task]) return jsonOut({ ok: false, error: 'unknown task' });
     try { allowed[task](); return jsonOut({ ok: true, task: task }); }
     catch (err) { return jsonOut({ ok: false, task: task, error: String(err && err.message || err) }); }
@@ -1117,4 +1120,36 @@ function placePerson(name, date, slot, start) {
   writeLedger(priv, ledger);
   appendLog(priv, [new Date(), 'manual', 'placed', fullName, iso + ' ' + at, '', 'placed by hand']);
   return { ok: true, placed: { name: fullName, date: iso, start: at, slot: mins, title: (signup && signup.title) || '' } };
+}
+
+/** Puts everyone who ever asked to present on the mailing list, whether or not they got a slot. */
+function addSignupsToMailingList() {
+  var priv = SpreadsheetApp.openById(PRIVATE_SHEET_ID);
+  var seen = {}, entries = [];
+  readSignups(priv).forEach(function (s) {
+    var email = normaliseEmail(s.email);
+    if (!email || email.indexOf('@') < 0 || seen[email]) return;
+    seen[email] = true;
+    entries.push((s.name || '') + ' <' + email + '>');
+  });
+  return addToMailingList(entries.join('; '));
+}
+
+/** Removes duplicate addresses from the Mailing list tab, keeping the first row of each. */
+function dedupeMailingList() {
+  var priv = SpreadsheetApp.openById(PRIVATE_SHEET_ID);
+  var sh = priv.getSheetByName(TAB.mailing);
+  if (!sh || sh.getLastRow() < 2) return { ok: true, removed: [], total: 0 };
+  var header = sh.getRange(1, 1, 1, sh.getLastColumn()).getValues()[0];
+  var iEmail = headerIndex(header, 'Email');
+  if (iEmail < 0) iEmail = 2;
+  var data = sh.getRange(2, 1, sh.getLastRow() - 1, sh.getLastColumn()).getValues();
+  var seen = {}, removed = [];
+  for (var i = data.length - 1; i >= 0; i--) {
+    var email = normaliseEmail(data[i][iEmail]);
+    if (!email) { sh.deleteRow(i + 2); removed.push('(blank row)'); continue; }
+    if (seen[email]) { sh.deleteRow(i + 2); removed.push(email); } else { seen[email] = true; }
+  }
+  // the loop runs bottom-up, so the row kept is the earliest one
+  return { ok: true, removedCount: removed.length, removed: removed.reverse(), total: readMailingList(priv).length };
 }
