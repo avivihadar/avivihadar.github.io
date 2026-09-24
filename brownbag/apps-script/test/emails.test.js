@@ -71,9 +71,8 @@ test('announcement: title, RSVP link, open-slots line, unsubscribe, deduped bcc'
   assert.deepEqual(a.bcc, ['a@x.com']);
   assert.match(a.body, /Minimum wages/);
   assert.match(a.body, /Next Monday at the Applied Micro Brown Bag, 5 October/);
-  assert.match(a.body, /sign up for lunch by Friday at noon:/);
-  assert.ok(!/right amount/.test(a.body));
-  assert.match(a.body, /rsvp\.example/);
+  assert.ok(!/sign up for lunch|Lunch is provided/i.test(a.body));   // no lunch is offered any more
+  assert.match(a.body, /not able to provide lunch/);                  // only the postscript mentions it
   assert.match(a.body, /There are still open slots/);
   assert.match(a.body, /signup\.example/);
   assert.match(a.body, /unsubscribe/);

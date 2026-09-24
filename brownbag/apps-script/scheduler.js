@@ -424,6 +424,9 @@ function run(input) {
 var PAGE_URL = 'https://avivihadar.github.io/brownbag/';
 var ROOM = 'Room 321, Drayton House';
 var UNSUB_LINE = 'To stop receiving these, reply with "unsubscribe".';
+/* A short note added to the end of the announcement. Set to '' when it is no longer needed. */
+var ANNOUNCEMENT_PS = 'PS: contrary to what we said when we launched the seminar, we are not able ' +
+  'to provide lunch. Please bring your own, and do still come.';
 
 function firstName(full) {
   var n = String(full || '').trim().replace(/\(.*?\)/g, ' ').replace(/\s+/g, ' ').trim();
@@ -527,15 +530,15 @@ function weeklyAnnouncement(input, date) {
       (talks.length > 1 ? '  (' + t.start + '–' + t.end + ')' : ''));
     lines.push('  ' + (t.title || 'Title to be announced'), '');
   });
-  lines.push('Lunch is provided. If you have not already, please sign up for lunch by Friday at noon:');
-  lines.push(input.rsvpUrl(date, talks[0].presenter), '');
   var open = choiceDatesToKeep(input.schedule, input.today, input.minLeadDays);
   if (open.length) {
     lines.push('There are still open slots this year. To present, sign up here:');
     lines.push(input.signupUrl, '');
   }
   lines.push('Full schedule: ' + PAGE_URL, '');
-  lines.push('Best wishes,', 'Hadar and Gabriel', '', UNSUB_LINE);
+  lines.push('Best wishes,', 'Hadar and Gabriel');
+  if (ANNOUNCEMENT_PS) lines.push('', ANNOUNCEMENT_PS);
+  lines.push('', UNSUB_LINE);
   var subject = 'Brown bag on Monday ' + labelForIso(date).replace(/^Mon /, '') + ': ' +
     talks.map(function (t) { return nameWithAffiliation(t.presenter, input.signups, input.known); }).join(' and ');
   return { kind: 'announcement', to: [], bcc: mailingListAddresses(input.mailingList), date: date,

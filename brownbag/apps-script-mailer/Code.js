@@ -58,6 +58,12 @@ function doGet() {
  * With test:true nothing is sent; the message is echoed back for checking.
  */
 function doPost(e) {
+  try { return handlePost(e); }
+  catch (err) { console.error(err); return jsonOut({ ok: false, error: String(err && err.message || err) }); }
+}
+
+function handlePost(e) {
+  rejected = [];
   var body;
   try { body = JSON.parse(e.postData && e.postData.contents || '{}'); } catch (err) { return jsonOut({ ok: false, error: 'bad JSON' }); }
   var secret = props().getProperty('SHARED_SECRET') || (typeof SHARED_SECRET_FILE !== 'undefined' ? SHARED_SECRET_FILE : '');
@@ -70,7 +76,7 @@ function doPost(e) {
   if (!to.length && !bcc.length) return jsonOut({ ok: false, error: 'no recipients' });
   var total = to.length + cc.length + bcc.length;
   if (total > MAX_RECIPIENTS) return jsonOut({ ok: false, error: 'too many recipients (' + total + '), refusing to send' });
-  if (body.test) return jsonOut({ ok: true, test: true, to: to, cc: cc, bccCount: bcc.length, subject: subject });
+  if (body.test) return jsonOut({ ok: true, test: true, to: to, cc: cc, bccCount: bcc.length, subject: subject, rejected: rejected });
 
   // Quota is only checked when the permission to read it happens to be granted.
   var quota = null;
@@ -80,15 +86,20 @@ function doPost(e) {
   GmailApp.sendEmail(to.join(','), subject, text, {
     cc: cc.join(','), bcc: bcc.join(','), name: SENDER_NAME, replyTo: REPLY_TO
   });
-  return jsonOut({ ok: true, sent: { to: to.length, cc: cc.length, bcc: bcc.length } });
+  return jsonOut({ ok: true, sent: { to: to.length, cc: cc.length, bcc: bcc.length }, rejected: rejected });
 }
+
+var EMAIL_RE = /^[^\s@,<>"']+@[^\s@,<>"']+\.[a-z]{2,}$/i;
+var rejected = [];
 
 function clean(list) {
   var seen = {}, out = [];
   (list || []).forEach(function (x) {
     var e = String(x || '').trim().toLowerCase();
-    if (!e || e.indexOf('@') < 0 || seen[e]) return;
-    seen[e] = true; out.push(e);
+    if (!e || seen[e]) return;
+    seen[e] = true;
+    if (!EMAIL_RE.test(e)) { rejected.push(e); return; }   // one bad address must not stop the send
+    out.push(e);
   });
   return out;
 }

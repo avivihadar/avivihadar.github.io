@@ -555,7 +555,8 @@ function doGet(e) {
       removeFormQuestion: null, renameFormQuestion: null, sendPresenterReminder: null,
       installTriggers: installTriggers, listTriggers: null, stats: null, addToMailingList: null,
       addPresentersToMailingList: null, findSignup: null, placePerson: null,
-      addSignupsToMailingList: null, dedupeMailingList: null };
+      addSignupsToMailingList: null, dedupeMailingList: null, recentLog: null, sendAnnouncement: null,
+      checkRecipients: null };
     if (task === 'previewFor') return jsonOut({ ok: true, task: task, output: previewText(e.parameter.date) });
     if (task === 'setPerson') return jsonOut(setPerson(e.parameter.name, e.parameter.role, e.parameter.affiliation));
     if (task === 'fixSignup') return jsonOut(fixSignup(e.parameter.match, e.parameter.name, e.parameter.email));
@@ -571,6 +572,9 @@ function doGet(e) {
     if (task === 'placePerson') return jsonOut(placePerson(e.parameter.name, e.parameter.date, e.parameter.slot, e.parameter.start));
     if (task === 'addSignupsToMailingList') return jsonOut(addSignupsToMailingList());
     if (task === 'dedupeMailingList') return jsonOut(dedupeMailingList());
+    if (task === 'recentLog') return jsonOut(recentLog(Number(e.parameter.n) || 6));
+    if (task === 'sendAnnouncement') return jsonOut(sendAnnouncement(e.parameter.date, e.parameter.only));
+    if (task === 'checkRecipients') return jsonOut(checkRecipients());
     if (!allowed[task]) return jsonOut({ ok: false, error: 'unknown task' });
     try { allowed[task](); return jsonOut({ ok: true, task: task }); }
     catch (err) { return jsonOut({ ok: false, task: task, error: String(err && err.message || err) }); }
@@ -1152,4 +1156,44 @@ function dedupeMailingList() {
   }
   // the loop runs bottom-up, so the row kept is the earliest one
   return { ok: true, removedCount: removed.length, removed: removed.reverse(), total: readMailingList(priv).length };
+}
+
+/** The last few Log rows, so a run can be checked without opening the spreadsheet. */
+function recentLog(n) {
+  var priv = SpreadsheetApp.openById(PRIVATE_SHEET_ID);
+  var sh = priv.getSheetByName(TAB.log);
+  if (!sh || sh.getLastRow() < 2) return { ok: true, rows: [] };
+  var take = Math.min(n, sh.getLastRow() - 1);
+  var rows = sh.getRange(sh.getLastRow() - take + 1, 1, take, LOG_HEADER.length).getValues();
+  return { ok: true, rows: rows.map(function (r) {
+    return { at: r[0] instanceof Date ? Utilities.formatDate(r[0], TZ, 'yyyy-MM-dd HH:mm') : String(r[0]),
+      mode: String(r[1]), a: String(r[2]), b: String(r[3]), c: String(r[4]), note: String(r[6]).slice(0, 400) };
+  }) };
+}
+
+/**
+ * Sends the weekly announcement for one date on demand.
+ * With `only` set to an address, it goes to that person alone: a safe rehearsal.
+ */
+function sendAnnouncement(dateIso, only) {
+  var input = emailInput();
+  var date = parseChoiceLabel(dateIso) || dateIso || nextMonday(input.today);
+  var msg = weeklyAnnouncement(input, date);
+  if (!msg) return { ok: false, error: 'nothing to announce for ' + date };
+  var priv = SpreadsheetApp.openById(PRIVATE_SHEET_ID);
+  if (only) {
+    var res = callMailerRaw({ to: [only], cc: [], bcc: [], subject: '[rehearsal] ' + msg.subject, body: msg.body }, false);
+    return { ok: true, rehearsalTo: only, subject: msg.subject, recipientsItWouldReach: msg.bcc.length + ORGANISERS.length };
+  }
+  callMailer(msg, false);
+  appendLog(priv, [new Date(), 'emails', 'announcement', ORGANISERS.join(', ') + ' + ' + msg.bcc.length + ' bcc', msg.subject, '', 'sent on request']);
+  return { ok: true, sentTo: msg.bcc.length + ORGANISERS.length, subject: msg.subject };
+}
+
+/** Asks the mailer to vet the whole mailing list without sending anything. */
+function checkRecipients() {
+  var input = emailInput();
+  var bcc = mailingListAddresses(input.mailingList);
+  var res = postToMailer({ to: ORGANISERS, cc: [], bcc: bcc, subject: 'recipient check', body: 'check', test: true });
+  return { ok: true, listed: bcc.length, wouldReceive: res.bccCount, rejected: res.rejected || [] };
 }
