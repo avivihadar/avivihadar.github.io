@@ -901,8 +901,7 @@ function installTriggers() {
   ScriptApp.newTrigger('dailyJob').timeBased().atHour(12).everyDays(1).inTimezone(TZ).create();
   ScriptApp.newTrigger('sendScheduledEmails').timeBased().onWeekDay(ScriptApp.WeekDay.MONDAY).atHour(9).inTimezone(TZ).create();
   ScriptApp.newTrigger('sendScheduledEmails').timeBased().onWeekDay(ScriptApp.WeekDay.THURSDAY).atHour(13).inTimezone(TZ).create();
-  ScriptApp.newTrigger('sendScheduledEmails').timeBased().onWeekDay(ScriptApp.WeekDay.FRIDAY).atHour(12).inTimezone(TZ).create();
-  console.log('triggers installed: daily 12:00, emails Mon 09:00 / Thu 13:00 / Fri 12:00');
+  console.log('triggers installed: daily 12:00, emails Mon 09:00 and Thu 13:00');
 }
 
 /** Stores the mailer address and secret. */

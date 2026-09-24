@@ -425,8 +425,7 @@ var PAGE_URL = 'https://avivihadar.github.io/brownbag/';
 var ROOM = 'Room 321, Drayton House';
 var UNSUB_LINE = 'To stop receiving these, reply with "unsubscribe".';
 /* A short note added to the end of the announcement. Set to '' when it is no longer needed. */
-var ANNOUNCEMENT_PS = 'PS: contrary to what we said when we launched the seminar, we are not able ' +
-  'to provide lunch. Please bring your own, and do still come.';
+var ANNOUNCEMENT_PS = 'PS: please bring your own lunch, as unfortunately we are not able to provide it.';
 
 function firstName(full) {
   var n = String(full || '').trim().replace(/\(.*?\)/g, ' ').replace(/\s+/g, ' ').trim();
@@ -597,8 +596,7 @@ function emailsFor(input) {
   var target = nextMonday(input.today);
   if (weekday === 1) return presenterReminders(input, target);
   if (weekday === 4) { var a = weeklyAnnouncement(input, target); return a ? [a] : []; }
-  if (weekday === 5) { var r = rsvpReport(input, target); return r ? [r] : []; }
-  return [];
+  return [];   // no Friday lunch count: lunch is not provided
 }
 
 if (typeof module !== 'undefined') {

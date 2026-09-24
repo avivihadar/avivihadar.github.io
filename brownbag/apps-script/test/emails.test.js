@@ -72,7 +72,7 @@ test('announcement: title, RSVP link, open-slots line, unsubscribe, deduped bcc'
   assert.match(a.body, /Minimum wages/);
   assert.match(a.body, /Next Monday at the Applied Micro Brown Bag, 5 October/);
   assert.ok(!/sign up for lunch|Lunch is provided/i.test(a.body));   // no lunch is offered any more
-  assert.match(a.body, /not able to provide lunch/);                  // only the postscript mentions it
+  assert.match(a.body, /bring your own lunch/);                  // only the postscript mentions it
   assert.match(a.body, /There are still open slots/);
   assert.match(a.body, /signup\.example/);
   assert.match(a.body, /unsubscribe/);
@@ -116,8 +116,7 @@ test('emailsFor picks the right message for each weekday', () => {
   assert.equal(mon.length, 1); assert.equal(mon[0].kind, 'presenter');
   const thu = S.emailsFor(baseInput({ today: '2026-10-01' }));
   assert.equal(thu[0].kind, 'announcement');
-  const fri = S.emailsFor(baseInput({ today: '2026-10-02' }));
-  assert.equal(fri[0].kind, 'rsvpReport');
+  assert.deepEqual(S.emailsFor(baseInput({ today: '2026-10-02' })), []);   // Friday: nothing now
   assert.deepEqual(S.emailsFor(baseInput({ today: '2026-09-30' })), []);   // Wednesday
   assert.deepEqual(S.emailsFor(baseInput({ today: '2026-10-03' })), []);   // Saturday
 });
