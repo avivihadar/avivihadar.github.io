@@ -523,8 +523,8 @@ function weeklyAnnouncement(input, date) {
   var talks = talksOn(input.schedule, date);
   if (!talks.length) return null;
   var lines = ['Dear all,', ''];
-  lines.push('The next Applied Micro Brown Bag is on Monday ' + longDate(date) + ', ' +
-    timeRange(talks) + ', ' + ROOM + ':', '');
+  lines.push('This coming Monday, ' + longDate(date) + ', ' + timeRange(talks) +
+    ', at the Applied Micro Brown Bag seminar, ' + ROOM + ':', '');
   talks.forEach(function (t) {
     lines.push('  ' + nameWithAffiliation(t.presenter, input.signups, input.known) +
       (talks.length > 1 ? '  (' + t.start + '–' + t.end + ')' : ''));

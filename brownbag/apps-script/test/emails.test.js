@@ -70,7 +70,7 @@ test('announcement: title, RSVP link, open-slots line, unsubscribe, deduped bcc'
   assert.equal(a.subject, 'Brown bag on Monday 5 Oct 2026: Attila Lindner');
   assert.deepEqual(a.bcc, ['a@x.com']);
   assert.match(a.body, /Minimum wages/);
-  assert.match(a.body, /The next Applied Micro Brown Bag is on Monday 5 October/);
+  assert.match(a.body, /This coming Monday, 5 October, 12:00 to 13:00, at the Applied Micro Brown Bag seminar/);
   assert.ok(!/sign up for lunch|Lunch is provided/i.test(a.body));   // no lunch is offered any more
   assert.match(a.body, /bring your own lunch/);   // postscript wording can change freely                  // only the postscript mentions it
   assert.match(a.body, /There are still open slots/);
