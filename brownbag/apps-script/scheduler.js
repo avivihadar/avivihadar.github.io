@@ -501,7 +501,7 @@ function presenterReminders(input, date) {
   return talks.map(function (t) {
     var to = emailOf(t.presenter, input.signups, input.ledger);
     var lines = ['Dear ' + firstName(t.presenter) + ',', ''];
-    lines.push('A reminder that you are presenting at the Applied Micro Brown Bag next Monday, ' +
+    lines.push('A reminder that you are presenting at the Applied Micro Brown Bag on Monday ' +
       longDate(date) + ', ' + t.start + ' to ' + t.end + ', ' + ROOM + '.');
     lines.push('Schedule: ' + PAGE_URL, '');
     if (!t.title) {
@@ -523,7 +523,7 @@ function weeklyAnnouncement(input, date) {
   var talks = talksOn(input.schedule, date);
   if (!talks.length) return null;
   var lines = ['Dear all,', ''];
-  lines.push('Next Monday at the Applied Micro Brown Bag, ' + longDate(date) + ', ' +
+  lines.push('The next Applied Micro Brown Bag is on Monday ' + longDate(date) + ', ' +
     timeRange(talks) + ', ' + ROOM + ':', '');
   talks.forEach(function (t) {
     lines.push('  ' + nameWithAffiliation(t.presenter, input.signups, input.known) +
