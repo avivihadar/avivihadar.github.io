@@ -426,7 +426,7 @@ var ROOM = 'Room 321, Drayton House';
 var UNSUB_LINE = 'To stop receiving these, reply with "unsubscribe".';
 /* A short note added to the end of the announcement. Set to '' when it is no longer needed. */
 var ANNOUNCEMENT_PS = 'PS: please bring your own lunch. We are sorry we cannot provide it this year, ' +
-  'but we hope to see you there all the same.';
+  'but we hope to see you anyway.';
 
 function firstName(full) {
   var n = String(full || '').trim().replace(/\(.*?\)/g, ' ').replace(/\s+/g, ' ').trim();
