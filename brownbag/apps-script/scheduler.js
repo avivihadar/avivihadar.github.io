@@ -425,7 +425,7 @@ var PAGE_URL = 'https://avivihadar.github.io/brownbag/';
 var ROOM = 'Room 321, Drayton House';
 var UNSUB_LINE = 'To stop receiving these, reply with "unsubscribe".';
 /* A short note added to the end of the announcement. Set to '' when it is no longer needed. */
-var ANNOUNCEMENT_PS = 'PS: please bring your own lunch. We are sorry we cannot provide it this year, ' +
+var ANNOUNCEMENT_PS = 'PS: please bring your own lunch. We are sorry we cannot provide it, ' +
   'but we hope to see you anyway.';
 
 function firstName(full) {
