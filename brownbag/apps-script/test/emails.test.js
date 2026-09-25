@@ -72,7 +72,7 @@ test('announcement: title, RSVP link, open-slots line, unsubscribe, deduped bcc'
   assert.match(a.body, /Minimum wages/);
   assert.match(a.body, /Next Monday at the Applied Micro Brown Bag, 5 October/);
   assert.ok(!/sign up for lunch|Lunch is provided/i.test(a.body));   // no lunch is offered any more
-  assert.match(a.body, /bring your own lunch/);                  // only the postscript mentions it
+  assert.match(a.body, /bring your own lunch/);   // postscript wording can change freely                  // only the postscript mentions it
   assert.match(a.body, /There are still open slots/);
   assert.match(a.body, /signup\.example/);
   assert.match(a.body, /unsubscribe/);
