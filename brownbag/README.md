@@ -86,11 +86,17 @@ repo (`.gitignore` excludes `brownbag/**/Secret.js`). Never print it in chat or 
 |---|---|
 | Every day, 12:00 | `dailyJob`: places new sign-ups, merges titles, counts RSVPs, adds or drops Mondays to match `SEMINAR_DATES`, prunes the sign-up form's dates, writes a summary to the **Log** tab |
 | Monday, 09:00 | Reminder to next Monday's presenter(s). Asks for a title if none is on file. Students are told they may invite faculty to their talk. |
+| Thursday, 12:00 | The exact draft of the 13:00 announcement goes to Hadar alone. Silence means it goes out as it stands. To stop it, set `pause_emails` to `yes` on the Config tab. |
 | Thursday, 13:00 | Announcement to the mailing list in Bcc: presenter with affiliation, title, lunch RSVP link, Friday noon deadline, open slots if any, unsubscribe line. **Nothing is sent when the coming Monday has no presenter.** |
 | Friday, 12:00 | Lunch count and the list of names, to Hadar and Gabriel |
 | Every 15 minutes (mailer) | Forwards new mail in the seminar inbox to Hadar and Gabriel unless both are already on it |
 
 Every email is cc'd to Hadar and Gabriel and has its reply-to set to the seminar inbox.
+
+**Approval and failures.** No email goes to the mailing list without Hadar seeing it first: the draft
+arrives an hour ahead. If a send fails, Hadar gets an email saying which one, the error and the full
+text that was not sent, and the failure is written to the Log tab. The Log records the recipient
+count of every successful send, so a send can be confirmed after the fact.
 
 ## Scheduling rules
 

@@ -556,7 +556,7 @@ function doGet(e) {
       installTriggers: installTriggers, listTriggers: null, stats: null, addToMailingList: null,
       addPresentersToMailingList: null, findSignup: null, placePerson: null,
       addSignupsToMailingList: null, dedupeMailingList: null, recentLog: null, sendAnnouncement: null,
-      checkRecipients: null };
+      checkRecipients: null, sendAnnouncementDraft: null, setConfig: null };
     if (task === 'previewFor') return jsonOut({ ok: true, task: task, output: previewText(e.parameter.date) });
     if (task === 'setPerson') return jsonOut(setPerson(e.parameter.name, e.parameter.role, e.parameter.affiliation));
     if (task === 'fixSignup') return jsonOut(fixSignup(e.parameter.match, e.parameter.name, e.parameter.email));
@@ -575,6 +575,8 @@ function doGet(e) {
     if (task === 'recentLog') return jsonOut(recentLog(Number(e.parameter.n) || 6));
     if (task === 'sendAnnouncement') return jsonOut(sendAnnouncement(e.parameter.date, e.parameter.only));
     if (task === 'checkRecipients') return jsonOut(checkRecipients());
+    if (task === 'sendAnnouncementDraft') return jsonOut(sendAnnouncementDraft());
+    if (task === 'setConfig') return jsonOut(setConfig(e.parameter.key, e.parameter.value));
     if (!allowed[task]) return jsonOut({ ok: false, error: 'unknown task' });
     try { allowed[task](); return jsonOut({ ok: true, task: task }); }
     catch (err) { return jsonOut({ ok: false, task: task, error: String(err && err.message || err) }); }
@@ -840,19 +842,66 @@ function runEmails(test) {
   var msgs = emailsFor(input);
   var priv = SpreadsheetApp.openById(PRIVATE_SHEET_ID);
   if (!msgs.length) { console.log('nothing to send today'); appendLog(priv, [new Date(), test ? 'emails-preview' : 'emails', 0, '', '', '', 'nothing to send']); return []; }
+  var paused = String(readConfig(SpreadsheetApp.getActive()).pause_emails || '').toLowerCase();
   msgs.forEach(function (m) {
     var recipients = (m.to && m.to.length ? m.to : ORGANISERS).join(', ') + (m.bcc && m.bcc.length ? ' + ' + m.bcc.length + ' bcc' : '');
+    if (!test && m.kind === 'announcement' && /^(y|yes|true|1|on)$/.test(paused)) {
+      appendLog(priv, [new Date(), 'emails', m.kind, recipients, m.subject, '', 'held back: pause_emails is set in Config']);
+      console.log('announcement held back: pause_emails is set');
+      return;
+    }
     try {
-      callMailer(m, test);
-      appendLog(priv, [new Date(), test ? 'emails-preview' : 'emails', m.kind, recipients, m.subject, '', test ? m.body : '']);
+      var res = callMailer(m, test);
+      var sent = res && res.sent ? (res.sent.to + res.sent.cc + res.sent.bcc) + ' recipients' : 'ok';
+      appendLog(priv, [new Date(), test ? 'emails-preview' : 'emails', m.kind, recipients, m.subject, '', test ? m.body : ('delivered to ' + sent)]);
       console.log((test ? 'PREVIEW ' : 'SENT ') + m.kind + ' -> ' + recipients + ' | ' + m.subject);
       if (test) console.log(m.body);
     } catch (err) {
       console.error(err);
-      appendLog(priv, [new Date(), 'emails', m.kind, recipients, m.subject, '', String(err && err.message || err)]);
+      appendLog(priv, [new Date(), 'emails', m.kind, recipients, m.subject, '', 'FAILED: ' + String(err && err.message || err)]);
+      alertOrganiser(m, err);
     }
   });
   return msgs;
+}
+
+/** Tells Hadar when an email could not be sent. Falls back to the Log if even that fails. */
+function alertOrganiser(msg, err) {
+  var text = ['An Applied Micro Brown Bag email could not be sent.', '',
+    'Which one: ' + msg.kind, 'Subject: ' + msg.subject,
+    'Error: ' + String(err && err.message || err), '',
+    'Nothing reached the mailing list. The schedule and the web page are unaffected.', '',
+    'The message it tried to send:', '', msg.body].join('\n');
+  try {
+    callMailerRaw({ to: [ORGANISERS[0]], cc: [], bcc: [],
+      subject: 'Brown bag: an email FAILED to send (' + msg.kind + ')', body: text }, false);
+  } catch (e) {
+    console.error('could not even send the alert: ' + e);
+    appendLog(SpreadsheetApp.openById(PRIVATE_SHEET_ID),
+      [new Date(), 'emails', 'alert', ORGANISERS[0], 'alert failed', '', String(e && e.message || e)]);
+  }
+}
+
+/**
+ * An hour before the group email, sends Hadar the exact draft.
+ * Silence means it goes out as planned; setting pause_emails to yes in Config stops it.
+ */
+function sendAnnouncementDraft() {
+  var input = emailInput();
+  var msg = weeklyAnnouncement(input, nextMonday(input.today));
+  var priv = SpreadsheetApp.openById(PRIVATE_SHEET_ID);
+  if (!msg) { appendLog(priv, [new Date(), 'emails', 'draft', '', '', '', 'nothing to announce']); return { ok: true, nothing: true }; }
+  var header = ['This is the email due to go out at 13:00 today, to ' + msg.bcc.length +
+      ' people on the mailing list, with you and Gabriel copied.', '',
+    'If you want anything changed, say so within the hour. If I hear nothing it goes out as it stands.',
+    'To stop it, set pause_emails to yes on the Config tab of the schedule spreadsheet.', '',
+    '----------------------------------------------------------------------',
+    'Subject: ' + msg.subject, '', msg.body,
+    '----------------------------------------------------------------------'].join('\n');
+  callMailerRaw({ to: [ORGANISERS[0]], cc: [], bcc: [],
+    subject: 'Draft for 13:00 today: ' + msg.subject, body: header }, false);
+  appendLog(priv, [new Date(), 'emails', 'draft', ORGANISERS[0], msg.subject, '', 'draft sent an hour ahead']);
+  return { ok: true, sentTo: ORGANISERS[0], subject: msg.subject, wouldReach: msg.bcc.length + ORGANISERS.length };
 }
 
 /** Scheduled entry points. Each checks the weekday itself, so a stray run does nothing. */
@@ -896,12 +945,13 @@ function updateSignupForm() {
 
 function installTriggers() {
   ScriptApp.getProjectTriggers().forEach(function (t) {
-    if (['dailyJob', 'sendScheduledEmails'].indexOf(t.getHandlerFunction()) >= 0) ScriptApp.deleteTrigger(t);
+    if (['dailyJob', 'sendScheduledEmails', 'sendAnnouncementDraft'].indexOf(t.getHandlerFunction()) >= 0) ScriptApp.deleteTrigger(t);
   });
   ScriptApp.newTrigger('dailyJob').timeBased().atHour(12).everyDays(1).inTimezone(TZ).create();
   ScriptApp.newTrigger('sendScheduledEmails').timeBased().onWeekDay(ScriptApp.WeekDay.MONDAY).atHour(9).inTimezone(TZ).create();
   ScriptApp.newTrigger('sendScheduledEmails').timeBased().onWeekDay(ScriptApp.WeekDay.THURSDAY).atHour(13).inTimezone(TZ).create();
-  console.log('triggers installed: daily 12:00, emails Mon 09:00 and Thu 13:00');
+  ScriptApp.newTrigger('sendAnnouncementDraft').timeBased().onWeekDay(ScriptApp.WeekDay.THURSDAY).atHour(12).inTimezone(TZ).create();
+  console.log('triggers installed: daily 12:00, presenter Mon 09:00, draft to Hadar Thu 12:00, announcement Thu 13:00');
 }
 
 /** Stores the mailer address and secret. */
@@ -1195,4 +1245,17 @@ function checkRecipients() {
   var bcc = mailingListAddresses(input.mailingList);
   var res = postToMailer({ to: ORGANISERS, cc: [], bcc: bcc, subject: 'recipient check', body: 'check', test: true });
   return { ok: true, listed: bcc.length, wouldReceive: res.bccCount, rejected: res.rejected || [] };
+}
+
+/** Sets one key on the Config tab, adding it if it is not there. */
+function setConfig(key, value) {
+  if (!key) return { ok: false, error: 'key is required' };
+  var sh = getOrCreateTab(SpreadsheetApp.getActive(), TAB.config, ['key', 'value']);
+  var n = Math.max(sh.getLastRow() - 1, 0);
+  var rows = n ? sh.getRange(2, 1, n, 2).getValues() : [];
+  for (var i = 0; i < rows.length; i++) {
+    if (String(rows[i][0]) === key) { sh.getRange(i + 2, 2).setValue(value || ''); return { ok: true, updated: key, value: value }; }
+  }
+  sh.appendRow([key, value || '']);
+  return { ok: true, added: key, value: value };
 }
