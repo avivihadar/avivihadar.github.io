@@ -45,7 +45,8 @@ function ensureDates(schedule, today) {
 }
 var TZ = 'Europe/London';
 
-var TAB = { schedule: 'Schedule', config: 'Config', ledger: 'Placements', unplaced: 'Unplaced', log: 'Log', rsvp: 'RSVP Responses', title: 'Title Responses', mailing: 'Mailing list' };
+var TAB = { schedule: 'Schedule', config: 'Config', ledger: 'Placements', unplaced: 'Unplaced', log: 'Log', rsvp: 'RSVP Responses', title: 'Title Responses', mailing: 'Mailing list', waitlist: 'Waitlist' };
+var WAITLIST_HEADER = ['added_on', 'name', 'email', 'slot_min', 'dates_they_offered', 'source', 'notes'];
 var ORGANISERS = ['avivihadar@gmail.com', 'g.ulyssea@ucl.ac.uk'];
 var SCHEDULE_HEADER = ['date', 'term', 'start', 'end', 'presenter', 'slot_min', 'title', 'rsvps', 'notes'];
 var LEDGER_HEADER = ['email', 'name', 'date', 'slot_min', 'placed_at', 'source', 'signup_ts'];
@@ -556,7 +557,8 @@ function doGet(e) {
       installTriggers: installTriggers, listTriggers: null, stats: null, addToMailingList: null,
       addPresentersToMailingList: null, findSignup: null, placePerson: null,
       addSignupsToMailingList: null, dedupeMailingList: null, recentLog: null, sendAnnouncement: null,
-      checkRecipients: null, sendAnnouncementDraft: null, setConfig: null };
+      checkRecipients: null, sendAnnouncementDraft: null, setConfig: null,
+      addToWaitlist: null, syncWaitlist: null, readWaitlist: null, renameContact: null };
     if (task === 'previewFor') return jsonOut({ ok: true, task: task, output: previewText(e.parameter.date) });
     if (task === 'setPerson') return jsonOut(setPerson(e.parameter.name, e.parameter.role, e.parameter.affiliation));
     if (task === 'fixSignup') return jsonOut(fixSignup(e.parameter.match, e.parameter.name, e.parameter.email));
@@ -577,6 +579,10 @@ function doGet(e) {
     if (task === 'checkRecipients') return jsonOut(checkRecipients());
     if (task === 'sendAnnouncementDraft') return jsonOut(sendAnnouncementDraft());
     if (task === 'setConfig') return jsonOut(setConfig(e.parameter.key, e.parameter.value));
+    if (task === 'addToWaitlist') return jsonOut(addToWaitlist(e.parameter.people, e.parameter.notes));
+    if (task === 'syncWaitlist') return jsonOut(syncWaitlist());
+    if (task === 'readWaitlist') return jsonOut({ ok: true, waitlist: readWaitlist() });
+    if (task === 'renameContact') return jsonOut(renameContact(e.parameter.email, e.parameter.name));
     if (!allowed[task]) return jsonOut({ ok: false, error: 'unknown task' });
     try { allowed[task](); return jsonOut({ ok: true, task: task }); }
     catch (err) { return jsonOut({ ok: false, task: task, error: String(err && err.message || err) }); }
@@ -1258,4 +1264,85 @@ function setConfig(key, value) {
   }
   sh.appendRow([key, value || '']);
   return { ok: true, added: key, value: value };
+}
+
+// ---- waitlist -------------------------------------------------------------
+function readWaitlist() {
+  var priv = SpreadsheetApp.openById(PRIVATE_SHEET_ID);
+  var sh = priv.getSheetByName(TAB.waitlist);
+  if (!sh || sh.getLastRow() < 2) return [];
+  return sh.getRange(2, 1, sh.getLastRow() - 1, WAITLIST_HEADER.length).getValues()
+    .filter(function (r) { return cellStr(r[2]) || cellStr(r[1]); })
+    .map(function (r) {
+      return { addedOn: cellDate(r[0]), name: cellStr(r[1]), email: normaliseEmail(r[2]),
+        slot: parseSlot(r[3]), dates: cellStr(r[4]), source: cellStr(r[5]), notes: cellStr(r[6]) };
+    });
+}
+
+/**
+ * Adds people to the Waitlist tab. `people` is "Name <email>; email; ..." and details are
+ * filled in from their sign-up when there is one. Nobody is added twice.
+ */
+function addToWaitlist(people, notes) {
+  if (!people) return { ok: false, error: 'people is required' };
+  var priv = SpreadsheetApp.openById(PRIVATE_SHEET_ID);
+  var sh = getOrCreateTab(priv, TAB.waitlist, WAITLIST_HEADER);
+  var signups = readSignups(priv);
+  var have = {};
+  readWaitlist().forEach(function (w) { have[w.email] = true; });
+  var added = [], skipped = [];
+  String(people).split(/\s*[;,]\s*/).forEach(function (entry) {
+    entry = entry.trim();
+    if (!entry) return;
+    var m = entry.match(/^(.*?)\s*<\s*([^>]+)\s*>$/);
+    var name = m ? m[1].trim() : '';
+    var email = normaliseEmail(m ? m[2] : entry);
+    if (!email || email.indexOf('@') < 0) { skipped.push({ entry: entry, why: 'not an email' }); return; }
+    if (have[email]) { skipped.push({ entry: name || email, why: 'already on the waitlist' }); return; }
+    var s = signups.filter(function (x) { return normaliseEmail(x.email) === email; })
+      .sort(function (a, b) { return b.ts - a.ts; })[0];
+    if (!name) name = s ? s.name : email.split('@')[0].replace(/[._]/g, ' ').replace(/\d+/g, '').trim();
+    sh.appendRow([todayIso(), name, email, s ? (s.slot || '') : '', s ? s.dates.map(labelForIso).join(', ') : '',
+      s ? 'signed up' : 'added by hand', notes || '']);
+    have[email] = true;
+    added.push(name + ' <' + email + '>');
+  });
+  return { ok: true, added: added, addedCount: added.length, skipped: skipped, total: readWaitlist().length };
+}
+
+/** Puts anyone the scheduler could not place onto the waitlist as well. */
+function syncWaitlist() {
+  var priv = SpreadsheetApp.openById(PRIVATE_SHEET_ID);
+  var sh = priv.getSheetByName(TAB.unplaced);
+  if (!sh || sh.getLastRow() < 2) return { ok: true, added: [], note: 'nobody is unplaced' };
+  var rows = sh.getRange(2, 1, sh.getLastRow() - 1, UNPLACED_HEADER.length).getValues();
+  var entries = rows.filter(function (r) { return cellStr(r[0]); })
+    .map(function (r) { return cellStr(r[1]) + ' <' + cellStr(r[0]) + '>'; });
+  if (!entries.length) return { ok: true, added: [], note: 'nobody is unplaced' };
+  return addToWaitlist(entries.join('; '), 'could not be placed: the year is full');
+}
+
+/** Corrects the name stored against an address, on both the Waitlist and the Mailing list. */
+function renameContact(email, name) {
+  if (!email || !name) return { ok: false, error: 'email and name are required' };
+  var target = normaliseEmail(email);
+  var priv = SpreadsheetApp.openById(PRIVATE_SHEET_ID);
+  var changed = [];
+  [[TAB.waitlist, 2, 1], [TAB.mailing, null, null]].forEach(function (spec) {
+    var sh = priv.getSheetByName(spec[0]);
+    if (!sh || sh.getLastRow() < 2) return;
+    var header = sh.getRange(1, 1, 1, sh.getLastColumn()).getValues()[0];
+    var iEmail = spec[1] !== null ? spec[1] : headerIndex(header, 'Email');
+    var iName = spec[2] !== null ? spec[2] : (headerIndex(header, 'Full name') >= 0 ? headerIndex(header, 'Full name') : headerIndex(header, 'Name'));
+    if (iEmail < 0 || iName < 0) return;
+    var data = sh.getRange(2, 1, sh.getLastRow() - 1, sh.getLastColumn()).getValues();
+    for (var i = 0; i < data.length; i++) {
+      if (normaliseEmail(data[i][iEmail]) === target) {
+        sh.getRange(i + 2, iName + 1).setValue(name);
+        changed.push(spec[0]);
+      }
+    }
+  });
+  return changed.length ? { ok: true, email: target, name: name, tabs: changed }
+                        : { ok: false, error: 'address not found' };
 }

@@ -53,7 +53,7 @@ read the day before, when the noon job had since filled it. Hadar had to correct
 | Public schedule page | https://avivihadar.github.io/brownbag/ (noindex, not linked from the rest of the site) |
 | Page source | `~/Library/CloudStorage/Dropbox/Berkeley/avivihadar.github.io/brownbag/` on branch `master` |
 | Schedule spreadsheet (public-ish, Hadar's account) | id `1FrSTTmb1R0YVlutTZnPVyiFJUjh6wYJrH_EHCxTHRg8`, tabs **Schedule**, **Config** |
-| Responses spreadsheet (private, holds emails) | id `1Q5JzJnDdLg5wwlLByaMv5FYDdSHgZpWzUOioJGJ0BB0`, tabs **Form Responses 1**, **RSVP Responses**, **Title Responses**, **Mailing list**, **People**, **Placements**, **Unplaced**, **Log** |
+| Responses spreadsheet (private, holds emails) | id `1Q5JzJnDdLg5wwlLByaMv5FYDdSHgZpWzUOioJGJ0BB0`, tabs **Form Responses 1**, **RSVP Responses**, **Title Responses**, **Mailing list**, **Waitlist**, **People**, **Placements**, **Unplaced**, **Log** |
 | Scheduler script (Hadar's account) | id `1Jos6LVlbCYb7GCl9Mngq5uvw9_Ndlu7rz-RwlV2JcOGoozumiyew7wsY`, sources in `brownbag/apps-script/` |
 | Mailer script (seminar account) | id `1Qc5dDSoCRt10ItUYkaiyC1_JC4dPM4vN4x-JUexam2R1kSlFDNDbT1vS`, sources in `brownbag/apps-script-mailer/` |
 
@@ -118,7 +118,14 @@ Call the scheduler's web address with `?action=admin&secret=<secret>&task=<task>
 name, email), `clearPlacement` (name, optional date), `createMailingListForm`, `removeFormQuestion`,
 `renameFormQuestion`, `sendPresenterReminder` (date), `previewFor` (date, returns the drafts as
 text), `installTriggers`, `listTriggers`, `stats` (quick counts),
-`addToMailingList` (people as "Name <email>; ..."), `addPresentersToMailingList`.
+`addToMailingList` (people as "Name <email>; ..."), `addPresentersToMailingList`,
+`addToWaitlist` (same format), `syncWaitlist` (adds everyone the job could not place),
+`readWaitlist`, `renameContact` (email, name), `setConfig` (key, value),
+`sendAnnouncementDraft`, `checkRecipients`, `recentLog`, `placePerson`, `findSignup`.
+
+**Waitlist.** The year is full, so people who ask to present now go on the **Waitlist** tab
+(`added_on, name, email, slot_min, dates_they_offered, source, notes`). When a slot frees up, take
+the earliest entry, place them with `placePerson`, and delete their waitlist row.
 
 The mailer refuses more than 90 recipients in one message, and a free Gmail account can send to
 about 100 a day. When the mailing list passes roughly 85, move it to a Google Group address.
