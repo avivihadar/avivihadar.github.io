@@ -224,7 +224,7 @@
     box.appendChild(el('h2', 'speaker tbd', 'TBD'));
     if (!isPast && showLink && CFG.signupFormUrl) {
       var actions = el('p', 'actions');
-      actions.appendChild(link(CFG.signupFormUrl, 'Sign up for this slot'));
+      actions.appendChild(link(CFG.presentFormUrl || CFG.signupFormUrl, 'Sign up for this slot'));
       box.appendChild(actions);
     }
     return box;

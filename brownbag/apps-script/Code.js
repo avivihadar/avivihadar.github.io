@@ -45,7 +45,7 @@ function ensureDates(schedule, today) {
 }
 var TZ = 'Europe/London';
 
-var TAB = { schedule: 'Schedule', config: 'Config', ledger: 'Placements', unplaced: 'Unplaced', log: 'Log', rsvp: 'RSVP Responses', title: 'Title Responses', mailing: 'Mailing list', waitlist: 'Waitlist' };
+var TAB = { schedule: 'Schedule', config: 'Config', ledger: 'Placements', unplaced: 'Unplaced', log: 'Log', rsvp: 'RSVP Responses', title: 'Title Responses', mailing: 'Mailing list', waitlist: 'Waitlist', waitlistResponses: 'Waiting list responses' };
 var WAITLIST_HEADER = ['added_on', 'name', 'email', 'slot_min', 'dates_they_offered', 'source', 'notes'];
 var ORGANISERS = ['avivihadar@gmail.com', 'g.ulyssea@ucl.ac.uk'];
 var SCHEDULE_HEADER = ['date', 'term', 'start', 'end', 'presenter', 'slot_min', 'title', 'rsvps', 'notes'];
@@ -293,6 +293,7 @@ function runJob(dry) {
     }
     writeSchedule(sched, result.schedule);
     writeLedger(priv, result.ledger);
+    try { importWaitlistResponses(); } catch (e) { console.error('waiting list import: ' + e); }
     writeUnplaced(priv, result.unplaced);
     removed = pruneSignupChoices(result.keepChoiceDates, result.halfFullDates);
     var badEmails = input.signups.filter(function (x) { return x.email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(x.email); })
@@ -558,7 +559,8 @@ function doGet(e) {
       addPresentersToMailingList: null, findSignup: null, placePerson: null,
       addSignupsToMailingList: null, dedupeMailingList: null, recentLog: null, sendAnnouncement: null,
       checkRecipients: null, sendAnnouncementDraft: null, setConfig: null,
-      addToWaitlist: null, syncWaitlist: null, readWaitlist: null, renameContact: null };
+      addToWaitlist: null, syncWaitlist: null, readWaitlist: null, renameContact: null,
+      createWaitlistForm: null, importWaitlistResponses: null };
     if (task === 'previewFor') return jsonOut({ ok: true, task: task, output: previewText(e.parameter.date) });
     if (task === 'setPerson') return jsonOut(setPerson(e.parameter.name, e.parameter.role, e.parameter.affiliation));
     if (task === 'fixSignup') return jsonOut(fixSignup(e.parameter.match, e.parameter.name, e.parameter.email));
@@ -583,6 +585,8 @@ function doGet(e) {
     if (task === 'syncWaitlist') return jsonOut(syncWaitlist());
     if (task === 'readWaitlist') return jsonOut({ ok: true, waitlist: readWaitlist() });
     if (task === 'renameContact') return jsonOut(renameContact(e.parameter.email, e.parameter.name));
+    if (task === 'createWaitlistForm') return jsonOut(createWaitlistForm());
+    if (task === 'importWaitlistResponses') return jsonOut(importWaitlistResponses());
     if (!allowed[task]) return jsonOut({ ok: false, error: 'unknown task' });
     try { allowed[task](); return jsonOut({ ok: true, task: task }); }
     catch (err) { return jsonOut({ ok: false, task: task, error: String(err && err.message || err) }); }
@@ -1345,4 +1349,66 @@ function renameContact(email, name) {
   });
   return changed.length ? { ok: true, email: target, name: name, tabs: changed }
                         : { ok: false, error: 'address not found' };
+}
+
+/** Creates the waiting-list form (once) and records it in Config. */
+function createWaitlistForm() {
+  var pub = SpreadsheetApp.getActive();
+  var cfg = readConfig(pub);
+  if (cfg.waitlist_form_id) {
+    try { FormApp.openById(cfg.waitlist_form_id); return { ok: true, existing: cfg.waitlist_form_url }; }
+    catch (e) { /* gone: make a new one */ }
+  }
+  var priv = SpreadsheetApp.openById(PRIVATE_SHEET_ID);
+  var f = FormApp.create('Applied Micro Brown Bag: waiting list');
+  f.setDescription('Every Monday this year is taken. Join the waiting list and we will come back to you ' +
+      'if someone cancels. Mondays 12-1pm, Room 321, Drayton House.')
+   .setCollectEmail(false).setAllowResponseEdits(false)
+   .setConfirmationMessage('Thanks, you are on the waiting list. We will be in touch if a slot frees up.');
+  f.addTextItem().setTitle('Full name').setRequired(true);
+  f.addTextItem().setTitle('Email address').setRequired(true);
+  f.addMultipleChoiceItem().setTitle('What is your position?').setChoiceValues(SIGNUP_ROLES).setRequired(true);
+  f.addTextItem().setTitle('Affiliation').setRequired(true).setHelpText('For example: UCL, LSE, IFS.');
+  f.addMultipleChoiceItem().setTitle('How long a slot would you like?').setChoiceValues(['30 minutes', '60 minutes']).setRequired(true);
+  f.addParagraphTextItem().setTitle('Which Mondays could you do?').setRequired(false)
+    .setHelpText('Anything helps: particular dates, a term, or "any Monday".');
+  f.addTextItem().setTitle('Title of your talk (leave blank if you do not have one yet)').setRequired(false);
+
+  var before = priv.getSheets().map(function (sh) { return sh.getSheetId(); });
+  f.setDestination(FormApp.DestinationType.SPREADSHEET, priv.getId());
+  SpreadsheetApp.flush();
+  var made = SpreadsheetApp.openById(priv.getId()).getSheets()
+    .filter(function (sh) { return before.indexOf(sh.getSheetId()) < 0; })[0];
+  if (made) made.setName(TAB.waitlistResponses);
+  var url = f.getPublishedUrl().split('?')[0];
+  setConfig('waitlist_form_id', f.getId());
+  setConfig('waitlist_form_url', url);
+  return { ok: true, url: url };
+}
+
+/** Copies new waiting-list form responses into the Waitlist tab. Runs inside the daily job too. */
+function importWaitlistResponses() {
+  var priv = SpreadsheetApp.openById(PRIVATE_SHEET_ID);
+  var sh = priv.getSheetByName(TAB.waitlistResponses);
+  if (!sh || sh.getLastRow() < 2) return { ok: true, added: [], note: 'no responses yet' };
+  var data = sh.getDataRange().getValues();
+  var h = data[0];
+  var iName = headerIndex(h, 'Full name'), iEmail = headerIndex(h, 'Email'),
+      iSlot = headerIndex(h, 'How long'), iDates = headerIndex(h, 'Which Mondays'),
+      iRole = headerIndex(h, 'What is your position'), iAff = headerIndex(h, 'Affiliation');
+  var have = {};
+  readWaitlist().forEach(function (w) { have[w.email] = true; });
+  var tab = getOrCreateTab(priv, TAB.waitlist, WAITLIST_HEADER);
+  var added = [];
+  data.slice(1).forEach(function (r) {
+    var email = normaliseEmail(r[iEmail]);
+    if (!email || email.indexOf('@') < 0 || have[email]) return;
+    have[email] = true;
+    var note = [iRole >= 0 ? cellStr(r[iRole]) : '', iAff >= 0 ? cellStr(r[iAff]) : ''].filter(String).join(', ');
+    tab.appendRow([todayIso(), cellStr(r[iName]), email, parseSlot(r[iSlot]) || '',
+      iDates >= 0 ? cellStr(r[iDates]) : '', 'waiting list form', note]);
+    added.push(cellStr(r[iName]) + ' <' + email + '>');
+  });
+  if (added.length) addToMailingList(added.join('; '));
+  return { ok: true, added: added, addedCount: added.length, total: readWaitlist().length };
 }

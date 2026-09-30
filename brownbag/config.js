@@ -3,7 +3,9 @@ window.BROWNBAG_CONFIG = {
   apiUrl: 'https://script.google.com/macros/s/AKfycbxeGbFJ73Pc5G48M6j99deH7JyHIXKf0fRw6ikPyWLOJBcz_JqQY2PBXBNVwYt53X1W/exec',
   csvUrl: '',
   sheetUrl: 'https://docs.google.com/spreadsheets/d/1FrSTTmb1R0YVlutTZnPVyiFJUjh6wYJrH_EHCxTHRg8/edit',
-  signupFormUrl: 'https://docs.google.com/forms/d/e/1FAIpQLSfdBgTn2Ln4IKRCTGZX0hZfnHl9VnV4VkI3GKJek_HyDbyhzQ/viewform',
+  // the year is full, so the page points at the waiting list rather than the sign-up form
+  signupFormUrl: 'https://docs.google.com/forms/d/e/1FAIpQLSc1bhkFfn_vDyxRBlTnKuxUoBbFdli6gNVzQ8ODtnB9UEQRdg/viewform',
+  presentFormUrl: 'https://docs.google.com/forms/d/e/1FAIpQLSfdBgTn2Ln4IKRCTGZX0hZfnHl9VnV4VkI3GKJek_HyDbyhzQ/viewform',
   rsvp: { base: 'https://docs.google.com/forms/d/e/1FAIpQLSdukYj3saIX5hNFU8EnkDCwHfXcNOgT4MPUa8zB76wJJsqO7w/viewform', dateEntry: '1248190791', presenterEntry: '1087551335' },
   title: { base: 'https://docs.google.com/forms/d/e/1FAIpQLSdHPYqarvUvaGP7Rw8H5oQTNbjryGpXJ93zWxNeYfIZZ0o_nQ/viewform', dateEntry: '1204817799', presenterEntry: '271100489' },
   organiserEmail: 'h.avivi@ucl.ac.uk',   // used for RSVP / Add title until the Google Forms exist
