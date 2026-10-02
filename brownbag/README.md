@@ -87,7 +87,7 @@ repo (`.gitignore` excludes `brownbag/**/Secret.js`). Never print it in chat or 
 | Every day, 12:00 | `dailyJob`: places new sign-ups, merges titles, counts RSVPs, adds or drops Mondays to match `SEMINAR_DATES`, prunes the sign-up form's dates, writes a summary to the **Log** tab |
 | Monday, 09:00 | Reminder to next Monday's presenter(s). Asks for a title if none is on file. Students are told they may invite faculty to their talk. |
 | Thursday, 12:00 | The exact draft of the 13:00 announcement goes to Hadar alone. Silence means it goes out as it stands. To stop it, set `pause_emails` to `yes` on the Config tab. |
-| Thursday, 13:00 | Announcement to the mailing list in Bcc: presenter with affiliation, title, lunch RSVP link, Friday noon deadline, open slots if any, unsubscribe line. **Nothing is sent when the coming Monday has no presenter.** |
+| Thursday, 13:00 | Announcement to the mailing list in Bcc, sent as plain text and HTML with the presenter's name in bold: presenter with affiliation, title, lunch RSVP link, Friday noon deadline, open slots if any, unsubscribe line. **Nothing is sent when the coming Monday has no presenter.** |
 | Friday, 12:00 | Lunch count and the list of names, to Hadar and Gabriel |
 | Every 15 minutes (mailer) | Forwards new mail in the seminar inbox to Hadar and Gabriel unless both are already on it |
 
@@ -127,8 +127,13 @@ text), `installTriggers`, `listTriggers`, `stats` (quick counts),
 (`added_on, name, email, slot_min, dates_they_offered, source, notes`). When a slot frees up, take
 the earliest entry, place them with `placePerson`, and delete their waitlist row.
 
-The mailer refuses more than 90 recipients in one message, and a free Gmail account can send to
-about 100 a day. When the mailing list passes roughly 85, move it to a Google Group address.
+**Recipient limits.** A free Gmail account allows **50 recipients per message** and about 100 a day.
+The mailer therefore splits a large send into batches of 45: the first carries the real To and Cc,
+later batches are addressed to the seminar account itself with the rest in Bcc, so every reader
+sees the same message. The daily total is the real ceiling. Once the mailing list passes about 90,
+move it to a Google Group address.
+
+This limit broke the announcement on 1 October 2026, when the list reached 71 recipients.
 
 `?action=run` runs the daily job immediately, at most once every ten minutes.
 `?action=schedule` returns the schedule as JSON; this is what the web page reads.

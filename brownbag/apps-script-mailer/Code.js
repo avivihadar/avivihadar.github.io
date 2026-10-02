@@ -15,7 +15,9 @@ var ORGANISERS = ['avivihadar@gmail.com', 'g.ulyssea@ucl.ac.uk'];   // where cc'
 var SENDER_NAME = 'Applied Micro Brown Bag';
 var REPLY_TO = 'appliedmicrobrownbag@gmail.com';   // replies land in the seminar inbox and are forwarded on
 var FORWARD_LABEL = 'forwarded-to-organisers';
-var MAX_RECIPIENTS = 90;           // Gmail allows ~100 a day on a free account
+var SELF = 'appliedmicrobrownbag@gmail.com';
+var BATCH_LIMIT = 45;              // a free Gmail account allows 50 recipients per message
+var MAX_RECIPIENTS = 95;           // and about 100 a day in total
 
 function props() { return PropertiesService.getScriptProperties(); }
 
@@ -72,25 +74,47 @@ function handlePost(e) {
   var to = clean(body.to), cc = clean(body.cc), bcc = clean(body.bcc);
   var subject = String(body.subject || '').slice(0, 250);
   var text = String(body.body || '');
+  var html = body.html ? String(body.html) : '';
   if (!subject || !text) return jsonOut({ ok: false, error: 'subject and body are required' });
   if (!to.length && !bcc.length) return jsonOut({ ok: false, error: 'no recipients' });
   var total = to.length + cc.length + bcc.length;
   if (total > MAX_RECIPIENTS) return jsonOut({ ok: false, error: 'too many recipients (' + total + '), refusing to send' });
-  if (body.test) return jsonOut({ ok: true, test: true, to: to, cc: cc, bccCount: bcc.length, subject: subject, rejected: rejected });
+  var batches = planBatches(to, cc, bcc);
+  if (body.test) return jsonOut({ ok: true, test: true, to: to, cc: cc, bccCount: bcc.length,
+    subject: subject, rejected: rejected, batches: batches.length });
 
   // Quota is only checked when the permission to read it happens to be granted.
   var quota = null;
   try { quota = MailApp.getRemainingDailyQuota(); } catch (err) { quota = null; }
   if (quota !== null && quota < total) return jsonOut({ ok: false, error: 'daily quota too low (' + quota + ' left, need ' + total + ')' });
 
-  GmailApp.sendEmail(to.join(','), subject, text, {
-    cc: cc.join(','), bcc: bcc.join(','), name: SENDER_NAME, replyTo: REPLY_TO
+  batches.forEach(function (b) {
+    var opts = { cc: b.cc.join(','), bcc: b.bcc.join(','), name: SENDER_NAME, replyTo: REPLY_TO };
+    if (html) opts.htmlBody = html;                 // the plain text stays as the fallback
+    GmailApp.sendEmail(b.to.join(','), subject, text, opts);
   });
-  return jsonOut({ ok: true, sent: { to: to.length, cc: cc.length, bcc: bcc.length }, rejected: rejected });
+  return jsonOut({ ok: true, sent: { to: to.length, cc: cc.length, bcc: bcc.length },
+    batches: batches.length, rejected: rejected });
 }
 
 var EMAIL_RE = /^[^\s@,<>"']+@[^\s@,<>"']+\.[a-z]{2,}$/i;
 var rejected = [];
+
+/**
+ * Splits a large send into messages that stay under Gmail's per-message recipient limit.
+ * The first batch carries the real To and Cc; later batches are addressed to the seminar
+ * account itself, so every reader still sees the same message.
+ */
+function planBatches(to, cc, bcc) {
+  var head = to.length + cc.length;
+  var first = Math.max(BATCH_LIMIT - head, 1);
+  if (bcc.length <= first) return [{ to: to, cc: cc, bcc: bcc }];
+  var out = [{ to: to, cc: cc, bcc: bcc.slice(0, first) }];
+  for (var i = first; i < bcc.length; i += BATCH_LIMIT - 1) {
+    out.push({ to: [SELF], cc: [], bcc: bcc.slice(i, i + BATCH_LIMIT - 1) });
+  }
+  return out;
+}
 
 function clean(list) {
   var seen = {}, out = [];
@@ -117,7 +141,8 @@ function forwardReplies() {
     var last = messages[messages.length - 1];
     var everyone = (last.getTo() + ',' + last.getCc() + ',' + last.getBcc() + ',' + last.getFrom()).toLowerCase();
     var alreadyThere = ORGANISERS.every(function (o) { return everyone.indexOf(o.toLowerCase()) >= 0; });
-    if (!alreadyThere) {
+    var ourOwnBatch = last.getFrom().toLowerCase().indexOf(SELF) >= 0;   // a copy of a seminar email
+    if (!alreadyThere && !ourOwnBatch) {
       try {
         last.forward(ORGANISERS.join(','), { name: SENDER_NAME, replyTo: last.getFrom(),
           htmlBody: '<p style="color:#555">Forwarded from the brown bag inbox.</p>' + last.getBody() });

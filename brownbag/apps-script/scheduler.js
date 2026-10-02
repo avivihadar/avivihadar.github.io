@@ -542,7 +542,35 @@ function weeklyAnnouncement(input, date) {
   var subject = 'Brown bag on Monday ' + labelForIso(date).replace(/^Mon /, '') + ': ' +
     talks.map(function (t) { return nameWithAffiliation(t.presenter, input.signups, input.known); }).join(' and ');
   return { kind: 'announcement', to: [], bcc: mailingListAddresses(input.mailingList), date: date,
-    subject: subject, body: lines.join('\n') };
+    subject: subject, body: lines.join('\n'),
+    html: announcementHtml(date, talks, input, { openSlots: open.length > 0 }) };
+}
+
+function escapeHtml(t) {
+  return String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+/** The announcement as HTML: same words, with the presenter's name in bold. */
+function announcementHtml(date, talks, input, extras) {
+  var p = [];
+  p.push('<p>Dear all,</p>');
+  p.push('<p>This coming Monday, ' + escapeHtml(longDate(date)) + ', ' + escapeHtml(timeRange(talks)) +
+    ', at the Applied Micro Brown Bag seminar, ' + escapeHtml(ROOM) + ':</p>');
+  talks.forEach(function (t) {
+    var who = '<strong>' + escapeHtml(nameWithAffiliation(t.presenter, input.signups, input.known)) + '</strong>';
+    if (talks.length > 1) who += ' <span style="color:#52616e">(' + t.start + '–' + t.end + ')</span>';
+    p.push('<p style="margin:0 0 4px 24px">' + who + '<br>' + escapeHtml(t.title || 'Title to be announced') + '</p>');
+  });
+  p.push('<p></p>');
+  if (extras.openSlots) {
+    p.push('<p>There are still open slots this year. To present, sign up here:<br>' +
+      '<a href="' + escapeHtml(input.signupUrl) + '">' + escapeHtml(input.signupUrl) + '</a></p>');
+  }
+  p.push('<p>Full schedule: <a href="' + PAGE_URL + '">' + PAGE_URL + '</a></p>');
+  p.push('<p>Best wishes,<br>Hadar and Gabriel</p>');
+  if (ANNOUNCEMENT_PS) p.push('<p>' + escapeHtml(ANNOUNCEMENT_PS) + '</p>');
+  p.push('<p style="color:#52616e;font-size:90%">' + escapeHtml(UNSUB_LINE) + '</p>');
+  return '<div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.5">' + p.join('\n') + '</div>';
 }
 
 function mailingListAddresses(list) {
@@ -609,7 +637,7 @@ if (typeof module !== 'undefined') {
     placeSignups: placeSignups, choiceDatesToKeep: choiceDatesToKeep, halfFullDates: halfFullDates,
     applyTitles: applyTitles, applySignupTitles: applySignupTitles, presenterEmailOk: presenterEmailOk,
     firstName: firstName, nextMonday: nextMonday, isStudent: isStudent, emailOf: emailOf, longDate: longDate,
-    affiliationOf: affiliationOf, roleOf: roleOf, nameWithAffiliation: nameWithAffiliation,
+    affiliationOf: affiliationOf, roleOf: roleOf, nameWithAffiliation: nameWithAffiliation, announcementHtml: announcementHtml,
     presenterReminders: presenterReminders, weeklyAnnouncement: weeklyAnnouncement, rsvpReport: rsvpReport,
     mailingListAddresses: mailingListAddresses, emailsFor: emailsFor, applyRsvps: applyRsvps, sortSchedule: sortSchedule, run: run
   };

@@ -836,12 +836,12 @@ function postToMailer(payload) {
 /** Sends an already-addressed message through the mailer script. */
 function callMailerRaw(msg, test) {
   return postToMailer({ to: msg.to || [], cc: msg.cc || [], bcc: msg.bcc || [],
-    subject: msg.subject, body: msg.body, test: !!test });
+    subject: msg.subject, body: msg.body, html: msg.html || '', test: !!test });
 }
 
 /** Sends one composed message through the mailer script, cc'ing the organisers. */
 function callMailer(msg, test) {
-  return postToMailer({ subject: msg.subject, body: msg.body, test: !!test,
+  return postToMailer({ subject: msg.subject, body: msg.body, html: msg.html || '', test: !!test,
     to: (msg.to && msg.to.length) ? msg.to : ORGANISERS,
     cc: (msg.to && msg.to.length) ? ORGANISERS : [],
     bcc: msg.bcc || [] });
