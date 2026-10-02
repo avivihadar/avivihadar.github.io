@@ -129,8 +129,8 @@ the earliest entry, place them with `placePerson`, and delete their waitlist row
 
 **Recipient limits.** A free Gmail account allows **50 recipients per message** and about 100 a day.
 The mailer therefore splits a large send into batches of 45: the first carries the real To and Cc,
-later batches are addressed to the seminar account itself with the rest in Bcc, so every reader
-sees the same message. The daily total is the real ceiling. Once the mailing list passes about 90,
+later batches are addressed to the seminar account itself with Hadar copied and the rest in Bcc.
+Every reader sees the same message; Hadar sees every batch and Gabriel is copied once. The daily total is the real ceiling. Once the mailing list passes about 90,
 move it to a Google Group address.
 
 This limit broke the announcement on 1 October 2026, when the list reached 71 recipients.

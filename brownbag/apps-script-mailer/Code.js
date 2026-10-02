@@ -102,16 +102,19 @@ var rejected = [];
 
 /**
  * Splits a large send into messages that stay under Gmail's per-message recipient limit.
- * The first batch carries the real To and Cc; later batches are addressed to the seminar
- * account itself, so every reader still sees the same message.
+ * The first batch carries the real To and Cc. Later batches are addressed to the seminar
+ * account itself and copy the first organiser only, so Hadar sees every batch and Gabriel
+ * is copied once.
  */
 function planBatches(to, cc, bcc) {
   var head = to.length + cc.length;
   var first = Math.max(BATCH_LIMIT - head, 1);
   if (bcc.length <= first) return [{ to: to, cc: cc, bcc: bcc }];
   var out = [{ to: to, cc: cc, bcc: bcc.slice(0, first) }];
-  for (var i = first; i < bcc.length; i += BATCH_LIMIT - 1) {
-    out.push({ to: [SELF], cc: [], bcc: bcc.slice(i, i + BATCH_LIMIT - 1) });
+  var laterCc = ORGANISERS.slice(0, 1);                      // Hadar on every batch
+  var room = Math.max(BATCH_LIMIT - 1 - laterCc.length, 1);
+  for (var i = first; i < bcc.length; i += room) {
+    out.push({ to: [SELF], cc: laterCc, bcc: bcc.slice(i, i + room) });
   }
   return out;
 }
