@@ -567,13 +567,13 @@ function announcementHtml(date, talks, input, extras) {
     if (talks.length > 1) who += ' <span style="color:#52616e">(' + t.start + '–' + t.end + ')</span>';
     p.push('<p style="margin:0 0 4px 24px">' + who + '<br>' + escapeHtml(t.title || 'Title to be announced') + '</p>');
   });
-  p.push('<p>Lunch is provided. If you have not already, please sign up for lunch by Friday at noon:<br>' +
-    '<a href="' + escapeHtml(extras.rsvpUrl) + '">' + escapeHtml(extras.rsvpUrl) + '</a></p>');
+  p.push('<p>Lunch is provided. If you have not already, please ' +
+    '<a href="' + escapeHtml(extras.rsvpUrl) + '">sign up for lunch</a> by Friday at noon.</p>');
   if (extras.openSlots) {
-    p.push('<p>There are still open slots this year. To present, sign up here:<br>' +
-      '<a href="' + escapeHtml(input.signupUrl) + '">' + escapeHtml(input.signupUrl) + '</a></p>');
+    p.push('<p>There are still open slots this year. ' +
+      '<a href="' + escapeHtml(input.signupUrl) + '">Sign up to present</a>.</p>');
   }
-  p.push('<p>Full schedule: <a href="' + PAGE_URL + '">' + PAGE_URL + '</a></p>');
+  p.push('<p><a href="' + PAGE_URL + '">Full schedule</a></p>');
   p.push('<p>Best wishes,<br>' + SIGN_OFF + '</p>');
   if (ANNOUNCEMENT_PS) p.push('<p>' + escapeHtml(ANNOUNCEMENT_PS) + '</p>');
   p.push('<p style="color:#52616e;font-size:90%">' + escapeHtml(UNSUB_LINE) + '</p>');
