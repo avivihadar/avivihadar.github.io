@@ -818,6 +818,22 @@ function postToMailer(payload) {
   var secret = p.getProperty('MAILER_SECRET') || (typeof MAILER_SECRET_FILE !== 'undefined' ? MAILER_SECRET_FILE : '');
   if (!url || !secret) throw new Error('mailer not configured: set MAILER_URL and MAILER_SECRET');
   payload.secret = secret;
+  // Google's script service drops a request now and then, so try a few times before giving up.
+  var attempts = 3, lastError = null;
+  for (var attempt = 1; attempt <= attempts; attempt++) {
+    try { return postOnce(url, payload); }
+    catch (err) {
+      lastError = err;
+      var retryable = /replied with (404|429|50\d)|timeout|timed out|DNS|Address unavailable/i.test(String(err && err.message || err));
+      if (!retryable || attempt === attempts) break;
+      console.log('mailer attempt ' + attempt + ' failed (' + err.message + '), retrying');
+      Utilities.sleep(attempt * 4000);
+    }
+  }
+  throw lastError;
+}
+
+function postOnce(url, payload) {
   var res = UrlFetchApp.fetch(url, { method: 'post', contentType: 'text/plain;charset=utf-8',
     payload: JSON.stringify(payload), muteHttpExceptions: true, followRedirects: false });
   var code = res.getResponseCode();
@@ -909,8 +925,14 @@ function sendAnnouncementDraft() {
     '----------------------------------------------------------------------',
     'Subject: ' + msg.subject, '', msg.body,
     '----------------------------------------------------------------------'].join('\n');
+  var headerHtml = '<div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.5">' +
+    '<p>This is the email due to go out at 13:00 today, to ' + msg.bcc.length +
+      ' people on the mailing list, with the organisers copied.</p>' +
+    '<p>If you want anything changed, say so within the hour. If I hear nothing it goes out as it stands.<br>' +
+    'To stop it, set <b>pause_emails</b> to <b>yes</b> on the Config tab of the schedule spreadsheet.</p>' +
+    '<hr><p><b>Subject:</b> ' + escapeHtml(msg.subject) + '</p></div>' + msg.html;
   callMailerRaw({ to: [ORGANISERS[0]], cc: [], bcc: [],
-    subject: 'Draft for 13:00 today: ' + msg.subject, body: header }, false);
+    subject: 'Draft for 13:00 today: ' + msg.subject, body: header, html: headerHtml }, false);
   appendLog(priv, [new Date(), 'emails', 'draft', ORGANISERS[0], msg.subject, '', 'draft sent an hour ahead']);
   return { ok: true, sentTo: ORGANISERS[0], subject: msg.subject, wouldReach: msg.bcc.length + ORGANISERS.length };
 }
@@ -1242,7 +1264,8 @@ function sendAnnouncement(dateIso, only) {
   if (!msg) return { ok: false, error: 'nothing to announce for ' + date };
   var priv = SpreadsheetApp.openById(PRIVATE_SHEET_ID);
   if (only) {
-    var res = callMailerRaw({ to: [only], cc: [], bcc: [], subject: '[rehearsal] ' + msg.subject, body: msg.body }, false);
+    var res = callMailerRaw({ to: [only], cc: [], bcc: [],
+      subject: '[rehearsal] ' + msg.subject, body: msg.body, html: msg.html }, false);
     return { ok: true, rehearsalTo: only, subject: msg.subject, recipientsItWouldReach: msg.bcc.length + ORGANISERS.length };
   }
   callMailer(msg, false);
