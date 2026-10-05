@@ -299,8 +299,8 @@
     var list = document.getElementById('list');
     var signup = document.getElementById('signup-link');
     if (signup && CFG.signupFormUrl) { signup.href = CFG.signupFormUrl; signup.target = '_blank'; signup.rel = 'noopener'; }
-    var list = document.getElementById('mailinglist-link');
-    if (list && CFG.mailingListFormUrl) { list.href = CFG.mailingListFormUrl; list.target = '_blank'; list.rel = 'noopener'; }
+    var mailingLink = document.getElementById('mailinglist-link');
+    if (mailingLink && CFG.mailingListFormUrl) { mailingLink.href = CFG.mailingListFormUrl; mailingLink.target = '_blank'; mailingLink.rel = 'noopener'; }
     var today = todayIso(CFG.timeZone || 'Europe/London');
 
     function show(text) {
