@@ -33,7 +33,7 @@ test('presenter reminder: faculty gets no student line, missing title gets the h
   assert.deepEqual(m[0].to, ['a.lindner@ucl.ac.uk']);
   assert.match(m[0].subject, /^Your talk at the Good Jobs Economics workshop on Mon 5 Oct 2026$/);
   assert.match(m[0].body, /^Dear Attila,/);
-  assert.match(m[0].body, /Good Jobs Economics workshop on Monday 5 October, 12:00 to 13:00, Room 321, Drayton House/);
+  assert.match(m[0].body, /Good Jobs Economics workshop at the brown bag seminar on Monday 5 October, 12:00 to 13:00, Room 321, Drayton House/);
   assert.match(m[0].body, /We do not have a title/);
   assert.ok(!/invite faculty/.test(m[0].body));
 });
@@ -70,7 +70,7 @@ test('announcement: title, RSVP link, open-slots line, unsubscribe, deduped bcc'
   assert.equal(a.subject, 'Good Jobs Economics workshop, Monday 5 Oct 2026: Attila Lindner');
   assert.deepEqual(a.bcc, ['a@x.com']);
   assert.match(a.body, /Minimum wages/);
-  assert.match(a.body, /This coming Monday, 5 October, 12:00 to 13:00, at the Good Jobs Economics workshop/);
+  assert.match(a.body, /This coming Monday, 5 October, 12:00 to 13:00, at the Good Jobs Economics workshop at the brown bag seminar/);
   assert.match(a.body, /sign up for lunch by Friday at noon/);
   assert.match(a.body, /rsvp\.example/);                  // only the postscript mentions it
   assert.match(a.body, /There are still open slots/);

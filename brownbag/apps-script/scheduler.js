@@ -423,6 +423,7 @@ function run(input) {
 // ---- emails -------------------------------------------------------------
 var PAGE_URL = 'https://avivihadar.github.io/brownbag/';
 var SEMINAR_NAME = 'Good Jobs Economics workshop';
+var SEMINAR_WHERE = SEMINAR_NAME + ' at the brown bag seminar';
 var SIGN_OFF = 'Hadar, Gabriel and Attila';
 var ERC_LOGO = 'https://avivihadar.github.io/brownbag/erc-logo.png';
 var ROOM = 'Room 321, Drayton House';
@@ -504,7 +505,7 @@ function presenterReminders(input, date) {
   return talks.map(function (t) {
     var to = emailOf(t.presenter, input.signups, input.ledger);
     var lines = ['Dear ' + firstName(t.presenter) + ',', ''];
-    lines.push('A reminder that you are presenting at the ' + SEMINAR_NAME + ' on Monday ' +
+    lines.push('A reminder that you are presenting at the ' + SEMINAR_WHERE + ' on Monday ' +
       longDate(date) + ', ' + t.start + ' to ' + t.end + ', ' + ROOM + '.');
     lines.push('Schedule: ' + PAGE_URL, '');
     if (!t.title) {
@@ -527,7 +528,7 @@ function weeklyAnnouncement(input, date) {
   if (!talks.length) return null;
   var lines = ['Dear all,', ''];
   lines.push('This coming Monday, ' + longDate(date) + ', ' + timeRange(talks) +
-    ', at the ' + SEMINAR_NAME + ', ' + ROOM + ':', '');
+    ', at the ' + SEMINAR_WHERE + ', ' + ROOM + ':', '');
   talks.forEach(function (t) {
     lines.push('  ' + nameWithAffiliation(t.presenter, input.signups, input.known) +
       (talks.length > 1 ? '  (' + t.start + '–' + t.end + ')' : ''));
@@ -560,7 +561,7 @@ function announcementHtml(date, talks, input, extras) {
   var p = [];
   p.push('<p>Dear all,</p>');
   p.push('<p>This coming Monday, ' + escapeHtml(longDate(date)) + ', ' + escapeHtml(timeRange(talks)) +
-    ', at the ' + escapeHtml(SEMINAR_NAME) + ', ' + escapeHtml(ROOM) + ':</p>');
+    ', at the ' + escapeHtml(SEMINAR_WHERE) + ', ' + escapeHtml(ROOM) + ':</p>');
   talks.forEach(function (t) {
     var who = '<strong>' + escapeHtml(nameWithAffiliation(t.presenter, input.signups, input.known)) + '</strong>';
     if (talks.length > 1) who += ' <span style="color:#52616e">(' + t.start + '–' + t.end + ')</span>';
@@ -576,7 +577,7 @@ function announcementHtml(date, talks, input, extras) {
   p.push('<p>Best wishes,<br>' + SIGN_OFF + '</p>');
   if (ANNOUNCEMENT_PS) p.push('<p>' + escapeHtml(ANNOUNCEMENT_PS) + '</p>');
   p.push('<p style="color:#52616e;font-size:90%">' + escapeHtml(UNSUB_LINE) + '</p>');
-  p.push('<p style="margin-top:18px"><img src="' + ERC_LOGO + '" width="220" alt="Funded by the European Union. European Research Council." style="display:block"></p>');
+  p.push('<p style="margin-top:18px"><img src="' + ERC_LOGO + '" width="110" alt="European Research Council" style="display:block"></p>');
   return '<div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.5">' + p.join('\n') + '</div>';
 }
 
