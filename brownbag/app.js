@@ -157,6 +157,8 @@
     box.appendChild(paper);
     if (!isPast) {
       var actions = el('p', 'actions');
+      var rsvp = actionUrl('rsvp', CFG.rsvp, group.date, talk.presenter, CFG.organiserEmail);
+      if (rsvp) actions.appendChild(link(rsvp, 'RSVP for lunch'));
       if (CFG.apiUrl) {
         var toggle = el('a', null, talk.title ? 'Change title' : 'Add title');
         toggle.href = '#';

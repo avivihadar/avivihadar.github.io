@@ -16,7 +16,7 @@ function baseInput(over) {
     signups: [{ ts: 1, name: 'Attila Lindner', email: 'a.lindner@ucl.ac.uk', dates: [], slot: 60, advisors: 'NA' },
               { ts: 2, name: 'Hao Hu', email: 'hao.hu.21@ucl.ac.uk', dates: [], slot: 60, advisors: 'Jonas Hjort, Suphanit Piyapromdee' }],
     ledger: [], rsvps: [], mailingList: [{ email: 'a@x.com' }, { email: 'B@x.com' }],
-    today: '2026-09-28', minLeadDays: 7, rsvpUrl: RSVP, signupUrl: SIGNUP
+    today: '2026-09-28', minLeadDays: 7, rsvpUrl: RSVP, signupUrl: SIGNUP, organisers: []
   }, over || {});
 }
 
@@ -31,9 +31,9 @@ test('presenter reminder: faculty gets no student line, missing title gets the h
   const m = S.presenterReminders(baseInput(), '2026-10-05');
   assert.equal(m.length, 1);
   assert.deepEqual(m[0].to, ['a.lindner@ucl.ac.uk']);
-  assert.equal(m[0].subject, 'Your brown bag talk on Mon 5 Oct 2026');
+  assert.match(m[0].subject, /^Your talk at the Good Jobs Economics workshop on Mon 5 Oct 2026$/);
   assert.match(m[0].body, /^Dear Attila,/);
-  assert.match(m[0].body, /on Monday 5 October, 12:00 to 13:00, Room 321, Drayton House/);
+  assert.match(m[0].body, /Good Jobs Economics workshop on Monday 5 October, 12:00 to 13:00, Room 321, Drayton House/);
   assert.match(m[0].body, /We do not have a title/);
   assert.ok(!/invite faculty/.test(m[0].body));
 });
@@ -67,12 +67,12 @@ test('announcement: title, RSVP link, open-slots line, unsubscribe, deduped bcc'
                                        row('2027-06-07', '', null)],
                             mailingList: [{ email: 'A@x.com' }, { email: 'a@x.com' }, { email: 'c@x.com', unsubscribed: true }] });
   const a = S.weeklyAnnouncement(input, '2026-10-05');
-  assert.equal(a.subject, 'Brown bag on Monday 5 Oct 2026: Attila Lindner');
+  assert.equal(a.subject, 'Good Jobs Economics workshop, Monday 5 Oct 2026: Attila Lindner');
   assert.deepEqual(a.bcc, ['a@x.com']);
   assert.match(a.body, /Minimum wages/);
-  assert.match(a.body, /This coming Monday, 5 October, 12:00 to 13:00, at the Applied Micro Brown Bag seminar/);
-  assert.ok(!/sign up for lunch|Lunch is provided/i.test(a.body));   // no lunch is offered any more
-  assert.match(a.body, /bring your own lunch/);   // postscript wording can change freely                  // only the postscript mentions it
+  assert.match(a.body, /This coming Monday, 5 October, 12:00 to 13:00, at the Good Jobs Economics workshop/);
+  assert.match(a.body, /sign up for lunch by Friday at noon/);
+  assert.match(a.body, /rsvp\.example/);                  // only the postscript mentions it
   assert.match(a.body, /There are still open slots/);
   assert.match(a.body, /signup\.example/);
   assert.match(a.body, /unsubscribe/);
@@ -133,7 +133,7 @@ test('affiliation appears in the announcement and the lunch count', () => {
     today: '2026-10-08', minLeadDays: 7, signupUrl: SIGNUP, rsvpUrl: RSVP,
     signups: [{ ts: 1, name: 'Hao Hu', email: 'h@ucl.ac.uk', advisors: 'Hjort', role: 'PhD student', affiliation: 'UCL' }] };
   const a = S.weeklyAnnouncement(input, '2026-10-12');
-  assert.equal(a.subject, 'Brown bag on Monday 12 Oct 2026: Hao Hu (UCL)');
+  assert.equal(a.subject, 'Good Jobs Economics workshop, Monday 12 Oct 2026: Hao Hu (UCL)');
   assert.match(a.body, /Hao Hu \(UCL\)/);
   assert.match(S.rsvpReport(input, '2026-10-12').body, /Presenter: Hao Hu \(UCL\)/);
 });

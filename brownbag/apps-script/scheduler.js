@@ -422,11 +422,14 @@ function run(input) {
 
 // ---- emails -------------------------------------------------------------
 var PAGE_URL = 'https://avivihadar.github.io/brownbag/';
+var SEMINAR_NAME = 'Good Jobs Economics workshop';
+var SIGN_OFF = 'Hadar, Gabriel and Attila';
+var ERC_LOGO = 'https://avivihadar.github.io/brownbag/erc-logo.png';
 var ROOM = 'Room 321, Drayton House';
 var UNSUB_LINE = 'To stop receiving these, reply with "unsubscribe".';
 /* A short note added to the end of the announcement. Set to '' when it is no longer needed. */
-var ANNOUNCEMENT_PS = 'PS: please bring your own lunch. We are sorry we cannot provide it, ' +
-  'but we hope to see you anyway.';
+/* A short note at the end of the announcement. Set to '' when it is not needed. */
+var ANNOUNCEMENT_PS = '';
 
 function firstName(full) {
   var n = String(full || '').trim().replace(/\(.*?\)/g, ' ').replace(/\s+/g, ' ').trim();
@@ -501,7 +504,7 @@ function presenterReminders(input, date) {
   return talks.map(function (t) {
     var to = emailOf(t.presenter, input.signups, input.ledger);
     var lines = ['Dear ' + firstName(t.presenter) + ',', ''];
-    lines.push('A reminder that you are presenting at the Applied Micro Brown Bag on Monday ' +
+    lines.push('A reminder that you are presenting at the ' + SEMINAR_NAME + ' on Monday ' +
       longDate(date) + ', ' + t.start + ' to ' + t.end + ', ' + ROOM + '.');
     lines.push('Schedule: ' + PAGE_URL, '');
     if (!t.title) {
@@ -512,9 +515,9 @@ function presenterReminders(input, date) {
     if (isStudent(t.presenter, input.signups, input.known)) {
       lines.push('Feel free to invite faculty and visitors to your talk.', '');
     }
-    lines.push('See you on Monday,', 'Hadar and Gabriel');
+    lines.push('See you on Monday,', SIGN_OFF);
     return { kind: 'presenter', to: to ? [to] : [], presenter: t.presenter, date: date,
-      subject: 'Your brown bag talk on ' + labelForIso(date), body: lines.join('\n') };
+      subject: 'Your talk at the ' + SEMINAR_NAME + ' on ' + labelForIso(date), body: lines.join('\n') };
   }).filter(function (m) { return m.to.length; });
 }
 
@@ -524,26 +527,28 @@ function weeklyAnnouncement(input, date) {
   if (!talks.length) return null;
   var lines = ['Dear all,', ''];
   lines.push('This coming Monday, ' + longDate(date) + ', ' + timeRange(talks) +
-    ', at the Applied Micro Brown Bag seminar, ' + ROOM + ':', '');
+    ', at the ' + SEMINAR_NAME + ', ' + ROOM + ':', '');
   talks.forEach(function (t) {
     lines.push('  ' + nameWithAffiliation(t.presenter, input.signups, input.known) +
       (talks.length > 1 ? '  (' + t.start + '–' + t.end + ')' : ''));
     lines.push('  ' + (t.title || 'Title to be announced'), '');
   });
+  lines.push('Lunch is provided. If you have not already, please sign up for lunch by Friday at noon:');
+  lines.push(input.rsvpUrl(date, talks[0].presenter), '');
   var open = choiceDatesToKeep(input.schedule, input.today, input.minLeadDays);
   if (open.length) {
     lines.push('There are still open slots this year. To present, sign up here:');
     lines.push(input.signupUrl, '');
   }
   lines.push('Full schedule: ' + PAGE_URL, '');
-  lines.push('Best wishes,', 'Hadar and Gabriel');
+  lines.push('Best wishes,', SIGN_OFF);
   if (ANNOUNCEMENT_PS) lines.push('', ANNOUNCEMENT_PS);
   lines.push('', UNSUB_LINE);
-  var subject = 'Brown bag on Monday ' + labelForIso(date).replace(/^Mon /, '') + ': ' +
+  var subject = SEMINAR_NAME + ', Monday ' + labelForIso(date).replace(/^Mon /, '') + ': ' +
     talks.map(function (t) { return nameWithAffiliation(t.presenter, input.signups, input.known); }).join(' and ');
-  return { kind: 'announcement', to: [], bcc: mailingListAddresses(input.mailingList), date: date,
+  return { kind: 'announcement', to: [], bcc: mailingListAddresses(input.mailingList, input.organisers), date: date,
     subject: subject, body: lines.join('\n'),
-    html: announcementHtml(date, talks, input, { openSlots: open.length > 0 }) };
+    html: announcementHtml(date, talks, input, { openSlots: open.length > 0, rsvpUrl: input.rsvpUrl(date, talks[0].presenter) }) };
 }
 
 function escapeHtml(t) {
@@ -555,30 +560,33 @@ function announcementHtml(date, talks, input, extras) {
   var p = [];
   p.push('<p>Dear all,</p>');
   p.push('<p>This coming Monday, ' + escapeHtml(longDate(date)) + ', ' + escapeHtml(timeRange(talks)) +
-    ', at the Applied Micro Brown Bag seminar, ' + escapeHtml(ROOM) + ':</p>');
+    ', at the ' + escapeHtml(SEMINAR_NAME) + ', ' + escapeHtml(ROOM) + ':</p>');
   talks.forEach(function (t) {
     var who = '<strong>' + escapeHtml(nameWithAffiliation(t.presenter, input.signups, input.known)) + '</strong>';
     if (talks.length > 1) who += ' <span style="color:#52616e">(' + t.start + '–' + t.end + ')</span>';
     p.push('<p style="margin:0 0 4px 24px">' + who + '<br>' + escapeHtml(t.title || 'Title to be announced') + '</p>');
   });
-  p.push('<p></p>');
+  p.push('<p>Lunch is provided. If you have not already, please sign up for lunch by Friday at noon:<br>' +
+    '<a href="' + escapeHtml(extras.rsvpUrl) + '">' + escapeHtml(extras.rsvpUrl) + '</a></p>');
   if (extras.openSlots) {
     p.push('<p>There are still open slots this year. To present, sign up here:<br>' +
       '<a href="' + escapeHtml(input.signupUrl) + '">' + escapeHtml(input.signupUrl) + '</a></p>');
   }
   p.push('<p>Full schedule: <a href="' + PAGE_URL + '">' + PAGE_URL + '</a></p>');
-  p.push('<p>Best wishes,<br>Hadar and Gabriel</p>');
+  p.push('<p>Best wishes,<br>' + SIGN_OFF + '</p>');
   if (ANNOUNCEMENT_PS) p.push('<p>' + escapeHtml(ANNOUNCEMENT_PS) + '</p>');
   p.push('<p style="color:#52616e;font-size:90%">' + escapeHtml(UNSUB_LINE) + '</p>');
+  p.push('<p style="margin-top:18px"><img src="' + ERC_LOGO + '" width="220" alt="Funded by the European Union. European Research Council." style="display:block"></p>');
   return '<div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.5">' + p.join('\n') + '</div>';
 }
 
-function mailingListAddresses(list) {
+function mailingListAddresses(list, exclude) {
+  var skip = {};
+  (exclude || []).forEach(function (e) { skip[normaliseEmail(e)] = true; });
   var seen = {}, out = [];
   (list || []).forEach(function (m) {
     var e = normaliseEmail(m.email);
-    if (!e || m.unsubscribed) return;
-    if (seen[e]) return;
+    if (!e || m.unsubscribed || skip[e] || seen[e]) return;
     seen[e] = true; out.push(e);
   });
   return out;
@@ -603,6 +611,8 @@ function rsvpReport(input, date) {
   people.forEach(function (p) { lines.push('  ' + p.name + (p.dietary ? '   [' + p.dietary + ']' : '')); });
   if (!people.length) lines.push('  (nobody has signed up yet)');
   lines.push('');
+  lines.push('Lunch is provided. If you have not already, please sign up for lunch by Friday at noon:');
+  lines.push(input.rsvpUrl(date, talks[0].presenter), '');
   var open = choiceDatesToKeep(input.schedule, input.today, input.minLeadDays);
   if (open.length) {
     lines.push('Sign-up form still open for: ' + open.map(function (d) {

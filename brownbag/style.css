@@ -30,6 +30,9 @@ h1 { font-size: clamp(2rem, 4vw, 3.35rem); line-height: 1.08; margin-bottom: 12p
 .intro { max-width: 820px; margin-bottom: 26px; }
 .title-row { display: flex; align-items: center; gap: 22px; margin-bottom: 12px; }
 .title-row h1 { margin-bottom: 0; }
+.hosted-by { margin: 4px 0 0; font-size: .95rem; color: var(--muted); font-family: Georgia, serif; font-style: italic; }
+.funding { width: min(1180px, 100% - 40px); margin: 0 auto 10px; }
+.funding img { width: 320px; max-width: 100%; height: auto; }
 .logo { width: 150px; height: 150px; flex: none; }
 .lede { margin: 0 0 10px; font-size: 1.05rem; }
 .status { color: var(--muted); font-style: italic; margin: 10px 0 16px; }
@@ -87,7 +90,10 @@ footer a { color: #fff; }
   .brand b { font-size: 2.1rem; }
   main { padding: 16px 0 34px; }
   .title-row { gap: 14px; }
-  .logo { width: 96px; height: 96px; }
+  .logo { width: 72px; height: 72px; }
+  .hosted-by { font-size: .85rem; }
+  .funding { width: calc(100% - 28px); }
+  .funding img { width: 260px; }
   .week-list article { grid-template-columns: 68px 1fr; gap: 12px 15px; }
   .meta { grid-column: 2; }
 }
