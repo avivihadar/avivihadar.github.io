@@ -423,7 +423,7 @@ function run(input) {
 // ---- emails -------------------------------------------------------------
 var PAGE_URL = 'https://avivihadar.github.io/brownbag/';
 var SEMINAR_NAME = 'Good Jobs Economics workshop';
-var SEMINAR_WHERE = SEMINAR_NAME + ' at the brown bag seminar';
+var SEMINAR_WHERE = SEMINAR_NAME;
 var SIGN_OFF = 'Hadar, Gabriel and Attila';
 var ERC_LOGO = 'https://avivihadar.github.io/brownbag/erc-logo.png';
 var ROOM = 'Room 321, Drayton House';

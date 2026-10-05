@@ -12,7 +12,7 @@
  */
 
 var ORGANISERS = ['avivihadar@gmail.com', 'g.ulyssea@ucl.ac.uk'];   // where cc's and forwards go
-var SENDER_NAME = 'Applied Micro Brown Bag';
+var SENDER_NAME = 'Good Jobs Economics workshop';
 var REPLY_TO = 'appliedmicrobrownbag@gmail.com';   // replies land in the seminar inbox and are forwarded on
 var FORWARD_LABEL = 'forwarded-to-organisers';
 var SELF = 'appliedmicrobrownbag@gmail.com';
