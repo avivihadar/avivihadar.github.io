@@ -47,7 +47,7 @@ var TZ = 'Europe/London';
 
 var TAB = { schedule: 'Schedule', config: 'Config', ledger: 'Placements', unplaced: 'Unplaced', log: 'Log', rsvp: 'RSVP Responses', title: 'Title Responses', mailing: 'Mailing list', waitlist: 'Waitlist', waitlistResponses: 'Waiting list responses' };
 var WAITLIST_HEADER = ['added_on', 'name', 'email', 'slot_min', 'dates_they_offered', 'source', 'notes'];
-var ORGANISERS = ['avivihadar@gmail.com', 'g.ulyssea@ucl.ac.uk'];
+var ORGANISERS = ['avivihadar@gmail.com', 'g.ulyssea@ucl.ac.uk', 'a.lindner@ucl.ac.uk'];
 var SCHEDULE_HEADER = ['date', 'term', 'start', 'end', 'presenter', 'slot_min', 'title', 'rsvps', 'notes'];
 var LEDGER_HEADER = ['email', 'name', 'date', 'slot_min', 'placed_at', 'source', 'signup_ts'];
 var UNPLACED_HEADER = ['email', 'name', 'slot_min', 'dates_ticked', 'reason', 'first_seen'];
@@ -661,6 +661,7 @@ function emailInput() {
     ledger: readLedger(priv),
     rsvps: readRsvpResponses(priv),
     mailingList: readMailingList(priv),
+    organisers: ORGANISERS,
     known: readKnownPeople(priv),
     today: todayIso(),
     minLeadDays: MIN_LEAD_DAYS,

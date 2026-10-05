@@ -5,6 +5,7 @@ window.BROWNBAG_CONFIG = {
   sheetUrl: 'https://docs.google.com/spreadsheets/d/1FrSTTmb1R0YVlutTZnPVyiFJUjh6wYJrH_EHCxTHRg8/edit',
   // the year is full, so the page points at the waiting list rather than the sign-up form
   signupFormUrl: 'https://docs.google.com/forms/d/e/1FAIpQLSc1bhkFfn_vDyxRBlTnKuxUoBbFdli6gNVzQ8ODtnB9UEQRdg/viewform',
+  mailingListFormUrl: 'https://docs.google.com/forms/d/e/1FAIpQLSexb298J0nS1EHHr6TFDm1Mb7_p__6jrb1cM3ELMC7F1MR3jA/viewform',
   presentFormUrl: 'https://docs.google.com/forms/d/e/1FAIpQLSfdBgTn2Ln4IKRCTGZX0hZfnHl9VnV4VkI3GKJek_HyDbyhzQ/viewform',
   rsvp: { base: 'https://docs.google.com/forms/d/e/1FAIpQLSdukYj3saIX5hNFU8EnkDCwHfXcNOgT4MPUa8zB76wJJsqO7w/viewform', dateEntry: '1248190791', presenterEntry: '1087551335' },
   title: { base: 'https://docs.google.com/forms/d/e/1FAIpQLSdHPYqarvUvaGP7Rw8H5oQTNbjryGpXJ93zWxNeYfIZZ0o_nQ/viewform', dateEntry: '1204817799', presenterEntry: '271100489' },
