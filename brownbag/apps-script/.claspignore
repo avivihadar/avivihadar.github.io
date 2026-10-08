@@ -1,0 +1,6 @@
+test/**
+**/test/**
+package.json
+README.md
+.clasp.json
+.claspignore

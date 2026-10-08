@@ -560,7 +560,7 @@ function doGet(e) {
       addSignupsToMailingList: null, dedupeMailingList: null, recentLog: null, sendAnnouncement: null,
       checkRecipients: null, sendAnnouncementDraft: null, setConfig: null,
       addToWaitlist: null, syncWaitlist: null, readWaitlist: null, renameContact: null,
-      createWaitlistForm: null, importWaitlistResponses: null };
+      createWaitlistForm: null, importWaitlistResponses: null, mailingListWithRoles: null };
     if (task === 'previewFor') return jsonOut({ ok: true, task: task, output: previewText(e.parameter.date) });
     if (task === 'setPerson') return jsonOut(setPerson(e.parameter.name, e.parameter.role, e.parameter.affiliation));
     if (task === 'fixSignup') return jsonOut(fixSignup(e.parameter.match, e.parameter.name, e.parameter.email));
@@ -587,6 +587,7 @@ function doGet(e) {
     if (task === 'renameContact') return jsonOut(renameContact(e.parameter.email, e.parameter.name));
     if (task === 'createWaitlistForm') return jsonOut(createWaitlistForm());
     if (task === 'importWaitlistResponses') return jsonOut(importWaitlistResponses());
+    if (task === 'mailingListWithRoles') return jsonOut(mailingListWithRoles());
     if (!allowed[task]) return jsonOut({ ok: false, error: 'unknown task' });
     try { allowed[task](); return jsonOut({ ok: true, task: task }); }
     catch (err) { return jsonOut({ ok: false, task: task, error: String(err && err.message || err) }); }
@@ -914,6 +915,13 @@ function alertOrganiser(msg, err) {
  * Silence means it goes out as planned; setting pause_emails to yes in Config stops it.
  */
 function sendAnnouncementDraft() {
+  var paused = String(readConfig(SpreadsheetApp.getActive()).pause_emails || '').toLowerCase();
+  if (/^(y|yes|true|1|on)$/.test(paused)) {
+    console.log('draft held back: pause_emails is set');
+    appendLog(SpreadsheetApp.openById(PRIVATE_SHEET_ID),
+      [new Date(), 'emails', 'draft', '', '', '', 'held back: pause_emails is set in Config']);
+    return { ok: true, held: true };
+  }
   var input = emailInput();
   var msg = weeklyAnnouncement(input, nextMonday(input.today));
   var priv = SpreadsheetApp.openById(PRIVATE_SHEET_ID);
@@ -1436,3 +1444,22 @@ function importWaitlistResponses() {
   if (added.length) addToMailingList(added.join('; '));
   return { ok: true, added: added, addedCount: added.length, total: readWaitlist().length };
 }
+
+/** The mailing list with each person's position, where we know it. */
+function mailingListWithRoles() {
+  var priv = SpreadsheetApp.openById(PRIVATE_SHEET_ID);
+  var list = readMailingList(priv);
+  var signups = readSignups(priv);
+  var known = readKnownPeople(priv);
+  var byEmail = {};
+  signups.forEach(function (x) { if (x.email) byEmail[normaliseEmail(x.email)] = x; });
+  var out = list.map(function (m) {
+    var s = byEmail[m.email];
+    var k = known[normaliseName(m.name)] || (s ? known[normaliseName(s.name)] : null);
+    var role = (s && s.role) || (k && k.role) || '';
+    var affiliation = (s && s.affiliation) || (k && k.affiliation) || '';
+    return { name: m.name, email: m.email, role: role, affiliation: affiliation };
+  });
+  return { ok: true, total: out.length, people: out };
+}
+

@@ -4,3 +4,4 @@ CLAUDE.md
 
 # shared secret between the brown bag scheduler and mailer (pushed to Apps Script, never committed)
 brownbag/**/Secret.js
+brownbag/**/.clasp.json
