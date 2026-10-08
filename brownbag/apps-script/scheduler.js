@@ -620,14 +620,12 @@ function rsvpReport(input, date) {
   var lines = ['Lunch for Monday ' + longDate(date) + ', ' + ROOM + '.', ''];
   lines.push('Speaker: ' + talks.map(function (t) { return nameWithAffiliation(t.presenter, input.signups, input.known); }).join(', '));
   lines.push('People signed up: ' + people.length + ' (order a little more in case others come)', '');
-  people.forEach(function (p) { lines.push('  ' + p.name + (p.dietary ? '   [' + p.dietary + ']' : '')); });
-  lines.push('');
-  lines.push(diets.length ? 'Dietary requirements: ' + diets.map(function (p) { return p.name + ' (' + p.dietary + ')'; }).join('; ')
+  lines.push(diets.length ? 'Dietary requirements: ' + diets.map(function (p) { return p.dietary; }).join('; ')
                           : 'Dietary requirements: none reported.');
   lines.push('');
   lines.push('A few people usually turn up without signing up, so please allow for that.');
   lines.push('');
-  lines.push('Thank you,', SIGN_OFF);
+  lines.push('Thank you,', 'Hadar');
   return { kind: 'rsvpReport', to: LUNCH_TEAM.slice(), date: date,
     subject: 'Lunch for Monday ' + labelForIso(date).replace(/^Mon /, '') + ': ' + people.length + ' ' + (people.length === 1 ? 'person' : 'people'),
     body: lines.join('\n') };

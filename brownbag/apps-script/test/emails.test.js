@@ -100,9 +100,8 @@ test('lunch count: dedupes attendees, lists dietary notes, counts', () => {
   const r = S.rsvpReport(input, '2026-10-05');
   assert.equal(r.subject, 'Lunch for Monday 5 Oct 2026: 3 people');   // the two who signed up plus Hadar
   assert.match(r.body, /People signed up: 3/);
-  assert.match(r.body, /Hadar Avivi/);
-  assert.match(r.body, /Ann Lee/);
-  assert.match(r.body, /\[vegetarian\]/);
+  assert.ok(!/Ann Lee/.test(r.body));            // names are not listed any more
+  assert.match(r.body, /Dietary requirements: vegetarian/);
   assert.ok(!/Other Week/.test(r.body));
 });
 
