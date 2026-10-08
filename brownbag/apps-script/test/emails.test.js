@@ -98,8 +98,9 @@ test('lunch count: dedupes attendees, lists dietary notes, counts', () => {
     { ts: 3, date: 'Mon 5 Oct 2026', name: 'Ann Lee', dietary: 'vegetarian' },
     { ts: 4, date: 'Mon 12 Oct 2026', name: 'Other Week', dietary: '' }] });
   const r = S.rsvpReport(input, '2026-10-05');
-  assert.equal(r.subject, 'Lunch count for Monday 5 Oct 2026: 2 people');
-  assert.match(r.body, /RSVPs received: 2/);
+  assert.equal(r.subject, 'Lunch for Monday 5 Oct 2026: 3 people');   // the two who signed up plus Hadar
+  assert.match(r.body, /People signed up: 3/);
+  assert.match(r.body, /Hadar Avivi/);
   assert.match(r.body, /Ann Lee/);
   assert.match(r.body, /\[vegetarian\]/);
   assert.ok(!/Other Week/.test(r.body));
@@ -107,8 +108,8 @@ test('lunch count: dedupes attendees, lists dietary notes, counts', () => {
 
 test('lunch count with nobody signed up still sends', () => {
   const r = S.rsvpReport(baseInput(), '2026-10-05');
-  assert.match(r.subject, /0 people/);
-  assert.match(r.body, /nobody has signed up yet/);
+  assert.match(r.subject, /1 person/);          // Hadar is always counted
+  assert.match(r.body, /Dietary requirements: none reported/);
 });
 
 test('emailsFor picks the right message for each weekday', () => {
@@ -116,7 +117,9 @@ test('emailsFor picks the right message for each weekday', () => {
   assert.equal(mon.length, 1); assert.equal(mon[0].kind, 'presenter');
   const thu = S.emailsFor(baseInput({ today: '2026-10-01' }));
   assert.equal(thu[0].kind, 'announcement');
-  assert.deepEqual(S.emailsFor(baseInput({ today: '2026-10-02' })), []);   // Friday: nothing now
+  const fri = S.emailsFor(baseInput({ today: '2026-10-02' }));
+  assert.equal(fri[0].kind, 'rsvpReport');
+  assert.deepEqual(fri[0].to, ['lorenzo.sinno.25@ucl.ac.uk', 'tai.wu.23@ucl.ac.uk']);
   assert.deepEqual(S.emailsFor(baseInput({ today: '2026-09-30' })), []);   // Wednesday
   assert.deepEqual(S.emailsFor(baseInput({ today: '2026-10-03' })), []);   // Saturday
 });
@@ -135,7 +138,7 @@ test('affiliation appears in the announcement and the lunch count', () => {
   const a = S.weeklyAnnouncement(input, '2026-10-12');
   assert.equal(a.subject, 'Good Jobs Economics workshop, Monday 12 Oct 2026: Hao Hu (UCL)');
   assert.match(a.body, /Hao Hu \(UCL\)/);
-  assert.match(S.rsvpReport(input, '2026-10-12').body, /Presenter: Hao Hu \(UCL\)/);
+  assert.match(S.rsvpReport(input, '2026-10-12').body, /Speaker: Hao Hu \(UCL\)/);
 });
 
 test('affiliation falls back to the People tab; role decides student status', () => {

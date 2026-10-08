@@ -426,6 +426,10 @@ var SEMINAR_NAME = 'Good Jobs Economics workshop';
 var SEMINAR_WHERE = SEMINAR_NAME;
 var SIGN_OFF = 'Hadar, Gabriel and Attila';
 var ERC_LOGO = 'https://avivihadar.github.io/brownbag/erc-logo.png';
+/* The volunteers who order the lunch, and people counted in every week automatically. */
+var LUNCH_TEAM = ['lorenzo.sinno.25@ucl.ac.uk', 'tai.wu.23@ucl.ac.uk'];
+var STANDING_ATTENDEES = [{ name: 'Hadar Avivi', dietary: '' }];
+var ERC_CREDIT = 'This workshop is supported by ERC grant (grant number: 101231663 GoodJobsEconomics)';
 var ROOM = 'Room 321, Drayton House';
 var UNSUB_LINE = 'To stop receiving these, reply with "unsubscribe".';
 /* A short note added to the end of the announcement. Set to '' when it is no longer needed. */
@@ -544,7 +548,7 @@ function weeklyAnnouncement(input, date) {
   lines.push('Full schedule: ' + PAGE_URL, '');
   lines.push('Best wishes,', SIGN_OFF);
   if (ANNOUNCEMENT_PS) lines.push('', ANNOUNCEMENT_PS);
-  lines.push('', UNSUB_LINE);
+  lines.push('', UNSUB_LINE, '', ERC_CREDIT);
   var subject = SEMINAR_NAME + ', Monday ' + labelForIso(date).replace(/^Mon /, '') + ': ' +
     talks.map(function (t) { return nameWithAffiliation(t.presenter, input.signups, input.known); }).join(' and ');
   return { kind: 'announcement', to: [], bcc: mailingListAddresses(input.mailingList, input.organisers), date: date,
@@ -578,6 +582,7 @@ function announcementHtml(date, talks, input, extras) {
   if (ANNOUNCEMENT_PS) p.push('<p>' + escapeHtml(ANNOUNCEMENT_PS) + '</p>');
   p.push('<p style="color:#52616e;font-size:90%">' + escapeHtml(UNSUB_LINE) + '</p>');
   p.push('<p style="margin-top:18px"><img src="' + ERC_LOGO + '" width="110" alt="European Research Council" style="display:block"></p>');
+  p.push('<p style="color:#8a949c;font-size:11px;margin-top:4px">' + escapeHtml(ERC_CREDIT) + '</p>');
   return '<div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.5">' + p.join('\n') + '</div>';
 }
 
@@ -593,12 +598,16 @@ function mailingListAddresses(list, exclude) {
   return out;
 }
 
-/** Friday lunch count to the organisers. Returns null when nobody presents. */
+/** Friday lunch count for the volunteers who order the food. Null when nobody presents. */
 function rsvpReport(input, date) {
   var talks = talksOn(input.schedule, date);
   if (!talks.length) return null;
   var people = [];
   var seen = {};
+  STANDING_ATTENDEES.forEach(function (a) {       // counted in every week without signing up
+    seen[normaliseName(a.name)] = true;
+    people.push({ name: a.name, dietary: a.dietary || '' });
+  });
   (input.rsvps || []).forEach(function (r) {
     if (parseChoiceLabel(r.date) !== date) return;
     var key = normaliseName(r.name) || String(r.ts);
@@ -607,22 +616,20 @@ function rsvpReport(input, date) {
     people.push({ name: String(r.name || '').trim(), dietary: String(r.dietary || '').trim() });
   });
   people.sort(function (a, b) { return normaliseName(a.name) < normaliseName(b.name) ? -1 : 1; });
-  var lines = ['Presenter: ' + talks.map(function (t) { return nameWithAffiliation(t.presenter, input.signups, input.known); }).join(', ')];
-  lines.push('RSVPs received: ' + people.length, '');
+  var diets = people.filter(function (p) { return p.dietary; });
+  var lines = ['Lunch for Monday ' + longDate(date) + ', ' + ROOM + '.', ''];
+  lines.push('Speaker: ' + talks.map(function (t) { return nameWithAffiliation(t.presenter, input.signups, input.known); }).join(', '));
+  lines.push('People signed up: ' + people.length + ' (order a little more in case others come)', '');
   people.forEach(function (p) { lines.push('  ' + p.name + (p.dietary ? '   [' + p.dietary + ']' : '')); });
-  if (!people.length) lines.push('  (nobody has signed up yet)');
   lines.push('');
-  lines.push('Lunch is provided. If you have not already, please sign up for lunch by Friday at noon:');
-  lines.push(input.rsvpUrl(date, talks[0].presenter), '');
-  var open = choiceDatesToKeep(input.schedule, input.today, input.minLeadDays);
-  if (open.length) {
-    lines.push('Sign-up form still open for: ' + open.map(function (d) {
-      var used = usedMinutes(input.schedule, d);
-      return labelForIso(d) + (used === 30 ? ' (30 min)' : '');
-    }).join(', '));
-  }
-  return { kind: 'rsvpReport', to: [], date: date,
-    subject: 'Lunch count for Monday ' + labelForIso(date).replace(/^Mon /, '') + ': ' + people.length + ' ' + (people.length === 1 ? 'person' : 'people'),
+  lines.push(diets.length ? 'Dietary requirements: ' + diets.map(function (p) { return p.name + ' (' + p.dietary + ')'; }).join('; ')
+                          : 'Dietary requirements: none reported.');
+  lines.push('');
+  lines.push('A few people usually turn up without signing up, so please allow for that.');
+  lines.push('');
+  lines.push('Thank you,', SIGN_OFF);
+  return { kind: 'rsvpReport', to: LUNCH_TEAM.slice(), date: date,
+    subject: 'Lunch for Monday ' + labelForIso(date).replace(/^Mon /, '') + ': ' + people.length + ' ' + (people.length === 1 ? 'person' : 'people'),
     body: lines.join('\n') };
 }
 
@@ -636,7 +643,8 @@ function emailsFor(input) {
   var target = nextMonday(input.today);
   if (weekday === 1) return presenterReminders(input, target);
   if (weekday === 4) { var a = weeklyAnnouncement(input, target); return a ? [a] : []; }
-  return [];   // no Friday lunch count: lunch is not provided
+  if (weekday === 5) { var r = rsvpReport(input, target); return r ? [r] : []; }
+  return [];
 }
 
 if (typeof module !== 'undefined') {
