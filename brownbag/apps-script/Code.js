@@ -1525,7 +1525,8 @@ function retryPendingEmails() {
 
 /** Removes one-off retry triggers that have already run, so they do not pile up. */
 function dropSpentRetryTriggers() {
-  var live = ScriptApp.getProjectTriggers().filter(function (t) { return t.getHandlerFunction() === 'retryPendingEmails'; });
-  // keep at most the newest one; the rest have fired already
-  live.slice(0, Math.max(live.length - 1, 0)).forEach(function (t) { ScriptApp.deleteTrigger(t); });
+  // nothing is queued at this point, so every one-off retry trigger has done its job
+  ScriptApp.getProjectTriggers().forEach(function (t) {
+    if (t.getHandlerFunction() === 'retryPendingEmails') ScriptApp.deleteTrigger(t);
+  });
 }
