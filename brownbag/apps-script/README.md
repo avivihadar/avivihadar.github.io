@@ -61,9 +61,13 @@ secret. Three messages, all cc'ing Hadar and Gabriel, with replies directed to H
 |---|---|
 | Monday 09:00 | reminder to next Monday's presenter(s); asks for a title if we have none; students are told they may invite faculty in their field |
 | Thursday 13:00 | announcement to the mailing list (Bcc) with the talk, the lunch RSVP link and the Friday noon deadline; mentions open slots when there are any |
-| Friday 12:00 | lunch count and the list of names to the organisers |
+| Friday 13:00 | lunch numbers to the volunteers who order the food, organisers copied |
 
 Nothing is sent in a week where the coming Monday has no presenter.
+
+**If a send fails** Hadar is emailed at once with the error and the text that did not go out, and the
+message is tried again after ten minutes, up to three times. Successes and failures are recorded in
+the Log tab. `retryPendingEmails` runs the queue by hand.
 
 `previewFor('2026-10-01')` prints exactly what would go out on that date without sending anything.
 `previewEmails()` does the same for today and logs it. `sendScheduledEmails()` sends for real.

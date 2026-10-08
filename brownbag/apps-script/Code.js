@@ -560,7 +560,8 @@ function doGet(e) {
       addSignupsToMailingList: null, dedupeMailingList: null, recentLog: null, sendAnnouncement: null,
       checkRecipients: null, sendAnnouncementDraft: null, setConfig: null,
       addToWaitlist: null, syncWaitlist: null, readWaitlist: null, renameContact: null,
-      createWaitlistForm: null, importWaitlistResponses: null, mailingListWithRoles: null };
+      createWaitlistForm: null, importWaitlistResponses: null, mailingListWithRoles: null,
+      retryPendingEmails: null, queueTestRetry: null };
     if (task === 'previewFor') return jsonOut({ ok: true, task: task, output: previewText(e.parameter.date) });
     if (task === 'setPerson') return jsonOut(setPerson(e.parameter.name, e.parameter.role, e.parameter.affiliation));
     if (task === 'fixSignup') return jsonOut(fixSignup(e.parameter.match, e.parameter.name, e.parameter.email));
@@ -588,6 +589,9 @@ function doGet(e) {
     if (task === 'createWaitlistForm') return jsonOut(createWaitlistForm());
     if (task === 'importWaitlistResponses') return jsonOut(importWaitlistResponses());
     if (task === 'mailingListWithRoles') return jsonOut(mailingListWithRoles());
+    if (task === 'retryPendingEmails') return jsonOut(retryPendingEmails());
+    if (task === 'queueTestRetry') return jsonOut(queueRetry({ kind: 'test', subject: 'Brown bag: retry test',
+      body: 'If this arrives, the retry path works.', to: [ORGANISERS[0]], bcc: [] }, 1) || { ok: true, queued: true });
     if (!allowed[task]) return jsonOut({ ok: false, error: 'unknown task' });
     try { allowed[task](); return jsonOut({ ok: true, task: task }); }
     catch (err) { return jsonOut({ ok: false, task: task, error: String(err && err.message || err) }); }
@@ -888,6 +892,7 @@ function runEmails(test) {
       console.error(err);
       appendLog(priv, [new Date(), 'emails', m.kind, recipients, m.subject, '', 'FAILED: ' + String(err && err.message || err)]);
       alertOrganiser(m, err);
+      queueRetry(m, 1);
     }
   });
   return msgs;
@@ -898,7 +903,8 @@ function alertOrganiser(msg, err) {
   var text = ['An Applied Micro Brown Bag email could not be sent.', '',
     'Which one: ' + msg.kind, 'Subject: ' + msg.subject,
     'Error: ' + String(err && err.message || err), '',
-    'Nothing reached the mailing list. The schedule and the web page are unaffected.', '',
+    'Nothing reached the mailing list. The schedule and the web page are unaffected.',
+    'I will try again automatically in ten minutes, up to three times.', '',
     'The message it tried to send:', '', msg.body].join('\n');
   try {
     callMailerRaw({ to: [ORGANISERS[0]], cc: [], bcc: [],
@@ -1464,3 +1470,62 @@ function mailingListWithRoles() {
   return { ok: true, total: out.length, people: out };
 }
 
+
+// ---- retry a failed send ten minutes later --------------------------------
+var PENDING_KEY = 'PENDING_EMAILS';
+var MAX_RETRIES = 3;
+
+/** Remembers a message that failed and asks Apps Script to try again in ten minutes. */
+function queueRetry(msg, attempt) {
+  var props = PropertiesService.getScriptProperties();
+  var pending = [];
+  try { pending = JSON.parse(props.getProperty(PENDING_KEY) || '[]'); } catch (e) { pending = []; }
+  pending.push({
+    kind: msg.kind, subject: msg.subject, body: msg.body, html: msg.html || '',
+    to: (msg.to && msg.to.length) ? msg.to : ORGANISERS,
+    cc: (msg.to && msg.to.length) ? ORGANISERS : [],
+    bcc: msg.bcc || [], attempt: attempt || 1, queuedAt: new Date().toISOString()
+  });
+  props.setProperty(PENDING_KEY, JSON.stringify(pending));
+  ScriptApp.newTrigger('retryPendingEmails').timeBased().after(10 * 60 * 1000).create();
+  console.log('queued a retry for ' + msg.kind + ' in 10 minutes (attempt ' + (attempt || 1) + ')');
+}
+
+/** Tries the queued messages again. Runs from a one-off trigger; cleans up after itself. */
+function retryPendingEmails() {
+  var props = PropertiesService.getScriptProperties();
+  var priv = SpreadsheetApp.openById(PRIVATE_SHEET_ID);
+  var pending = [];
+  try { pending = JSON.parse(props.getProperty(PENDING_KEY) || '[]'); } catch (e) { pending = []; }
+  props.deleteProperty(PENDING_KEY);
+  dropSpentRetryTriggers();
+  if (!pending.length) return { ok: true, nothing: true };
+
+  var sent = 0, failed = 0;
+  pending.forEach(function (m) {
+    var who = m.to.join(', ') + (m.bcc.length ? ' + ' + m.bcc.length + ' bcc' : '');
+    try {
+      callMailerRaw(m, false);
+      sent++;
+      appendLog(priv, [new Date(), 'emails', m.kind, who, m.subject, '', 'sent on retry (attempt ' + m.attempt + ')']);
+    } catch (err) {
+      failed++;
+      appendLog(priv, [new Date(), 'emails', m.kind, who, m.subject, '',
+        'RETRY ' + m.attempt + ' FAILED: ' + String(err && err.message || err)]);
+      if (m.attempt < MAX_RETRIES) {
+        queueRetry(m, m.attempt + 1);
+      } else {
+        alertOrganiser(m, new Error('gave up after ' + MAX_RETRIES + ' attempts: ' + (err && err.message || err)));
+      }
+    }
+  });
+  console.log('retry: ' + sent + ' sent, ' + failed + ' failed');
+  return { ok: true, sent: sent, failed: failed };
+}
+
+/** Removes one-off retry triggers that have already run, so they do not pile up. */
+function dropSpentRetryTriggers() {
+  var live = ScriptApp.getProjectTriggers().filter(function (t) { return t.getHandlerFunction() === 'retryPendingEmails'; });
+  // keep at most the newest one; the rest have fired already
+  live.slice(0, Math.max(live.length - 1, 0)).forEach(function (t) { ScriptApp.deleteTrigger(t); });
+}
