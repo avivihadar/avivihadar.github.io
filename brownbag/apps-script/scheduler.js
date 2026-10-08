@@ -620,8 +620,19 @@ function rsvpReport(input, date) {
   var lines = ['Lunch for Monday ' + longDate(date) + ', ' + ROOM + '.', ''];
   lines.push('Speaker: ' + talks.map(function (t) { return nameWithAffiliation(t.presenter, input.signups, input.known); }).join(', '));
   lines.push('People signed up: ' + people.length + ' (order a little more in case others come)', '');
-  lines.push(diets.length ? 'Dietary requirements: ' + diets.map(function (p) { return p.dietary; }).join('; ')
-                          : 'Dietary requirements: none reported.');
+  if (!diets.length) {
+    lines.push('Dietary requirements: none reported.');
+  } else {
+    // group identical answers so the count for each requirement is clear
+    var counts = {}, order = [];
+    diets.forEach(function (p) {
+      var key = p.dietary.trim();
+      var seenKey = Object.keys(counts).filter(function (k) { return k.toLowerCase() === key.toLowerCase(); })[0];
+      if (seenKey) { counts[seenKey]++; } else { counts[key] = 1; order.push(key); }
+    });
+    lines.push('Dietary requirements:');
+    order.forEach(function (k) { lines.push('  ' + counts[k] + ' x ' + k); });
+  }
   lines.push('');
   lines.push('A few people usually turn up without signing up, so please allow for that.');
   lines.push('');

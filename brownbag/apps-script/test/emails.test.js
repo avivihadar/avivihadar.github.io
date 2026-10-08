@@ -101,7 +101,7 @@ test('lunch count: dedupes attendees, lists dietary notes, counts', () => {
   assert.equal(r.subject, 'Lunch for Monday 5 Oct 2026: 3 people');   // the two who signed up plus Hadar
   assert.match(r.body, /People signed up: 3/);
   assert.ok(!/Ann Lee/.test(r.body));            // names are not listed any more
-  assert.match(r.body, /Dietary requirements: vegetarian/);
+  assert.match(r.body, /Dietary requirements:\n  1 x vegetarian/);
   assert.ok(!/Other Week/.test(r.body));
 });
 
