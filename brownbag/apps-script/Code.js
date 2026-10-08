@@ -48,6 +48,8 @@ var TZ = 'Europe/London';
 var TAB = { schedule: 'Schedule', config: 'Config', ledger: 'Placements', unplaced: 'Unplaced', log: 'Log', rsvp: 'RSVP Responses', title: 'Title Responses', mailing: 'Mailing list', waitlist: 'Waitlist', waitlistResponses: 'Waiting list responses' };
 var WAITLIST_HEADER = ['added_on', 'name', 'email', 'slot_min', 'dates_they_offered', 'source', 'notes'];
 var ORGANISERS = ['avivihadar@gmail.com', 'g.ulyssea@ucl.ac.uk', 'a.lindner@ucl.ac.uk'];
+/* Tests, rehearsals and drafts go to Hadar alone, never to the other organisers. */
+var TEST_RECIPIENT = 'avivihadar@gmail.com';
 var SCHEDULE_HEADER = ['date', 'term', 'start', 'end', 'presenter', 'slot_min', 'title', 'rsvps', 'notes'];
 var LEDGER_HEADER = ['email', 'name', 'date', 'slot_min', 'placed_at', 'source', 'signup_ts'];
 var UNPLACED_HEADER = ['email', 'name', 'slot_min', 'dates_ticked', 'reason', 'first_seen'];
@@ -591,7 +593,7 @@ function doGet(e) {
     if (task === 'mailingListWithRoles') return jsonOut(mailingListWithRoles());
     if (task === 'retryPendingEmails') return jsonOut(retryPendingEmails());
     if (task === 'queueTestRetry') return jsonOut(queueRetry({ kind: 'test', subject: 'Brown bag: retry test',
-      body: 'If this arrives, the retry path works.', to: [ORGANISERS[0]], bcc: [] }, 1) || { ok: true, queued: true });
+      body: 'If this arrives, the retry path works.', to: [ORGANISERS[0]], cc: [], bcc: [] }, 1) || { ok: true, queued: true });
     if (!allowed[task]) return jsonOut({ ok: false, error: 'unknown task' });
     try { allowed[task](); return jsonOut({ ok: true, task: task }); }
     catch (err) { return jsonOut({ ok: false, task: task, error: String(err && err.message || err) }); }
@@ -907,7 +909,7 @@ function alertOrganiser(msg, err) {
     'I will try again automatically in ten minutes, up to three times.', '',
     'The message it tried to send:', '', msg.body].join('\n');
   try {
-    callMailerRaw({ to: [ORGANISERS[0]], cc: [], bcc: [],
+    callMailerRaw({ to: [TEST_RECIPIENT], cc: [], bcc: [],
       subject: 'Brown bag: an email FAILED to send (' + msg.kind + ')', body: text }, false);
   } catch (e) {
     console.error('could not even send the alert: ' + e);
@@ -945,7 +947,7 @@ function sendAnnouncementDraft() {
     '<p>If you want anything changed, say so within the hour. If I hear nothing it goes out as it stands.<br>' +
     'To stop it, set <b>pause_emails</b> to <b>yes</b> on the Config tab of the schedule spreadsheet.</p>' +
     '<hr><p><b>Subject:</b> ' + escapeHtml(msg.subject) + '</p></div>' + msg.html;
-  callMailerRaw({ to: [ORGANISERS[0]], cc: [], bcc: [],
+  callMailerRaw({ to: [TEST_RECIPIENT], cc: [], bcc: [],
     subject: 'Draft for 13:00 today: ' + msg.subject, body: header, html: headerHtml }, false);
   appendLog(priv, [new Date(), 'emails', 'draft', ORGANISERS[0], msg.subject, '', 'draft sent an hour ahead']);
   return { ok: true, sentTo: ORGANISERS[0], subject: msg.subject, wouldReach: msg.bcc.length + ORGANISERS.length };
@@ -1279,7 +1281,7 @@ function sendAnnouncement(dateIso, only) {
   if (!msg) return { ok: false, error: 'nothing to announce for ' + date };
   var priv = SpreadsheetApp.openById(PRIVATE_SHEET_ID);
   if (only) {
-    var res = callMailerRaw({ to: [only], cc: [], bcc: [],
+    var res = callMailerRaw({ to: [only || TEST_RECIPIENT], cc: [], bcc: [],
       subject: '[rehearsal] ' + msg.subject, body: msg.body, html: msg.html }, false);
     return { ok: true, rehearsalTo: only, subject: msg.subject, recipientsItWouldReach: msg.bcc.length + ORGANISERS.length };
   }
@@ -1483,7 +1485,9 @@ function queueRetry(msg, attempt) {
   pending.push({
     kind: msg.kind, subject: msg.subject, body: msg.body, html: msg.html || '',
     to: (msg.to && msg.to.length) ? msg.to : ORGANISERS,
-    cc: (msg.to && msg.to.length) ? ORGANISERS : [],
+    // an explicit cc wins, so tests and rehearsals reach Hadar only
+    cc: Object.prototype.hasOwnProperty.call(msg, 'cc') ? (msg.cc || [])
+        : ((msg.to && msg.to.length) ? ORGANISERS : []),
     bcc: msg.bcc || [], attempt: attempt || 1, queuedAt: new Date().toISOString()
   });
   props.setProperty(PENDING_KEY, JSON.stringify(pending));

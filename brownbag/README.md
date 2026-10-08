@@ -93,6 +93,10 @@ repo (`.gitignore` excludes `brownbag/**/Secret.js`). Never print it in chat or 
 
 Every email is cc'd to Hadar and Gabriel and has its reply-to set to the seminar inbox.
 
+**Tests go to Hadar alone.** Any test, rehearsal, draft or failure alert goes to
+avivihadar@gmail.com only (`TEST_RECIPIENT` in the scheduler). Gabriel and Attila are copied on the
+real seminar emails and nothing else.
+
 **Approval and failures.** No email goes to the mailing list without Hadar seeing it first: the draft
 arrives an hour ahead. If a send fails, Hadar gets an email saying which one, the error and the full
 text that was not sent, and the failure is written to the Log tab. The Log records the recipient
