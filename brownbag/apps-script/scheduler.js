@@ -611,7 +611,7 @@ function lunchReminder(input, date) {
   lines.push('If you are coming to the ' + SEMINAR_NAME + ' on Monday ' + longDate(date) +
     ', please sign up for lunch by noon today so we order enough.');
   lines.push('', url, '');
-  lines.push(who + ' is speaking.');
+  lines.push(who + (talks.length > 1 ? ' are speaking.' : ' is speaking.'));
   talks.forEach(function (t) { if (t.title) lines.push('  ' + t.title); });
   lines.push('', 'If you have already signed up, thank you, there is nothing to do.', '');
   lines.push('Best wishes,', SIGN_OFF, '', UNSUB_LINE, '', ERC_CREDIT);
@@ -621,7 +621,7 @@ function lunchReminder(input, date) {
   p.push('<p>If you are coming to the ' + escapeHtml(SEMINAR_NAME) + ' on Monday ' +
     escapeHtml(longDate(date)) + ', please <a href="' + escapeHtml(url) +
     '">sign up for lunch</a> by noon today so we order enough.</p>');
-  p.push('<p><strong>' + escapeHtml(who) + '</strong> is speaking.' +
+  p.push('<p><strong>' + escapeHtml(who) + '</strong>' + (talks.length > 1 ? ' are speaking.' : ' is speaking.') +
     (talks[0].title ? '<br>' + escapeHtml(talks[0].title) : '') + '</p>');
   p.push('<p>If you have already signed up, thank you, there is nothing to do.</p>');
   p.push('<p>Best wishes,<br>' + SIGN_OFF + '</p>');
