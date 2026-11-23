@@ -564,7 +564,7 @@ function doGet(e) {
       addToWaitlist: null, syncWaitlist: null, readWaitlist: null, renameContact: null,
       createWaitlistForm: null, importWaitlistResponses: null, mailingListWithRoles: null,
       retryPendingEmails: null, queueTestRetry: null, sendLunchReminder: sendLunchReminder,
-      rehearseLunchReminder: null };
+      rehearseLunchReminder: null, previewLunchReminder: null };
     if (task === 'previewFor') return jsonOut({ ok: true, task: task, output: previewText(e.parameter.date) });
     if (task === 'setPerson') return jsonOut(setPerson(e.parameter.name, e.parameter.role, e.parameter.affiliation));
     if (task === 'fixSignup') return jsonOut(fixSignup(e.parameter.match, e.parameter.name, e.parameter.email));
@@ -594,6 +594,11 @@ function doGet(e) {
     if (task === 'mailingListWithRoles') return jsonOut(mailingListWithRoles());
     if (task === 'retryPendingEmails') return jsonOut(retryPendingEmails());
     if (task === 'rehearseLunchReminder') return jsonOut(rehearseLunchReminder(e.parameter.date));
+    if (task === 'previewLunchReminder') {
+      var li = emailInput();
+      var lm = lunchReminder(li, parseChoiceLabel(e.parameter.date) || e.parameter.date || nextMonday(li.today));
+      return jsonOut({ ok: true, subject: lm ? lm.subject : null, body: lm ? lm.body : null });
+    }
     if (task === 'queueTestRetry') return jsonOut(queueRetry({ kind: 'test', subject: 'Brown bag: retry test',
       body: 'If this arrives, the retry path works.', to: [ORGANISERS[0]], cc: [], bcc: [] }, 1) || { ok: true, queued: true });
     if (!allowed[task]) return jsonOut({ ok: false, error: 'unknown task' });
