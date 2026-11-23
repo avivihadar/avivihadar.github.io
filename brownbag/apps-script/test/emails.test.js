@@ -114,12 +114,12 @@ test('lunch count with nobody signed up still sends', () => {
 test('emailsFor picks the right message for each weekday', () => {
   const mon = S.emailsFor(baseInput({ today: '2026-09-28' }));
   assert.equal(mon.length, 1); assert.equal(mon[0].kind, 'presenter');
-  const thu = S.emailsFor(baseInput({ today: '2026-10-01' }));
-  assert.equal(thu[0].kind, 'announcement');
+  const wed = S.emailsFor(baseInput({ today: '2026-09-30' }));
+  assert.equal(wed[0].kind, 'announcement');
   const fri = S.emailsFor(baseInput({ today: '2026-10-02' }));
   assert.equal(fri[0].kind, 'rsvpReport');
   assert.deepEqual(fri[0].to, ['lorenzo.sinno.25@ucl.ac.uk', 'tai.wu.23@ucl.ac.uk']);
-  assert.deepEqual(S.emailsFor(baseInput({ today: '2026-09-30' })), []);   // Wednesday
+  assert.deepEqual(S.emailsFor(baseInput({ today: '2026-10-01' })), []);   // Thursday
   assert.deepEqual(S.emailsFor(baseInput({ today: '2026-10-03' })), []);   // Saturday
 });
 

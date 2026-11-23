@@ -86,8 +86,8 @@ repo (`.gitignore` excludes `brownbag/**/Secret.js`). Never print it in chat or 
 |---|---|
 | Every day, 12:00 | `dailyJob`: places new sign-ups, merges titles, counts RSVPs, adds or drops Mondays to match `SEMINAR_DATES`, prunes the sign-up form's dates, writes a summary to the **Log** tab |
 | Monday, 09:00 | Reminder to next Monday's presenter(s). Asks for a title if none is on file. Students are told they may invite faculty to their talk. |
-| Thursday, 12:00 | The exact draft of the 13:00 announcement goes to Hadar alone. Silence means it goes out as it stands. To stop it, set `pause_emails` to `yes` on the Config tab. |
-| Thursday, 13:00 | Announcement to the mailing list in Bcc, sent as plain text and HTML with the presenter's name in bold: presenter with affiliation, title, lunch RSVP link, Friday noon deadline, open slots if any, unsubscribe line. **Nothing is sent when the coming Monday has no presenter.** |
+| Wednesday, 12:00 | The exact draft of the 13:00 announcement goes to Hadar alone. Silence means it goes out as it stands. To stop it, set `pause_emails` to `yes` on the Config tab. |
+| Wednesday, 13:00 | Announcement to the mailing list in Bcc, sent as plain text and HTML with the presenter's name in bold: presenter with affiliation, title, lunch RSVP link, Friday noon deadline, open slots if any, unsubscribe line. **Nothing is sent when the coming Monday has no presenter.** |
 | Friday, 12:00 | Lunch count and the list of names, to Hadar and Gabriel |
 | Every 15 minutes (mailer) | Forwards new mail in the seminar inbox to Hadar and Gabriel unless both are already on it |
 

@@ -1000,11 +1000,11 @@ function installTriggers() {
   });
   ScriptApp.newTrigger('dailyJob').timeBased().atHour(12).everyDays(1).inTimezone(TZ).create();
   ScriptApp.newTrigger('sendScheduledEmails').timeBased().onWeekDay(ScriptApp.WeekDay.MONDAY).atHour(9).inTimezone(TZ).create();
-  ScriptApp.newTrigger('sendScheduledEmails').timeBased().onWeekDay(ScriptApp.WeekDay.THURSDAY).atHour(13).inTimezone(TZ).create();
-  ScriptApp.newTrigger('sendAnnouncementDraft').timeBased().onWeekDay(ScriptApp.WeekDay.THURSDAY).atHour(12).inTimezone(TZ).create();
+  ScriptApp.newTrigger('sendScheduledEmails').timeBased().onWeekDay(ScriptApp.WeekDay.WEDNESDAY).atHour(13).inTimezone(TZ).create();
+  ScriptApp.newTrigger('sendAnnouncementDraft').timeBased().onWeekDay(ScriptApp.WeekDay.WEDNESDAY).atHour(12).inTimezone(TZ).create();
   ScriptApp.newTrigger('sendLunchReminder').timeBased().onWeekDay(ScriptApp.WeekDay.FRIDAY).atHour(8).inTimezone(TZ).create();
   ScriptApp.newTrigger('sendScheduledEmails').timeBased().onWeekDay(ScriptApp.WeekDay.FRIDAY).atHour(13).inTimezone(TZ).create();
-  console.log('triggers installed: daily 12:00, presenter Mon 09:00, draft Thu 12:00, announcement Thu 13:00, lunch Fri 13:00');
+  console.log('triggers installed: daily 12:00, presenter Mon 09:00, draft Wed 12:00, announcement Wed 13:00, lunch reminder Fri 08:00, lunch count Fri 13:00');
 }
 
 /** Stores the mailer address and secret. */
@@ -1055,7 +1055,7 @@ function emailMeTheDrafts() {
   var monday = nextMonday(input.today);
   var sets = [
     ['Monday 09:00 to the presenter(s)', presenterReminders(input, monday)],
-    ['Thursday 13:00 to the mailing list', [weeklyAnnouncement(input, monday)]],
+    ['Wednesday 13:00 to the mailing list', [weeklyAnnouncement(input, monday)]],
     ['Friday 12:00 to the organisers', [rsvpReport(input, monday)]]
   ];
   var out = ['Drafts for the seminar on ' + labelForIso(monday) + '.',

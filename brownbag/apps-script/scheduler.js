@@ -514,7 +514,7 @@ function presenterReminders(input, date) {
     lines.push('Schedule: ' + PAGE_URL, '');
     if (!t.title) {
       lines.push('We do not have a title for your talk yet. Please add it today so it can go into ' +
-        'Thursday’s announcement: open the schedule page, click "Add title" under your name, ' +
+        'Wednesday’s announcement: open the schedule page, click "Add title" under your name, ' +
         'enter the email address you used on the sign-up form, and type the title.', '');
     }
     if (isStudent(t.presenter, input.signups, input.known)) {
@@ -526,7 +526,7 @@ function presenterReminders(input, date) {
   }).filter(function (m) { return m.to.length; });
 }
 
-/** Thursday announcement. Returns null when the coming Monday has no presenter. */
+/** Wednesday announcement. Returns null when the coming Monday has no presenter. */
 function weeklyAnnouncement(input, date) {
   var talks = talksOn(input.schedule, date);
   if (!talks.length) return null;
@@ -681,14 +681,14 @@ function rsvpReport(input, date) {
 
 /**
  * Messages due today. `weekday`: 0=Sun..6=Sat, derived from input.today.
- * Monday -> presenter reminders; Thursday -> announcement; Friday -> lunch count.
+ * Monday -> presenter reminders; Wednesday -> announcement; Friday -> lunch count.
  */
 function emailsFor(input) {
   var p = input.today.split('-').map(Number);
   var weekday = new Date(Date.UTC(p[0], p[1] - 1, p[2])).getUTCDay();
   var target = nextMonday(input.today);
   if (weekday === 1) return presenterReminders(input, target);
-  if (weekday === 4) { var a = weeklyAnnouncement(input, target); return a ? [a] : []; }
+  if (weekday === 3) { var a = weeklyAnnouncement(input, target); return a ? [a] : []; }
   if (weekday === 5) { var r = rsvpReport(input, target); return r ? [r] : []; }
   return [];
 }

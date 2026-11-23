@@ -60,7 +60,7 @@ secret. Three messages, all cc'ing Hadar and Gabriel, with replies directed to H
 | When | What |
 |---|---|
 | Monday 09:00 | reminder to next Monday's presenter(s); asks for a title if we have none; students are told they may invite faculty in their field |
-| Thursday 13:00 | announcement to the mailing list (Bcc) with the talk, the lunch RSVP link and the Friday noon deadline; mentions open slots when there are any |
+| Wednesday 13:00 | announcement to the mailing list (Bcc) with the talk, the lunch RSVP link and the Friday noon deadline; mentions open slots when there are any |
 | Friday 13:00 | lunch numbers to the volunteers who order the food, organisers copied |
 
 Nothing is sent in a week where the coming Monday has no presenter.
