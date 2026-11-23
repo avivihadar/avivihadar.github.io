@@ -598,6 +598,43 @@ function mailingListAddresses(list, exclude) {
   return out;
 }
 
+/**
+ * Friday morning nudge to the whole list: sign up for lunch before the noon deadline.
+ * Null when nobody is presenting on the coming Monday.
+ */
+function lunchReminder(input, date) {
+  var talks = talksOn(input.schedule, date);
+  if (!talks.length) return null;
+  var who = talks.map(function (t) { return nameWithAffiliation(t.presenter, input.signups, input.known); }).join(' and ');
+  var url = input.rsvpUrl(date, talks[0].presenter);
+  var lines = ['Dear all,', ''];
+  lines.push('If you are coming to the ' + SEMINAR_NAME + ' on Monday ' + longDate(date) +
+    ', please sign up for lunch by noon today so we order enough.');
+  lines.push('', url, '');
+  lines.push(who + ' is speaking.');
+  talks.forEach(function (t) { if (t.title) lines.push('  ' + t.title); });
+  lines.push('', 'If you have already signed up, thank you, there is nothing to do.', '');
+  lines.push('Best wishes,', SIGN_OFF, '', UNSUB_LINE, '', ERC_CREDIT);
+
+  var p = [];
+  p.push('<p>Dear all,</p>');
+  p.push('<p>If you are coming to the ' + escapeHtml(SEMINAR_NAME) + ' on Monday ' +
+    escapeHtml(longDate(date)) + ', please <a href="' + escapeHtml(url) +
+    '">sign up for lunch</a> by noon today so we order enough.</p>');
+  p.push('<p><strong>' + escapeHtml(who) + '</strong> is speaking.' +
+    (talks[0].title ? '<br>' + escapeHtml(talks[0].title) : '') + '</p>');
+  p.push('<p>If you have already signed up, thank you, there is nothing to do.</p>');
+  p.push('<p>Best wishes,<br>' + SIGN_OFF + '</p>');
+  p.push('<p style="color:#52616e;font-size:90%">' + escapeHtml(UNSUB_LINE) + '</p>');
+  p.push('<p style="margin-top:18px"><img src="' + ERC_LOGO + '" width="110" alt="European Research Council" style="display:block"></p>');
+  p.push('<p style="color:#8a949c;font-size:11px;margin-top:4px">' + escapeHtml(ERC_CREDIT) + '</p>');
+
+  return { kind: 'lunchReminder', to: [], bcc: mailingListAddresses(input.mailingList, input.organisers), date: date,
+    subject: 'Lunch on Monday ' + labelForIso(date).replace(/^Mon /, '') + ': please sign up by noon today',
+    body: lines.join('\n'),
+    html: '<div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.5">' + p.join('\n') + '</div>' };
+}
+
 /** Friday lunch count for the volunteers who order the food. Null when nobody presents. */
 function rsvpReport(input, date) {
   var talks = talksOn(input.schedule, date);
@@ -667,6 +704,7 @@ if (typeof module !== 'undefined') {
     firstName: firstName, nextMonday: nextMonday, isStudent: isStudent, emailOf: emailOf, longDate: longDate,
     affiliationOf: affiliationOf, roleOf: roleOf, nameWithAffiliation: nameWithAffiliation, announcementHtml: announcementHtml,
     presenterReminders: presenterReminders, weeklyAnnouncement: weeklyAnnouncement, rsvpReport: rsvpReport,
+    lunchReminder: lunchReminder,
     mailingListAddresses: mailingListAddresses, emailsFor: emailsFor, applyRsvps: applyRsvps, sortSchedule: sortSchedule, run: run
   };
 }

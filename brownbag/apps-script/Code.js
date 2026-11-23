@@ -563,7 +563,7 @@ function doGet(e) {
       checkRecipients: null, sendAnnouncementDraft: null, setConfig: null,
       addToWaitlist: null, syncWaitlist: null, readWaitlist: null, renameContact: null,
       createWaitlistForm: null, importWaitlistResponses: null, mailingListWithRoles: null,
-      retryPendingEmails: null, queueTestRetry: null };
+      retryPendingEmails: null, queueTestRetry: null, sendLunchReminder: sendLunchReminder };
     if (task === 'previewFor') return jsonOut({ ok: true, task: task, output: previewText(e.parameter.date) });
     if (task === 'setPerson') return jsonOut(setPerson(e.parameter.name, e.parameter.role, e.parameter.affiliation));
     if (task === 'fixSignup') return jsonOut(fixSignup(e.parameter.match, e.parameter.name, e.parameter.email));
@@ -994,12 +994,13 @@ function updateSignupForm() {
 
 function installTriggers() {
   ScriptApp.getProjectTriggers().forEach(function (t) {
-    if (['dailyJob', 'sendScheduledEmails', 'sendAnnouncementDraft'].indexOf(t.getHandlerFunction()) >= 0) ScriptApp.deleteTrigger(t);
+    if (['dailyJob', 'sendScheduledEmails', 'sendAnnouncementDraft', 'sendLunchReminder'].indexOf(t.getHandlerFunction()) >= 0) ScriptApp.deleteTrigger(t);
   });
   ScriptApp.newTrigger('dailyJob').timeBased().atHour(12).everyDays(1).inTimezone(TZ).create();
   ScriptApp.newTrigger('sendScheduledEmails').timeBased().onWeekDay(ScriptApp.WeekDay.MONDAY).atHour(9).inTimezone(TZ).create();
   ScriptApp.newTrigger('sendScheduledEmails').timeBased().onWeekDay(ScriptApp.WeekDay.THURSDAY).atHour(13).inTimezone(TZ).create();
   ScriptApp.newTrigger('sendAnnouncementDraft').timeBased().onWeekDay(ScriptApp.WeekDay.THURSDAY).atHour(12).inTimezone(TZ).create();
+  ScriptApp.newTrigger('sendLunchReminder').timeBased().onWeekDay(ScriptApp.WeekDay.FRIDAY).atHour(8).inTimezone(TZ).create();
   ScriptApp.newTrigger('sendScheduledEmails').timeBased().onWeekDay(ScriptApp.WeekDay.FRIDAY).atHour(13).inTimezone(TZ).create();
   console.log('triggers installed: daily 12:00, presenter Mon 09:00, draft Thu 12:00, announcement Thu 13:00, lunch Fri 13:00');
 }
@@ -1533,4 +1534,28 @@ function dropSpentRetryTriggers() {
   ScriptApp.getProjectTriggers().forEach(function (t) {
     if (t.getHandlerFunction() === 'retryPendingEmails') ScriptApp.deleteTrigger(t);
   });
+}
+
+/** Friday 08:00: nudges the mailing list to sign up for lunch before noon. */
+function sendLunchReminder() {
+  var priv = SpreadsheetApp.openById(PRIVATE_SHEET_ID);
+  var paused = String(readConfig(SpreadsheetApp.getActive()).pause_emails || '').toLowerCase();
+  if (/^(y|yes|true|1|on)$/.test(paused)) {
+    appendLog(priv, [new Date(), 'emails', 'lunchReminder', '', '', '', 'held back: pause_emails is set in Config']);
+    return { ok: true, held: true };
+  }
+  var input = emailInput();
+  var msg = lunchReminder(input, nextMonday(input.today));
+  if (!msg) { appendLog(priv, [new Date(), 'emails', 'lunchReminder', '', '', '', 'no seminar next Monday']); return { ok: true, nothing: true }; }
+  var who = ORGANISERS.join(', ') + ' + ' + msg.bcc.length + ' bcc';
+  try {
+    callMailer(msg, false);
+    appendLog(priv, [new Date(), 'emails', 'lunchReminder', who, msg.subject, '', 'sent']);
+    return { ok: true, sentTo: msg.bcc.length + ORGANISERS.length, subject: msg.subject };
+  } catch (err) {
+    appendLog(priv, [new Date(), 'emails', 'lunchReminder', who, msg.subject, '', 'FAILED: ' + String(err && err.message || err)]);
+    alertOrganiser(msg, err);
+    queueRetry(msg, 1);
+    return { ok: false, error: String(err && err.message || err) };
+  }
 }
