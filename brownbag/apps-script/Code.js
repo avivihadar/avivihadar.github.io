@@ -563,7 +563,8 @@ function doGet(e) {
       checkRecipients: null, sendAnnouncementDraft: null, setConfig: null,
       addToWaitlist: null, syncWaitlist: null, readWaitlist: null, renameContact: null,
       createWaitlistForm: null, importWaitlistResponses: null, mailingListWithRoles: null,
-      retryPendingEmails: null, queueTestRetry: null, sendLunchReminder: sendLunchReminder };
+      retryPendingEmails: null, queueTestRetry: null, sendLunchReminder: sendLunchReminder,
+      rehearseLunchReminder: null };
     if (task === 'previewFor') return jsonOut({ ok: true, task: task, output: previewText(e.parameter.date) });
     if (task === 'setPerson') return jsonOut(setPerson(e.parameter.name, e.parameter.role, e.parameter.affiliation));
     if (task === 'fixSignup') return jsonOut(fixSignup(e.parameter.match, e.parameter.name, e.parameter.email));
@@ -592,6 +593,7 @@ function doGet(e) {
     if (task === 'importWaitlistResponses') return jsonOut(importWaitlistResponses());
     if (task === 'mailingListWithRoles') return jsonOut(mailingListWithRoles());
     if (task === 'retryPendingEmails') return jsonOut(retryPendingEmails());
+    if (task === 'rehearseLunchReminder') return jsonOut(rehearseLunchReminder(e.parameter.date));
     if (task === 'queueTestRetry') return jsonOut(queueRetry({ kind: 'test', subject: 'Brown bag: retry test',
       body: 'If this arrives, the retry path works.', to: [ORGANISERS[0]], cc: [], bcc: [] }, 1) || { ok: true, queued: true });
     if (!allowed[task]) return jsonOut({ ok: false, error: 'unknown task' });
@@ -1558,4 +1560,15 @@ function sendLunchReminder() {
     queueRetry(msg, 1);
     return { ok: false, error: String(err && err.message || err) };
   }
+}
+
+/** Sends Hadar alone a copy of the Friday lunch reminder, for checking. */
+function rehearseLunchReminder(dateIso) {
+  var input = emailInput();
+  var date = parseChoiceLabel(dateIso) || dateIso || nextMonday(input.today);
+  var msg = lunchReminder(input, date);
+  if (!msg) return { ok: false, error: 'no seminar on ' + date };
+  callMailerRaw({ to: [TEST_RECIPIENT], cc: [], bcc: [],
+    subject: '[rehearsal] ' + msg.subject, body: msg.body, html: msg.html }, false);
+  return { ok: true, sentTo: TEST_RECIPIENT, subject: msg.subject, wouldReach: msg.bcc.length + ORGANISERS.length };
 }

@@ -609,7 +609,7 @@ function lunchReminder(input, date) {
   var url = input.rsvpUrl(date, talks[0].presenter);
   var lines = ['Dear all,', ''];
   lines.push('If you are coming to the ' + SEMINAR_NAME + ' on Monday ' + longDate(date) +
-    ', please sign up for lunch by noon today so we order enough.');
+    ', PLEASE DON\'T FORGET TO SIGN UP FOR LUNCH by noon today so we order enough.');
   lines.push('', url, '');
   lines.push(who + (talks.length > 1 ? ' are speaking.' : ' is speaking.'));
   talks.forEach(function (t) { if (t.title) lines.push('  ' + t.title); });
@@ -619,8 +619,8 @@ function lunchReminder(input, date) {
   var p = [];
   p.push('<p>Dear all,</p>');
   p.push('<p>If you are coming to the ' + escapeHtml(SEMINAR_NAME) + ' on Monday ' +
-    escapeHtml(longDate(date)) + ', please <a href="' + escapeHtml(url) +
-    '">sign up for lunch</a> by noon today so we order enough.</p>');
+    escapeHtml(longDate(date)) + ', <strong><a href="' + escapeHtml(url) +
+    '">please don\'t forget to sign up for lunch</a></strong> by noon today so we order enough.</p>');
   p.push('<p><strong>' + escapeHtml(who) + '</strong>' + (talks.length > 1 ? ' are speaking.' : ' is speaking.') +
     (talks[0].title ? '<br>' + escapeHtml(talks[0].title) : '') + '</p>');
   p.push('<p>If you have already signed up, thank you, there is nothing to do.</p>');
